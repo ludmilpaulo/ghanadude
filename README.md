@@ -23,7 +23,7 @@ GhanaDude is an e-commerce platform that specializes in selling high-quality clo
 
 ## Technologies Used
 
-- **Frontend:** React, Next.js, TailwindCSS
+- **Frontend:** React Native, Next.js, TailwindCSS
 - **Backend:** Django, FastAPI
 - **Database:** PostgreSQL
 - **Authentication:** Firebase Auth
