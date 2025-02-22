@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 
 urlpatterns = [
 
-    path('original-admin/', admin.site.urls, name='admin'),  # Use original admin site here with unique namespace
+    path('admin/', admin.site.urls, name='admin'),  # Use original admin site here with unique namespace
     path('account/', include('account.urls')),
+    path('product/', include('product.urls')),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
 ]
 

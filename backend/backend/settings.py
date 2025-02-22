@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'rest_framework.authtoken',
     'account',
+    'product',
 ]
 
 MIDDLEWARE = [
