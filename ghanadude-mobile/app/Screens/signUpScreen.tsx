@@ -16,7 +16,7 @@ export default function SignUpScreen () {
   return (
     <SafeAreaView style={styles.safeArea}>
     <View style={styles.container}>
-    <Text style={styles.title}> Sign Up </Text>
+    <Text style={styles.title}> Ghanadude sign up </Text>
 
     <Text style={styles.label}>Email:</Text>
     <TextInput
