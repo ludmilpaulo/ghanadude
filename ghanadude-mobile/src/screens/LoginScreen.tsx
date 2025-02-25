@@ -10,19 +10,84 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "./types";
 import tw from "twrnc"; // Tailwind for React Native
 
 const { width } = Dimensions.get("window");
 
 export default function LoginScreen() {
-  //const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(""); // To handle error messages
+  const [loading, setLoading] = useState(false); // To handle loading state
+
+  // Function to handle login
+  const handleLogin = async () => {
+    // Check if email and password are provided
+    if (!email || !password) {
+      setError("Please fill in both email and password.");
+      return;
+    }
+
+    setLoading(true); // Start loading when request is made
+
+    try {
+      // Construct the POST request with the email and password in the body
+      const response = await fetch(
+        `https://www.ghanadude.co.za/account/login/`, // Correct login endpoint
+        {
+          method: "POST", // Use POST method
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        }
+      );
+
+      // If response is successful, process the data
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Login successful", data);
+        // Clear form fields after successful login
+        setEmail("");
+        setPassword("");
+        setError(""); // Clear any previous error message
+        setLoading(false); // Stop loading
+        // Navigate to next screen after successful login
+        // navigation.navigate("Home");
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || "Login failed");
+        console.log("Login failed", errorData);
+        setLoading(false); // Stop loading
+      }
+    } catch (error: unknown) {
+      setLoading(false); // Stop loading if there's a network error
+      if (error instanceof Error) {
+        // If error is an instance of Error, handle it
+        setError("Network error: " + error.message);
+        console.log("Error", error);
+      } else {
+        // If error is not an instance of Error, handle it
+        setError("Unknown error occurred");
+        console.log("Unknown error", error);
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-100 px-5 justify-center`}>
-      <View style={tw`w-full max-w-sm mx-auto bg-white p-6 rounded-xl shadow-lg`}>
+      <View
+        style={tw`w-full max-w-sm mx-auto bg-white p-6 rounded-xl shadow-lg`}
+      >
         {/* Title */}
         <Text style={tw`text-3xl font-bold text-center text-gray-900 mb-6`}>
           Login
@@ -59,7 +124,11 @@ export default function LoginScreen() {
               style={tw`absolute right-3 top-4`}
               onPress={() => setShowPassword(!showPassword)}
             >
-              <FontAwesome name={showPassword ? "eye" : "eye-slash"} size={18} color="#808080" />
+              <FontAwesome
+                name={showPassword ? "eye" : "eye-slash"}
+                size={18}
+                color="#808080"
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -70,9 +139,20 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         {/* Login Button */}
-        <TouchableOpacity style={tw`bg-blue-600 py-3 rounded-lg mt-5`} onPress={() => console.log("Login pressed")}>
-          <Text style={tw`text-white text-center text-lg font-bold`}>Login</Text>
+        <TouchableOpacity
+          style={tw`bg-blue-600 py-3 rounded-lg mt-5`}
+          onPress={handleLogin} // Calls handleLogin on press
+          disabled={loading} // Disable button when loading
+        >
+          <Text style={tw`text-white text-center text-lg font-bold`}>
+            {loading ? "Logging in..." : "Login"}
+          </Text>
         </TouchableOpacity>
+
+        {/* Error Message */}
+        {error ? (
+          <Text style={tw`text-red-600 text-center mt-4`}>{error}</Text>
+        ) : null}
 
         {/* Or Divider */}
         <View style={tw`flex-row items-center my-5`}>
@@ -83,10 +163,14 @@ export default function LoginScreen() {
 
         {/* Social Login */}
         <View style={tw`flex-row justify-center space-x-4`}>
-          <TouchableOpacity style={tw`p-3 bg-white border border-gray-300 rounded-full shadow`}>
+          <TouchableOpacity
+            style={tw`p-3 bg-white border border-gray-300 rounded-full shadow w-12 h-12 justify-center items-center`}
+          >
             <FontAwesome name="google" size={24} color="#DB4437" />
           </TouchableOpacity>
-          <TouchableOpacity style={tw`p-3 bg-white border border-gray-300 rounded-full shadow`}>
+          <TouchableOpacity
+            style={tw`p-3 bg-white border border-gray-300 rounded-full shadow w-12 h-12 justify-center items-center`}
+          >
             <FontAwesome name="facebook" size={24} color="#4267B2" />
           </TouchableOpacity>
         </View>
@@ -94,7 +178,7 @@ export default function LoginScreen() {
         {/* Signup Link */}
         <View style={tw`flex-row justify-center mt-6`}>
           <Text style={tw`text-gray-700 text-sm`}>Don't have an account?</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
             <Text style={tw`text-blue-600 text-sm font-bold`}> Sign up</Text>
           </TouchableOpacity>
         </View>
