@@ -20,7 +20,7 @@ export default function SignUpScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [username, setUserName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,7 +30,10 @@ export default function SignUpScreen() {
   // Function to handle sign up
   const handleSignUp = async () => {
     // Validate inputs
-    if (!email || !password || !name) {
+    console.log(email);
+    console.log(username);
+    console.log(password);
+    /* if (!email || !password || !name) {
       setError("Please fill in all fields.");
       return;
     }
@@ -40,7 +43,7 @@ export default function SignUpScreen() {
     }
 
     setLoading(true);
-    setError(""); // Clear any previous errors before making the request
+    setError(""); // Clear any previous errors before making the request */
 
     try {
       const response = await fetch(
@@ -53,7 +56,7 @@ export default function SignUpScreen() {
           body: JSON.stringify({
             email: email,
             password: password,
-            name: name,
+            username: username,
           }),
         }
       );
@@ -63,7 +66,7 @@ export default function SignUpScreen() {
         console.log("Sign-up successful", data);
         setEmail("");
         setPassword("");
-        setName("");
+        setUserName("");
         setError("");
         setLoading(false);
         // Navigate to the login page after successful sign-up
@@ -115,14 +118,14 @@ export default function SignUpScreen() {
             {/* Name Input */}
             <View style={tw`mt-4`}>
               <Text style={tw`text-lg font-semibold text-gray-700`}>
-                First Name
+                Username
               </Text>
               <TextInput
                 style={tw`border border-gray-300 bg-white rounded-lg p-3 mt-1 text-gray-800`}
                 placeholder="Enter your name"
                 autoCapitalize="none"
-                value={name}
-                onChangeText={setName}
+                value={username}
+                onChangeText={setUserName}
               />
             </View>
 

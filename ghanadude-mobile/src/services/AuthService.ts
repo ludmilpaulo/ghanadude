@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 
-const API_BASE_URL = 'https://www.ghanadude.co.za/';
+const API_BASE_URL = "https://www.ghanadude.co.za/account";
 
 interface AuthResponse {
   token: string;
