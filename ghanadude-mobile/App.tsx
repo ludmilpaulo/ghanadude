@@ -1,26 +1,29 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import LoginScreen from "./src/screens/LoginScreen";
-import SignUpScreen from "./src/screens/SignUpScreen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Provider } from "react-redux";
+import { TailwindProvider } from "tailwindcss-react-native";
+import { store, persistor } from "./src/redux/store"; // Ensure correct import path
+import { PersistGate } from "redux-persist/integration/react";
+import AppNavigator from "./src/navigation/AppNavigator";
 
-const Stack = createNativeStackNavigator(); // Updated navigator creation
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+
+import ErrorBoundary from "./src/components/ErrorBoundary"; // Ensure correct import path
+
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignUpScreen}
-          options={{ headerShown: false }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <TailwindProvider>
+          <PersistGate loading={null} persistor={persistor}>
+            <ErrorBoundary>
+              <AppNavigator />
+            </ErrorBoundary>
+          </PersistGate>
+        </TailwindProvider>
+      </Provider>
+    </GestureHandlerRootView>
   );
 }

@@ -10,19 +10,20 @@ import {
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../redux/slices/authSlice";
 import tw from "twrnc";
 import authService from "../services/AuthService";
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    console.log(email);
-    console.log(password);
     if (!email || !password) {
       Alert.alert("Error", "Please fill in all fields.");
       return;
@@ -30,8 +31,9 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const response = await authService.login(email, password);
+      dispatch(loginUser(response));
       Alert.alert("Success", "Login successful!");
-      console.log("Login successful", response?.data);
+      console.log("Login successful", response);
     } catch (error) {
       Alert.alert("Login Failed", error.message || "Something went wrong");
     } finally {
@@ -106,32 +108,6 @@ export default function LoginScreen() {
             </Text>
           )}
         </TouchableOpacity>
-
-        <View style={tw`flex-row items-center my-6`}>
-          <View style={tw`flex-1 h-0.5 bg-gray-300`} />
-          <Text style={tw`px-3 text-gray-600 text-sm`}>Or continue with</Text>
-          <View style={tw`flex-1 h-0.5 bg-gray-300`} />
-        </View>
-
-        <View style={tw`flex-row justify-center space-x-4`}>
-          <TouchableOpacity
-            style={tw`p-3 bg-white border border-gray-300 rounded-full shadow`}
-          >
-            <FontAwesome name="google" size={24} color="#DB4437" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={tw`p-3 bg-white border border-gray-300 rounded-full shadow`}
-          >
-            <FontAwesome name="facebook" size={24} color="#4267B2" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={tw`flex-row justify-center mt-6`}>
-          <Text style={tw`text-gray-700 text-sm`}>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
-            <Text style={tw`text-blue-600 text-sm font-bold`}> Sign up</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </SafeAreaView>
   );
