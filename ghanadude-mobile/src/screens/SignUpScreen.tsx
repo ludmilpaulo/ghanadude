@@ -33,7 +33,7 @@ export default function SignUpScreen() {
     console.log(email);
     console.log(username);
     console.log(password);
-    /* if (!email || !password || !name) {
+    if (!email || !password || !username) {
       setError("Please fill in all fields.");
       return;
     }
