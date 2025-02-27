@@ -91,7 +91,11 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        <TouchableOpacity style={tw`mt-2 self-end`}>
+        {/* Forgot Password Navigation */}
+        <TouchableOpacity
+          style={tw`mt-2 self-end`}
+          onPress={() => navigation.navigate("ForgotPassword")}
+        >
           <Text style={tw`text-sm text-blue-600`}>Forgot password?</Text>
         </TouchableOpacity>
 
@@ -108,6 +112,16 @@ export default function LoginScreen() {
             </Text>
           )}
         </TouchableOpacity>
+
+        {/* Navigate to SignupScreen */}
+        <View style={tw`mt-4 flex-row justify-center`}>
+          <Text style={tw`text-gray-600 text-base`}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("SignupScreen")}>
+            <Text style={tw`text-blue-600 text-base font-semibold`}>
+              Sign Up
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
