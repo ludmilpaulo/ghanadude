@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 
 const API_BASE_URL = "https://www.ghanadude.co.za/account";
@@ -21,9 +21,13 @@ const AuthService = {
       });
      
       return response.data;
-    } catch (error: unknown) {
-      throw error.response?.data || 'Signup failed';
+    }catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data || 'Error occurred';
+      }
+      throw 'An unexpected error occurred';
     }
+    
   },
 
   login: async (username: string, password: string) => {
@@ -33,9 +37,13 @@ const AuthService = {
         password,
       });
     
-    } catch (error: unknown) {
-      throw error.response?.data || 'Login failed';
+    }catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data || 'Error occurred';
+      }
+      throw 'An unexpected error occurred';
     }
+    
   },
 
   logout: async () => {
@@ -46,9 +54,13 @@ const AuthService = {
     try {
       await axios.post(`${API_BASE_URL}/password-reset/`, { email });
       return { message: 'Password reset email sent' };
-    } catch (error) {
-      throw error.response?.data || 'Password reset failed';
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data || 'Error occurred';
+      }
+      throw 'An unexpected error occurred';
     }
+    
   },
 
   resetPasswordConfirm: async (uid: string, token: string, newPassword: string) => {
@@ -59,27 +71,39 @@ const AuthService = {
         newPassword,
       });
       return { message: 'Password has been reset' };
-    } catch (error) {
-      throw error.response?.data || 'Password reset confirmation failed';
+    }catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data || 'Error occurred';
+      }
+      throw 'An unexpected error occurred';
     }
+    
   },
 
   getUserProfile: async (userId: number) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/account/profile/${userId}/`);
       return response.data;
-    } catch (error) {
-      throw error.response?.data || 'Failed to fetch user profile';
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data || 'Error occurred';
+      }
+      throw 'An unexpected error occurred';
     }
+    
   },
 
   updateUserProfile: async (userId: number, data: object) => {
     try {
       const response = await axios.put(`${API_BASE_URL}/account/update/${userId}/`, data);
       return response.data;
-    } catch (error) {
-      throw error.response?.data || 'Failed to update user profile';
+    }catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data || 'Error occurred';
+      }
+      throw 'An unexpected error occurred';
     }
+    
   },
 };
 

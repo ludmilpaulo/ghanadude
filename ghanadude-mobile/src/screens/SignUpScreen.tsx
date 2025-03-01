@@ -10,8 +10,10 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "./types";
 import tw from "twrnc"; // Tailwind for React Native
+import { RootStackParamList } from "../navigation/types";
+import { loginUser } from "../redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const { width, height } = Dimensions.get("window");
 
@@ -24,6 +26,8 @@ export default function SignUpScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const dispatch = useDispatch();
 
   const isEmailValid = email.includes("@") && email.includes(".");
 
@@ -63,6 +67,7 @@ export default function SignUpScreen() {
       // If the response is successful
       if (response.ok) {
         const data = await response.json();
+         dispatch(loginUser(data));
         console.log("Sign-up successful", data);
         setEmail("");
         setPassword("");
@@ -70,7 +75,7 @@ export default function SignUpScreen() {
         setError("");
         setLoading(false);
         // Navigate to the login page after successful sign-up
-        navigation.navigate("Login");
+        navigation.navigate("UserLogin");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Sign-up failed");
@@ -166,7 +171,7 @@ export default function SignUpScreen() {
 
         {/* Sign Up Button */}
         <TouchableOpacity
-          style={tw`bg-orange-600 py-3 rounded-lg mt-5`}
+          style={tw`bg-blue-600 py-3 rounded-lg mt-5`}
           onPress={handleSignUp} // Trigger the sign-up function here
         >
           <Text style={tw`text-white text-center text-lg font-bold`}>
@@ -200,7 +205,7 @@ export default function SignUpScreen() {
           <Text style={tw`text-gray-700 text-sm`}>
             Already have an account?
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserLogin")}>
             <Text style={tw`text-blue-600 text-sm font-bold`}> Login</Text>
           </TouchableOpacity>
         </View>

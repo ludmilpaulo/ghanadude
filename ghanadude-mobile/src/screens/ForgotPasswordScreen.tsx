@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Button, ActivityIndicator, Alert } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../utils/types"; // Adjust the import according to your project structure
-import  resetPassword  from "../services/AuthService";
+import LinearGradient from "react-native-linear-gradient";
+
+import authService from "../services/AuthService";
+
 import tw from "twrnc";
 
 const ForgotPasswordScreen = () => {
@@ -15,7 +18,7 @@ const ForgotPasswordScreen = () => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await resetPassword(email);
+        await authService.resetPassword(email);
       setMessage("Password reset email sent. Please check your inbox.");
       setError("");
       setLoading(false);
@@ -31,7 +34,8 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
-    <View style={tw`flex-1 items-center justify-center bg-gradient-to-r from-blue-500 to-purple-500`}>
+    <LinearGradient colors={["#1E90FF", "#800080"]} style={tw`flex-1 items-center justify-center`}>
+    <View style={tw`flex-1 items-center justify-center`}>
       {loading && (
         <View style={tw`fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50`}>
           <ActivityIndicator size="large" color="#fff" />
@@ -55,6 +59,7 @@ const ForgotPasswordScreen = () => {
         <Button title="Send Password Reset Email" onPress={handleSubmit} color="#1E90FF" />
       </View>
     </View>
+    </LinearGradient>
   );
 };
 

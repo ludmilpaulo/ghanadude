@@ -14,9 +14,16 @@ import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/slices/authSlice";
 import tw from "twrnc";
 import authService from "../services/AuthService";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../navigation/types"; // Import the type definition
+
+type LoginScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "UserLogin"
+>;
 
 export default function LoginScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<LoginScreenNavigationProp>();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +41,9 @@ export default function LoginScreen() {
       dispatch(loginUser(response));
       Alert.alert("Success", "Login successful!");
       console.log("Login successful", response);
-    } catch (error) {
-      Alert.alert("Login Failed", error.message || "Something went wrong");
+    } catch (error: unknown) {
+      const err = error as Error; // Ensure error type is properly handled
+      Alert.alert("Login Failed", err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -115,7 +123,9 @@ export default function LoginScreen() {
 
         {/* Navigate to SignupScreen */}
         <View style={tw`mt-4 flex-row justify-center`}>
-          <Text style={tw`text-gray-600 text-base`}>Don't have an account? </Text>
+          <Text style={tw`text-gray-600 text-base`}>
+            Don't have an account?{" "}
+          </Text>
           <TouchableOpacity onPress={() => navigation.navigate("SignupScreen")}>
             <Text style={tw`text-blue-600 text-base font-semibold`}>
               Sign Up
