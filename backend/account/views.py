@@ -80,7 +80,7 @@ class UserLoginView(APIView):
             except User.DoesNotExist:
                 print("user don't exist")
                 return Response(
-                    {"error": "Nome de usuário ou e-mail não existe"},
+                    {"error": "User name don't exist"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 

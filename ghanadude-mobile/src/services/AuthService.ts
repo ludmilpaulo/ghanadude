@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 
 
-const API_BASE_URL = "https://www.ghanadude.co.za/account";
+export const API_BASE_URL = "http://127.0.0.1:8000";
 
 interface AuthResponse {
   token: string;
@@ -14,7 +14,7 @@ interface AuthResponse {
 const AuthService = {
   signup: async (username: string, email: string, password: string) => {
     try {
-      const response = await axios.post<AuthResponse>(`${API_BASE_URL}/signup/`, {
+      const response = await axios.post<AuthResponse>(`${API_BASE_URL}/account/signup/`, {
         username,
         email,
         password,
@@ -32,7 +32,7 @@ const AuthService = {
 
   login: async (username: string, password: string) => {
     try {
-      const response = await axios.post<AuthResponse>(`${API_BASE_URL}/login/`, {
+      const response = await axios.post<AuthResponse>(`${API_BASE_URL}/account/login/`, {
         username,
         password,
       });
@@ -52,7 +52,7 @@ const AuthService = {
 
   resetPassword: async (email: string) => {
     try {
-      await axios.post(`${API_BASE_URL}/password-reset/`, { email });
+      await axios.post(`${API_BASE_URL}/account/password-reset/`, { email });
       return { message: 'Password reset email sent' };
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
@@ -65,7 +65,7 @@ const AuthService = {
 
   resetPasswordConfirm: async (uid: string, token: string, newPassword: string) => {
     try {
-      await axios.post(`${API_BASE_URL}/password-reset/confirm/`, {
+      await axios.post(`${API_BASE_URL}/account/password-reset/confirm/`, {
         uid,
         token,
         newPassword,
@@ -82,7 +82,7 @@ const AuthService = {
 
   getUserProfile: async (userId: number) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/account/profile/${userId}/`);
+      const response = await axios.get(`${API_BASE_URL}/account/account/profile/${userId}/`);
       return response.data;
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
@@ -95,7 +95,7 @@ const AuthService = {
 
   updateUserProfile: async (userId: number, data: object) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/account/update/${userId}/`, data);
+      const response = await axios.put(`${API_BASE_URL}/account/account/update/${userId}/`, data);
       return response.data;
     }catch (error: unknown) {
       if (error instanceof AxiosError) {

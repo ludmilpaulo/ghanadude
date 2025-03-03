@@ -5,21 +5,23 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Dimensions,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import tw from "twrnc"; // Tailwind for React Native
+import tw from "twrnc";
 import { RootStackParamList } from "../navigation/types";
-import { loginUser } from "../redux/slices/authSlice";
 import { useDispatch } from "react-redux";
-
-const { width, height } = Dimensions.get("window");
+import { loginUser } from "../redux/slices/authSlice";
+import AuthService from "../services/AuthService";
 
 export default function SignUpScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUserName] = useState("");
@@ -27,16 +29,10 @@ export default function SignUpScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const dispatch = useDispatch();
-
   const isEmailValid = email.includes("@") && email.includes(".");
 
   // Function to handle sign up
   const handleSignUp = async () => {
-    // Validate inputs
-    console.log(email);
-    console.log(username);
-    console.log(password);
     if (!email || !password || !username) {
       setError("Please fill in all fields.");
       return;
@@ -47,58 +43,32 @@ export default function SignUpScreen() {
     }
 
     setLoading(true);
-    setError(""); // Clear any previous errors before making the request */
+    setError("");
 
     try {
-      const response = await fetch(
-        `https://www.ghanadude.co.za/account/signup/`, // Correct sign-up endpoint
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            password: password,
-            username: username,
-          }),
-        }
-      );
-      // If the response is successful
-      if (response.ok) {
-        const data = await response.json();
-         dispatch(loginUser(data));
-        console.log("Sign-up successful", data);
-        setEmail("");
-        setPassword("");
-        setUserName("");
-        setError("");
-        setLoading(false);
-        // Navigate to the login page after successful sign-up
-        navigation.navigate("UserLogin");
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || "Sign-up failed");
-        console.log("Sign-up failed", errorData);
-        setLoading(false);
-      }
-    } catch (error: unknown) {
+      const data = await AuthService.signup(username, email, password);
+
+      dispatch(loginUser(data));
       setLoading(false);
-      if (error instanceof Error) {
-        setError("Network error: " + error.message);
-        console.log("Error", error);
-      } else {
-        setError("Unknown error occurred");
-        console.log("Unknown error", error);
-      }
+
+      // Show success alert
+      Alert.alert("Success", "Your account has been created!", [
+        { text: "OK", onPress: () => navigation.navigate("UserLogin") },
+      ]);
+
+      // Clear input fields
+      setEmail("");
+      setPassword("");
+      setUserName("");
+    } catch (error) {
+      setLoading(false);
+      setError(typeof error === "string" ? error : "Sign-up failed");
     }
   };
 
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-100 px-5 justify-center`}>
-      <View
-        style={tw`w-full max-w-sm mx-auto bg-white p-6 rounded-xl shadow-lg`}
-      >
+      <View style={tw`w-full max-w-sm mx-auto bg-white p-6 rounded-xl shadow-lg`}>
         {/* Title */}
         <Text style={tw`text-3xl font-bold text-center text-gray-900 mb-6`}>
           Sign Up
@@ -118,13 +88,12 @@ export default function SignUpScreen() {
           />
         </View>
 
+        {/* Other Inputs */}
         {isEmailValid && (
           <>
-            {/* Name Input */}
+            {/* Username */}
             <View style={tw`mt-4`}>
-              <Text style={tw`text-lg font-semibold text-gray-700`}>
-                Username
-              </Text>
+              <Text style={tw`text-lg font-semibold text-gray-700`}>Username</Text>
               <TextInput
                 style={tw`border border-gray-300 bg-white rounded-lg p-3 mt-1 text-gray-800`}
                 placeholder="Enter your name"
@@ -134,11 +103,9 @@ export default function SignUpScreen() {
               />
             </View>
 
-            {/* Password Input */}
+            {/* Password */}
             <View style={tw`mt-4`}>
-              <Text style={tw`text-lg font-semibold text-gray-700`}>
-                Password
-              </Text>
+              <Text style={tw`text-lg font-semibold text-gray-700`}>Password</Text>
               <View style={tw`relative`}>
                 <TextInput
                   style={tw`border border-gray-300 bg-white rounded-lg p-3 pr-10 mt-1 text-gray-800`}
@@ -165,18 +132,19 @@ export default function SignUpScreen() {
         )}
 
         {/* Error Message */}
-        {error ? (
-          <Text style={tw`text-red-600 text-center mt-4`}>{error}</Text>
-        ) : null}
+        {error ? <Text style={tw`text-red-600 text-center mt-4`}>{error}</Text> : null}
 
         {/* Sign Up Button */}
         <TouchableOpacity
-          style={tw`bg-blue-600 py-3 rounded-lg mt-5`}
-          onPress={handleSignUp} // Trigger the sign-up function here
+          style={tw`bg-blue-600 py-3 rounded-lg mt-5 flex-row justify-center items-center`}
+          onPress={handleSignUp}
+          disabled={loading}
         >
-          <Text style={tw`text-white text-center text-lg font-bold`}>
-            Get Started
-          </Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text style={tw`text-white text-lg font-bold`}>Get Started</Text>
+          )}
         </TouchableOpacity>
 
         {/* Or Divider */}
@@ -202,9 +170,7 @@ export default function SignUpScreen() {
 
         {/* Login Link */}
         <View style={tw`flex-row justify-center mt-6`}>
-          <Text style={tw`text-gray-700 text-sm`}>
-            Already have an account?
-          </Text>
+          <Text style={tw`text-gray-700 text-sm`}>Already have an account?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("UserLogin")}>
             <Text style={tw`text-blue-600 text-sm font-bold`}> Login</Text>
           </TouchableOpacity>

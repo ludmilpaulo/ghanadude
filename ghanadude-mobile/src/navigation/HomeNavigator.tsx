@@ -1,12 +1,23 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import MainTabNavigator from "./MainTabNavigator";
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser } from "../redux/slices/authSlice";
 
-const HomeNavigator = () => {
+const Stack = createStackNavigator();
+
+export default function HomeNavigator() {
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
+
   return (
-    <View>
-      <Text>HomeNavigator</Text>
-    </View>
-  )
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="HomeScreen" component={MainTabNavigator} />
+     
+    </Stack.Navigator>
+  );
 }
-
-export default HomeNavigator

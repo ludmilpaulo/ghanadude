@@ -5,7 +5,7 @@
   export type RootStackParamList = {
     Home: undefined;
     BannerScreen: undefined;
-    DrugPage: { id: number };
+    productPage: { id: number };
     CartPage: undefined;
     CheckoutPage: undefined;
     UserProfile: undefined;
