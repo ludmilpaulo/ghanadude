@@ -1,8 +1,7 @@
 from django.db import models
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
-
-
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -23,7 +22,15 @@ class Designer(models.Model):
 
     def __str__(self):
         return self.name
+class Image(models.Model):
+    image = models.ImageField(max_length=3000, default=None, blank=True, upload_to='drug_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name = 'Product Image'
+        verbose_name_plural = 'Products Images'
 
+    def __str__(self):
+        return self.image.name
 class Product(models.Model):
     SEASON_CHOICES = [
         ('summer', 'Summer'),
@@ -32,7 +39,8 @@ class Product(models.Model):
     ]
 
     name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = CKEditor5Field('Text', config_name='extends')
+    images = models.ManyToManyField('Image')
     price = models.DecimalField(max_digits=10, decimal_places=2)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='products')
@@ -61,14 +69,25 @@ class Product(models.Model):
             ['admin@example.com'],
             fail_silently=False,
         )
-
-class Image(models.Model):
-    product = models.ForeignKey(Product, related_name='product_images', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='product_images/')
-    created_at = models.DateTimeField(auto_now_add=True)
+        
+    class Meta:
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
 
     def __str__(self):
-        return f"Image for {self.product.name}"
+        return f"{self.name} - {self.quantity_available} in stock"
+
+
+    @property
+    def category_name(self):
+        return self.category.name if self.category else ''
+
+    @property
+    def image_urls(self):
+        return [image.image.url for image in self.images.all()]
+
+
+
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlist')

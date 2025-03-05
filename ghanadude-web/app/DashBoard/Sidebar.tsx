@@ -12,9 +12,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <div
-      className="w-64 bg-gradient-to-r from-blue-500 via-blue-700 to-blue-900
-    shadow-md min-h-screen"
-    >
+  className="w-64 bg-gradient-to-r from-black via-gray-200 to-white 
+  shadow-md min-h-screen"
+>
       <nav className="p-4">
         <ul>
           <li

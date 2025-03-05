@@ -16,9 +16,15 @@ class ProductAdmin(admin.ModelAdmin):
     image_display.short_description = 'Product Image'
 
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ('product', 'image', 'created_at')
-    search_fields = ('product__name',)
+    list_display = ('image', 'created_at', 'get_products')  # Use a custom method
+    search_fields = ('image',)
     list_filter = ('created_at',)
+
+    def get_products(self, obj):
+        return ", ".join([p.name for p in obj.product_set.all()])  # Fetch related products
+
+    get_products.short_description = 'Products'  # Set a readable column name
+
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category)
