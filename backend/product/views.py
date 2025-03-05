@@ -36,35 +36,49 @@ class DesignerViewSet(viewsets.ModelViewSet):
     serializer_class = DesignerSerializer
     
     
-    
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_product(request):
     logger.debug("POST request received")
     logger.debug("POST data: %s", request.data)
+    logger.debug("FILES data: %s", request.FILES)
+
     data = request.data.copy()
 
-    # Handle category: Check if it's an ID or a new category
+    # Handle category
     category_input = data.get('category')
-    if category_input.isdigit():  
+    if category_input.isdigit():
         category = Category.objects.get(id=int(category_input))
-    else:  
+    else:
         category, created = Category.objects.get_or_create(name=category_input.strip())
-    
-    data['category'] = category.id  
 
-    # Create product serializer
+    data['category'] = category.id
+
+    # Handle brand (default to 'ghanadue')
+    if "brand" not in data or not data["brand"].strip():
+        try:
+            default_brand = Brand.objects.get(name="ghanadue")
+        except Brand.DoesNotExist:
+            default_brand = Brand.objects.create(name="ghanadue")
+        data["brand"] = default_brand.id
+
+    # Debugging uploaded images
+    uploaded_images = request.FILES.getlist('uploaded_images')
+    logger.debug("Uploaded Images: %s", uploaded_images)
+
+    # Create product
     serializer = ProductSerializer(data=data)
     if serializer.is_valid():
         product = serializer.save()
 
-        # Handle images
-        images = request.FILES.getlist('uploaded_images')
-        for image in images:
+        for image in uploaded_images:
             img = Image.objects.create(image=image)
             product.images.add(img)
         product.save()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    logger.debug("Validation Errors: %s", serializer.errors)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
