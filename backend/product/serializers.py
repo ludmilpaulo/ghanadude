@@ -10,6 +10,8 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ["id", "image"]
 
 class ProductSerializer(serializers.ModelSerializer):
+    category = serializers.CharField(source="category.name", read_only=True)  # Get category name
+
     images = ImageSerializer(many=True, read_only=True)  # Read images when retrieving product
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False), write_only=True
@@ -30,6 +32,7 @@ class ProductSerializer(serializers.ModelSerializer):
             Image.objects.create(product=product, image=image)
 
         return product
+
 
 
 

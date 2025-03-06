@@ -4,10 +4,20 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { fetchCategories, createProduct, updateProduct } from "@/services/adminService";
 
-
 interface Category {
   id: number;
   name: string;
+}
+
+interface Product {
+  id?: number;
+  name: string;
+  category: string;
+  description?: string;
+  price: number;
+  stock: number;
+  season?: string;
+  images?: FileList;
 }
 
 const SEASON_CHOICES = [
@@ -17,16 +27,15 @@ const SEASON_CHOICES = [
 ];
 
 interface ProductFormProps {
-  product?: any;
+  product?: Product | null;
   onClose: () => void;
   loadProducts: () => void;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProducts }) => {
-  const { register, handleSubmit, setValue, watch } = useForm();
+  const { register, handleSubmit, setValue, watch } = useForm<Product>();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,33 +47,34 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
 
   useEffect(() => {
     if (product) {
-      Object.keys(product).forEach((key) => setValue(key, product[key]));
+      Object.keys(product).forEach((key) => setValue(key as keyof Product, product[key as keyof Product]));
     }
   }, [product, setValue]);
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Product) => {
     setLoading(true);
     const formData = new FormData();
+    
     Object.entries(data).forEach(([key, value]) => {
       if (value) {
-        if (key === "images" && value.length > 0) {
+        if (key === "images" && value instanceof FileList) {
           for (const file of value) {
             formData.append("uploaded_images", file);
           }
         } else {
-          formData.append(key, value);
+          formData.append(key, value.toString());
         }
       }
     });
-  
+
     console.log("Form Data Entries:");
-    for (let pair of formData.entries()) {
+    for (const pair of formData.entries()) {
       console.log(pair[0], pair[1]);
     }
-  
+
     try {
       if (product) {
-        await updateProduct(product.id, formData);
+        await updateProduct(product.id!, formData);
       } else {
         await createProduct(formData);
       }
@@ -77,7 +87,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
     }
     setLoading(false);
   };
-  
 
   const selectedCategory = watch("category");
 
@@ -100,14 +109,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
         </select>
 
         {selectedCategory === "other" && (
-          <input {...register("newCategory")} placeholder="Enter new category" className="w-full p-2 border rounded" />
+          <input {...register("description")} placeholder="Enter new category" className="w-full p-2 border rounded" />
         )}
 
         <textarea {...register("description")} placeholder="Product Description" className="w-full p-2 border rounded" rows={4} />
 
         <input type="text" {...register("price")} placeholder="Price" className="w-full p-2 border rounded" />
         <input type="number" {...register("stock")} placeholder="Stock" className="w-full p-2 border rounded" />
-        
+
         <select {...register("season")} className="w-full p-2 border rounded">
           <option value="">Select Season</option>
           {SEASON_CHOICES.map((season) => (

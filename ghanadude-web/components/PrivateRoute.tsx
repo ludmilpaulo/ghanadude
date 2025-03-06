@@ -2,13 +2,11 @@
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState } from "../redux/store";
-import React from "react";
+import React, { ComponentType } from "react";
 
-const withAuth = (WrappedComponent: React.ComponentType<any>) => {
-  const Wrapper = (props: any) => {
+const withAuth = <P extends object>(WrappedComponent: ComponentType<P>) => {
+  const Wrapper: React.FC<P> = (props) => {
     const router = useRouter();
-
-    // Get user from redux state
     const user = useSelector((state: RootState) => state.auth.user);
 
     React.useEffect(() => {
@@ -17,7 +15,6 @@ const withAuth = (WrappedComponent: React.ComponentType<any>) => {
       }
     }, [user, router]);
 
-    // component renders only when user is available
     if (!user) {
       return null;
     }
