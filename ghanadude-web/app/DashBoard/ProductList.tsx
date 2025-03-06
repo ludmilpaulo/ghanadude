@@ -23,6 +23,7 @@ const ProductList: React.FC = () => {
     setLoading(true);
     try {
       const productsData: Product[] = await fetchProducts();
+      console.log("products", productsData)
       setProducts(productsData);
     } catch (error) {
       if (error instanceof Error) {
