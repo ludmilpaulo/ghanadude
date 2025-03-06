@@ -1,13 +1,6 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+import { fetchCategories, updateProduct, createProduct } from "@/services/adminService";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { fetchCategories, createProduct, updateProduct } from "@/services/adminService";
-
-interface Category {
-  id: number;
-  name: string;
-}
 
 interface Product {
   id?: number;
@@ -17,15 +10,18 @@ interface Product {
   price: number;
   stock: number;
   season?: string;
-  images?: FileList;
+  images?: FileList | { id: number; image: string }[]; // Union type for images
 }
 
+interface Category {
+  id: number;
+  name: string;
+}
 const SEASON_CHOICES = [
   { value: "summer", label: "Summer" },
   { value: "winter", label: "Winter" },
   { value: "all_seasons", label: "All Seasons" },
 ];
-
 interface ProductFormProps {
   product?: Product | null;
   onClose: () => void;
@@ -66,11 +62,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
         }
       }
     });
-
-    console.log("Form Data Entries:");
-    for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
 
     try {
       if (product) {

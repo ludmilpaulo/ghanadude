@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .header {
+            background: linear-gradient(to right, #3b82f6, #2563eb, #1e40af);
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            color: white;
+        }
+        .header img {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        p {
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #777;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background: linear-gradient(to right, #3b82f6, #2563eb, #1e40af);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background: linear-gradient(to right, #2563eb, #1e40af, #1e3a8a);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://ludmil.pythonanywhere.com/media/logo/logo2_w3URzZg.png" alt="Men's Clinic Logo">
+            <h1>Welcome, {{ user.username }}!</h1>
+        </div>
+        <p>An account has been created for you with the following details:</p>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Password:</strong> {{ user.password }}</p>
+        <p>Please feel free to log in and change your password and other details in your profile.</p>
+        <a href="#" class="btn">Log In</a>
+        <div class="footer">
+            <p>&copy; {{ year }} Men's Clinic. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

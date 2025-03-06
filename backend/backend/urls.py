@@ -9,6 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls, name='admin'),  # Use original admin site here with unique namespace
     path('account/', include('account.urls')),
     path('product/', include('product.urls')),
+    path('order/', include('orders.urls')),
     path("ckeditor5/", include('django_ckeditor_5.urls'), name="ck_editor_5_upload_file"),
 ]
 

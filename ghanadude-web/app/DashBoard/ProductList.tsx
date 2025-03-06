@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Transition } from "@headlessui/react";
 import ProductForm from "./ProductForm";
 import { deleteProduct, fetchProducts } from "@/services/adminService";
 import Image from "next/image";
@@ -10,7 +9,7 @@ interface Product {
   category: string;
   price: number;
   stock: number;
-  images: string[];
+  images?: { id: number; image: string }[]; // images as array of objects
 }
 
 const ProductList: React.FC = () => {
@@ -23,30 +22,18 @@ const ProductList: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const productsData = await fetchProducts();
-      console.log("product data", productsData);
-  
-      const formattedProducts = productsData.map((product: Product) => ({
-        id: product.id,
-        name: product.name,
-        category: product.category,
-        price: product.price,
-        stock: product.stock,
-        images: Array.isArray(product.images) ? product.images : [],
-      }));
-  
-      setProducts(formattedProducts);
-    } catch (error: unknown) {
+      const productsData: Product[] = await fetchProducts();
+      setProducts(productsData);
+    } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError('An unknown error occurred.');
+        setError("An unknown error occurred.");
       }
     } finally {
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     loadData();
@@ -76,15 +63,18 @@ const ProductList: React.FC = () => {
     <div>
       <h1 className="text-2xl font-bold mb-4">Products</h1>
 
-      <Transition show={loading}>
+      {loading && (
         <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
           <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
         </div>
-      </Transition>
+      )}
 
       {error && <p className="text-red-500">Error: {error}</p>}
 
-      <button className="bg-blue-500 text-white px-4 py-2 mb-4 rounded" onClick={handleAddProduct}>
+      <button
+        className="bg-blue-500 text-white px-4 py-2 mb-4 rounded"
+        onClick={handleAddProduct}
+      >
         Add New Product
       </button>
 
@@ -103,27 +93,34 @@ const ProductList: React.FC = () => {
           {products.map((product) => (
             <tr key={product.id} className="border-b">
               <td className="px-4 py-2">
-                {product.images.length > 0 ? (
+                {product.images && product.images.length > 0 ? (
                   <Image
-                    src={product.images[0]}
+                    src={product.images[0].image}
                     alt={product.name}
-                    width={64}
-                    height={64}
-                    className="object-cover rounded"
+                    width={50}
+                    height={50}
+                    className="rounded-md"
                   />
                 ) : (
                   <span>No Image</span>
                 )}
               </td>
+
               <td className="px-4 py-2">{product.name}</td>
               <td className="px-4 py-2">{product.category}</td>
-              <td className="px-4 py-2">{product.price.toFixed(2)}</td>
+              <td className="px-4 py-2">{product.price}</td>
               <td className="px-4 py-2">{product.stock}</td>
               <td className="px-4 py-2">
-                <button className="bg-green-500 text-white px-4 py-2 mr-2 rounded" onClick={() => handleEditProduct(product)}>
+                <button
+                  className="bg-green-500 text-white px-4 py-2 mr-2 rounded"
+                  onClick={() => handleEditProduct(product)}
+                >
                   Edit
                 </button>
-                <button className="bg-red-500 text-white px-4 py-2 rounded" onClick={() => handleDelete(product.id)}>
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={() => handleDelete(product.id)}
+                >
                   Delete
                 </button>
               </td>
@@ -135,10 +132,17 @@ const ProductList: React.FC = () => {
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-auto">
           <div className="bg-white p-8 rounded shadow-md w-1/2 overflow-auto max-h-full">
-            <button className="bg-red-500 text-white px-4 py-2 rounded mb-4" onClick={() => setShowPopup(false)}>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded mb-4"
+              onClick={() => setShowPopup(false)}
+            >
               Close
             </button>
-            <ProductForm product={currentProduct} onClose={closeModal} loadProducts={loadData} />
+            <ProductForm
+              product={currentProduct ?? null} // Passing product or null
+              onClose={closeModal}
+              loadProducts={loadData}
+            />
           </div>
         </div>
       )}

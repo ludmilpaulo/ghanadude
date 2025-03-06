@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            background: linear-gradient(to right, #3b82f6, #2563eb, #1e40af);
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header img {
+            max-width: 150px;
+        }
+        .header h1 {
+            margin: 10px 0 0;
+        }
+        .header p {
+            margin: 5px 0;
+        }
+        .details, .items {
+            margin: 20px 0;
+        }
+        .details h2, .items h2 {
+            margin-bottom: 10px;
+            color: #1e40af;
+            border-bottom: 2px solid #1e40af;
+            padding-bottom: 5px;
+        }
+        .details p, .items p {
+            margin: 5px 0;
+        }
+        .items table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        .items table, .items th, .items td {
+            border: 1px solid #ddd;
+        }
+        .items th, .items td {
+            padding: 10px;
+            text-align: left;
+        }
+        .items th {
+            background-color: #f4f4f4;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px 0;
+            background: linear-gradient(to right, #3b82f6, #2563eb, #1e40af);
+            color: #fff;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .status.pending {
+            background-color: #fbbf24;
+        }
+        .status.completed {
+            background-color: #22c55e;
+        }
+        .status.cancelled {
+            background-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ about_us.logo.url }}" alt="{{ about_us.title }}">
+            <h1>{{ about_us.title }}</h1>
+            <p>{{ about_us.phone }} | {{ about_us.email }} | {{ about_us.address }}</p>
+        </div>
+        <div class="details">
+            <h2>Order Details</h2>
+            <p><strong>Order ID:</strong> {{ order.id }}</p>
+            <p><strong>User:</strong> {{ order.user.username }}</p>
+            <p><strong>Total Price:</strong> R {{ order.total_price }}</p>
+            <p><strong>Address:</strong> {{ order.address }}, {{ order.city }}, {{ order.postal_code }}, {{ order.country }}</p>
+            <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+            <p><strong>Status:</strong> <span class="status {{ order.status|lower }}">{{ order.status }}</span></p>
+        </div>
+        <div class="items">
+            <h2>Items</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Quantity</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.drug.name }}</td>
+                        <td>R{{ item.price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="footer">
+            <p>Thank you for your purchase!</p>
+        </div>
+    </div>
+</body>
+</html>
