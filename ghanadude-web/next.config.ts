@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "ludmil.pythonanywhere.com",
+        hostname: "www.ghanadude.co.za",
         pathname: "/**",
       },
       {
