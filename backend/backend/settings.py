@@ -21,7 +21,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://www.trustmenclinic.com')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://ghanadude.vercel.app')
 
 
 # Application definition
