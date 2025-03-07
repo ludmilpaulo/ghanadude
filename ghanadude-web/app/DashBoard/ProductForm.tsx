@@ -11,6 +11,8 @@ interface Product {
   stock: number;
   season?: string;
   images?: FileList | { id: number; image: string }[];
+  on_sale?: boolean;
+  discount_percentage?: number;
 }
 
 interface Category {
@@ -31,7 +33,7 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProducts }) => {
-  const { register, handleSubmit, setValue, watch } = useForm<Product>();
+  const { register, handleSubmit, setValue, watch, getValues } = useForm<Product>();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -78,6 +80,24 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
             formData.append("images", images[i]);
         }
     }
+
+    // Handle on_sale and discount_percentage logic
+    const onSale = watch("on_sale");
+    if (onSale) {
+      const discountPercentage = watch("discount_percentage");
+      if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
+        const price = getValues("price");
+        const discountedPrice = price - (price * discountPercentage) / 100;
+        formData.append("price", discountedPrice.toString()); // Apply discount to price
+      } else {
+        alert("Please enter a valid discount percentage.");
+        setLoading(false);
+        return;
+      }
+    }
+    console.log("on_sale:", watch("on_sale"));
+    console.log("discount_percentage:", watch("discount_percentage"));
+
 
     // Debugging: Log the actual values being sent
     console.log("FormData being sent:");
@@ -139,6 +159,31 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
         </select>
 
         <input type="file" {...register("images")} multiple className="w-full p-2 border rounded" />
+
+        <div>
+          <label>
+            <input 
+              type="checkbox" 
+              {...register("on_sale")} 
+              className="mr-2"
+            />
+            On Sale
+          </label>
+        </div>
+
+        {watch("on_sale") && (
+          <div>
+            <label>Discount Percentage</label>
+            <input
+              type="number"
+              {...register("discount_percentage")}
+              className="w-full p-2 border rounded"
+              placeholder="Discount Percentage"
+              min={1}
+              max={100}
+            />
+          </div>
+        )}
 
         <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">
           {product ? "Update Product" : "Add Product"}

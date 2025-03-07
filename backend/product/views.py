@@ -49,23 +49,15 @@ from rest_framework import status
 from .models import Product, Category, Brand, Image
 from .serializers import ProductSerializer
 
-logger = logging.getLogger(__name__)
 
-import logging
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Product, Category, Brand, Image
-from .serializers import ProductSerializer
 
-logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_product(request):
     logger.info("Received data: %s", request.data)
     logger.debug("FILES data: %s", request.FILES)
+    print(request.data)
 
     data = dict(request.data)
 
@@ -92,6 +84,10 @@ def create_product(request):
     stock = int(data.get("stock", ["0"])[0])
     season = data.get("season", [""])[0]
 
+    # Ensure on_sale and discount_percentage are extracted correctly
+    on_sale = data.get("on_sale", ["false"])[0].lower() in ["true", "1"]
+    discount_percentage = float(data.get("discount_percentage", ["0"])[0])
+
     try:
         # Create Product
         product = Product.objects.create(
@@ -101,7 +97,9 @@ def create_product(request):
             price=price,
             stock=stock,
             season=season,
-            brand=brand
+            brand=brand,
+            on_sale=on_sale,
+            discount_percentage=discount_percentage,
         )
 
         # Handle uploaded images properly
@@ -129,43 +127,5 @@ def create_product(request):
         return Response({"error": "Failed to create product", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-@api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([AllowAny])
-def product_detail(request, pk):
-    try:
-        drug = Product.objects.get(pk=pk)
-    except Product.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = ProductSerializer(drug, context={'request': request})
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        data = request.data.copy()
-        category_name = data.get('category')
-        category, created = Category.objects.get_or_create(name=category_name)
-        data['category'] = category.id
-
-        serializer = ProductSerializer(drug, data=data, context={'request': request})
-        if serializer.is_valid():
-            drug = serializer.save()
-
-            # Handle images
-            images = request.FILES.getlist('images')
-            if images:
-                drug.images.clear()  # Remove old images
-                for image in images:
-                    img = Image.objects.create(image=image)
-                    drug.images.add(img)
-                drug.save()
-
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        drug.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 

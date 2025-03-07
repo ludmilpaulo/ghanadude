@@ -34,7 +34,7 @@ const SignUp = () => {
       } else {
         dispatch(loginUser(data));
         alert("Signup successful. Please log in.");
-        router.push("/");
+        router.push("/DashBoard");
       }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
