@@ -12,12 +12,16 @@
     "@ckeditor/ckeditor5-build-classic": "^44.2.1",
     "@ckeditor/ckeditor5-react": "^9.5.0",
     "@headlessui/react": "^2.2.0",
+    "@radix-ui/react-checkbox": "^1.1.4",
+    "@radix-ui/react-select": "^2.1.6",
+    "@radix-ui/react-slot": "^1.1.2",
     "@reduxjs/toolkit": "^2.6.0",
     "@tinymce/tinymce-react": "^6.0.0",
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
     "axios": "^1.8.1",
     "chart.js": "^4.4.8",
+    "class-variance-authority": "^0.7.1",
     "lucide-react": "^0.477.0",
     "next": "^15.2.1",
     "react": "^19.0.0",
@@ -27,7 +31,8 @@
     "react-quill": "^2.0.0",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0",
-    "redux-thunk": "^3.1.0"
+    "redux-thunk": "^3.1.0",
+    "tailwind-merge": "^3.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
