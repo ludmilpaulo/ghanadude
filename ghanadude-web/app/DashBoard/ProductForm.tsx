@@ -1,6 +1,11 @@
-import { fetchCategories, updateProduct, createProduct } from "@/services/adminService";
+import { fetchCategories, fetchSizes, updateProduct, createProduct } from "@/services/adminService";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+
+interface Size {
+  id: number;
+  name: string;
+}
 
 interface Product {
   id?: number;
@@ -13,6 +18,7 @@ interface Product {
   images?: FileList | { id: number; image: string }[];
   on_sale?: boolean;
   discount_percentage?: number;
+  sizes?: string[];
 }
 
 interface Category {
@@ -33,159 +39,129 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProducts }) => {
-  const { register, handleSubmit, setValue, watch, getValues } = useForm<Product>();
+  const { register, handleSubmit, watch, reset } = useForm<Product>();
+  
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [sizes, setSizes] = useState<Size[]>([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [newSize, setNewSize] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedCategories: Category[] = await fetchCategories();
+      const [fetchedCategories, fetchedSizes]: [Category[], Size[]] = await Promise.all([
+        fetchCategories(),
+        fetchSizes(),
+      ]);
       setCategories(fetchedCategories);
+      setSizes(fetchedSizes);
     };
     fetchData();
   }, []);
 
   useEffect(() => {
     if (product) {
-      Object.keys(product).forEach((key) => setValue(key as keyof Product, product[key as keyof Product]));
+      reset(product);
     }
-  }, [product, setValue]);
+  }, [product, reset]);
 
-  // Handle form submission
-  const onSubmit = async () => {
-    setLoading(true);
+  const onSubmit = async (data: Product) => {
     const formData = new FormData();
+    formData.append("name", data.name.trim());
+    formData.append("category", newCategory || data.category.trim());
+    formData.append("description", data.description?.trim() || "");
+    formData.append("price", data.price.toString());
+    formData.append("stock", data.stock.toString());
+    formData.append("season", data.season || "");
 
-    // Function to clean and trim values, with added logic for handling numbers
-    const cleanValue = (value: string | string[] | number | undefined) => {
-      if (Array.isArray(value)) {
-        return value.length > 0 ? value[0].toString().trim() : "";
-      } else if (typeof value === "number") {
-        return value.toString();
-      }
-      return value ? value.toString().trim() : "";
-    };
-
-    formData.append("name", cleanValue(watch("name")));
-    formData.append("category", cleanValue(watch("category")));
-    formData.append("description", cleanValue(watch("description")));
-    formData.append("price", cleanValue(watch("price"))); // Ensure valid number
-    formData.append("stock", cleanValue(watch("stock"))); // Ensure valid integer
-    formData.append("season", cleanValue(watch("season"))); // Ensure no [""]
-
-    // Handling images
-    const images = watch("images");
-    if (images && images instanceof FileList) {
-        for (let i = 0; i < images.length; i++) {
-            formData.append("images", images[i]);
-        }
+    if (data.images instanceof FileList) {
+      Array.from(data.images).forEach((file) => formData.append("images", file));
     }
 
-    // Handle on_sale and discount_percentage logic
-    const onSale = watch("on_sale");
-    if (onSale) {
-      const discountPercentage = watch("discount_percentage");
-      if (discountPercentage && discountPercentage > 0 && discountPercentage <= 100) {
-        const price = getValues("price");
-        const discountedPrice = price - (price * discountPercentage) / 100;
-        formData.append("price", discountedPrice.toString()); // Apply discount to price
-      } else {
-        alert("Please enter a valid discount percentage.");
-        setLoading(false);
-        return;
-      }
+    formData.append("on_sale", data.on_sale ? "true" : "false");
+    if (data.on_sale) {
+      formData.append("discount_percentage", data.discount_percentage?.toString() || "0");
     }
-    console.log("on_sale:", watch("on_sale"));
-    console.log("discount_percentage:", watch("discount_percentage"));
 
-
-    // Debugging: Log the actual values being sent
-    console.log("FormData being sent:");
-    for (const pair of formData.entries()) {
-        console.log(`${pair[0]}:`, pair[1]);
-    }
+    const allSizes = newSize ? [...(data.sizes || []), newSize] : data.sizes;
+    allSizes?.forEach((size) => formData.append("sizes", size));
 
     try {
-        if (product) {
-            await updateProduct(product.id!, formData);
-        } else {
-            await createProduct(formData);
-        }
-        alert("Product successfully added/updated.");
-        onClose();
-        loadProducts();
+      if (data.id) {
+        await updateProduct(data.id, formData);
+      } else {
+        await createProduct(formData);
+      }
+      alert("Product successfully saved.");
+      onClose();
+      loadProducts();
     } catch (error) {
-        alert("Failed to add/update product. Please try again.");
-        console.error("Error:", error);
+      console.error(error);
+      alert("Failed to save product. Please try again.");
     }
-
-    setLoading(false);
-};
-
-  const selectedCategory = watch("category");
+  };
 
   return (
-    <div className="relative p-5 bg-white shadow-lg rounded-lg">
-      {loading && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-16 h-16 border-t-4 border-b-4 border-blue-500 rounded-full animate-spin"></div>
-        </div>
-      )}
+    <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-6">
+      <h2 className="text-2xl font-semibold mb-4">
+        {product ? "Update Product" : "Add New Product"}
+      </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <input {...register("name", { required: true })} placeholder="Product Name" className="w-full p-2 border rounded" />
+        <input {...register("name", { required: true })} className="w-full border border-gray-300 rounded p-2" placeholder="Product Name" />
 
-        <select {...register("category", { required: true })} className="w-full p-2 border rounded">
+        <select {...register("category")} className="w-full border border-gray-300 rounded p-2" defaultValue="">
           <option value="">Select a category</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.name}>{cat.name}</option>
+          {categories.map((cat: Category) => (
+            <option key={cat.id} value={cat.name}>
+              {cat.name}
+            </option>
           ))}
-          <option value="other">Other</option>
         </select>
 
-        {selectedCategory === "other" && (
-          <input {...register("description")} placeholder="Enter new category" className="w-full p-2 border rounded" />
-        )}
+        <input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Or add new category" className="w-full border border-gray-300 rounded p-2" />
 
-        <textarea {...register("description")} placeholder="Product Description" className="w-full p-2 border rounded" rows={4} />
+        <textarea {...register("description")} className="w-full border border-gray-300 rounded p-2" placeholder="Product Description" rows={4} />
 
-        <input type="number" {...register("price", { required: true, valueAsNumber: true })} placeholder="Price" className="w-full p-2 border rounded" />
-        <input type="number" {...register("stock", { required: true, valueAsNumber: true })} placeholder="Stock" className="w-full p-2 border rounded" />
+        <input type="number" {...register("price", { required: true })} className="w-full border border-gray-300 rounded p-2" placeholder="Price" />
+        <input type="number" {...register("stock", { required: true })} className="w-full border border-gray-300 rounded p-2" placeholder="Stock" />
 
-        <select {...register("season")} className="w-full p-2 border rounded">
+        <select {...register("season")} className="w-full border border-gray-300 rounded p-2">
           <option value="">Select Season</option>
-          {SEASON_CHOICES.map((season) => (
+          {SEASON_CHOICES.map(season => (
             <option key={season.value} value={season.value}>{season.label}</option>
           ))}
         </select>
 
-        <input type="file" {...register("images")} multiple className="w-full p-2 border rounded" />
+        <input type="file" multiple {...register("images")} className="w-full border border-gray-300 rounded p-2" />
 
-        <div>
-          <label>
-            <input 
-              type="checkbox" 
-              {...register("on_sale")} 
-              className="mr-2"
-            />
-            On Sale
-          </label>
-        </div>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" {...register("on_sale")} />
+          On Sale
+        </label>
 
         {watch("on_sale") && (
-          <div>
-            <label>Discount Percentage</label>
-            <input
-              type="number"
-              {...register("discount_percentage")}
-              className="w-full p-2 border rounded"
-              placeholder="Discount Percentage"
-              min={1}
-              max={100}
-            />
-          </div>
+          <input {...register("discount_percentage", { min: 1, max: 100 })} type="number" className="w-full border border-gray-300 rounded p-2" placeholder="Discount Percentage" />
         )}
 
-        <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">
+        <div>
+          <p className="font-medium">Select Sizes:</p>
+          <div className="flex gap-4 flex-wrap">
+            {sizes.map((size: Size) => (
+              <label key={size.id} className="flex gap-1 items-center">
+                <input type="checkbox" value={size.name} {...register("sizes")} />
+                {size.name}
+              </label>
+            ))}
+          </div>
+
+          <input
+            placeholder="Or add new size"
+            value={newSize}
+            onChange={(e) => setNewSize(e.target.value)}
+            className="w-full border border-gray-300 rounded p-2 mt-2"
+          />
+        </div>
+
+        <button className="w-full bg-blue-500 text-white p-2 rounded font-semibold hover:bg-blue-600 transition duration-200" type="submit">
           {product ? "Update Product" : "Add Product"}
         </button>
       </form>

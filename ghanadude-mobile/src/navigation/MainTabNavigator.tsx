@@ -1,16 +1,14 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather, Ionicons, AntDesign } from "@expo/vector-icons";
+import { Feather, Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import { LinearGradient } from "expo-linear-gradient";
 import HomeScreen from "../screens/HomeScreen";
-import TabCartButton from "../components/TabCartButton";
-
 import AccountScreen from "../screens/AccountScreen";
-
-import { RootState } from "../redux/store"; // Adjust the import path according to your project structure
+import DealsScreen from "../screens/DealsScreen";
+import { RootState } from "../redux/store";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,10 +31,7 @@ const MainTabNavigator = () => {
       }}
       tabBar={(props) => (
         <View style={styles.tabBarContainer}>
-          <LinearGradient
-            colors={["#FCD34D", "#3B82F6"]}
-            style={styles.gradient}
-          >
+          <LinearGradient colors={["#FCD34D", "#3B82F6"]} style={styles.gradient}>
             <BottomTabBar {...props} style={styles.tabBar} />
           </LinearGradient>
         </View>
@@ -52,8 +47,16 @@ const MainTabNavigator = () => {
         }}
       />
       
-     
-     
+      <Tab.Screen
+        name="Deals"
+        component={DealsScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="local-offer" color={color} size={size} />
+          ),
+        }}
+      />
+      
       <Tab.Screen
         name="Account"
         component={AccountScreen}
@@ -82,22 +85,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-  },
-  badge: {
-    position: "absolute",
-    right: -6,
-    top: -3,
-    backgroundColor: "red",
-    borderRadius: 6,
-    width: 16,
-    height: 16,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  badgeText: {
-    color: "white",
-    fontSize: 10,
-    fontWeight: "bold",
   },
 });
 

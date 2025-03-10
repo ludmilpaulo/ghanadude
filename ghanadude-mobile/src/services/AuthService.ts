@@ -1,7 +1,8 @@
 import axios, { AxiosError } from 'axios';
 
 
-export const API_BASE_URL = "http://127.0.0.1:8000";
+//export const API_BASE_URL = "http://127.0.0.1:8000";
+export const API_BASE_URL ="https://www.ghanadude.co.za"
 
 interface AuthResponse {
   token: string;
@@ -13,13 +14,14 @@ interface AuthResponse {
 
 const AuthService = {
   signup: async (username: string, email: string, password: string) => {
+    console.log("signup clicked")
     try {
       const response = await axios.post<AuthResponse>(`${API_BASE_URL}/account/signup/`, {
         username,
         email,
         password,
       });
-     
+
       return response.data;
     }catch (error: unknown) {
       if (error instanceof AxiosError) {
@@ -31,6 +33,7 @@ const AuthService = {
   },
 
   login: async (username: string, password: string) => {
+    console.log("login clicked")
     try {
       const response = await axios.post<AuthResponse>(`${API_BASE_URL}/account/login/`, {
         username,

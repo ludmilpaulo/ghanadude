@@ -4,6 +4,12 @@ import { selectUser } from "@/redux/slices/authSlice";
 import { baseAPI } from "@/utils/variables";
 
 const API_URL = baseAPI as string;
+interface OrderData {
+  // Define the structure of orderData here
+  productId: number;
+  quantity: number;
+  // Add other fields as needed
+}
 
 const api = axios.create({
   baseURL: API_URL,
@@ -98,7 +104,8 @@ export const deleteProduct = async (id: number) => {
   }
 };
 
-export const createOrder = async (orderData: any) => {
+
+export const createOrder = async (orderData: OrderData) => {
   try {
     const response = await api.post("/order/orders/", orderData);
     return response.data;
@@ -167,4 +174,16 @@ export const fetchUsers = async () => {
   } catch (error) {
     handleError(error);
   }
+};
+
+interface Size {
+  id: number;
+  name: string;
+  // Add other fields as needed
+}
+
+export const fetchSizes = async (): Promise<Size[]> => {
+  const res = await fetch(`${baseAPI}/product/sizes/`);
+  if (!res.ok) throw new Error("Failed to fetch sizes");
+  return res.json();
 };

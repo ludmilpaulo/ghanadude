@@ -1,112 +1,113 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { Heart, Filter } from "lucide-react-native";
-import tw from "twrnc";
-import axios from "axios";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { API_BASE_URL } from "../services/AuthService";
+import React, { useEffect, useState } from 'react';
+import { View, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, SafeAreaView } from 'react-native';
+import tw from 'twrnc';
+import ProductService from '../services/ProductService';
+import { NavigationProp } from '@react-navigation/native';
+import { FontAwesome5 } from '@expo/vector-icons';
 
-const API_URL = API_BASE_URL; // Replace with your API base URL
+const categoryIcons: { [key: string]: string } = {
+  all: 'tags',
+  men: 'male',
+  women: 'female',
+  kids: 'child',
+};
 
-const HomeScreen = () => {
-  const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [wishlist, setWishlist] = useState([]);
+const HomeScreen = ({ navigation }: { navigation: NavigationProp<any> }) => {
+  const [products, setProducts] = useState<{ id: string; name: string; image: string; price: number }[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation();
 
   useEffect(() => {
-    fetchData();
+    fetchProducts();
+    fetchCategories();
   }, []);
 
-  const fetchData = async () => {
+  const fetchProducts = async () => {
     try {
-      const [categoryRes, brandRes, productRes] = await Promise.all([
-        axios.get(`${API_URL}/categories/`),
-        axios.get(`${API_URL}/brands/`),
-        axios.get(`${API_URL}/products/`),
-      ]);
-      
-      setCategories(["All", ...categoryRes.data]);
-      setBrands(brandRes.data);
-      setProducts(productRes.data);
+      const response = await ProductService.getProducts();
+      setProducts(response);
     } catch (error) {
-      Alert.alert("Error", "Failed to fetch data from the server.");
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('https://www.ghanadude.co.za/product/categories/');
+      const data = await response.json();
+
+      // Avoid duplication by creating unique IDs and removing duplicates
+      const uniqueCategories = [
+        { id: 'all', name: 'All Products' },
+        ...data
+      ];
+
+      const deduped = Array.from(new Map(uniqueCategories.map(item => [item.name.toLowerCase(), item])).values());
+
+      setCategories(deduped);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleWishlist = (id) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  if (loading) {
+    return (
+      <SafeAreaView style={tw`flex-1 justify-center items-center bg-gray-50`}>
+        <ActivityIndicator size="large" color="#000" />
+      </SafeAreaView>
     );
-  };
-
-  const filteredProducts =
-    selectedCategory === "All"
-      ? products
-      : products.filter((p) => p.category.name === selectedCategory);
+  }
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-gray-100`}>
-      {loading ? (
-        <View style={tw`flex-1 justify-center items-center`}>
-          <ActivityIndicator size="large" color="#3498db" />
-        </View>
-      ) : (
-        <View style={tw`p-4`}>
-          {/* Category Filters */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`mb-4`}>
-            {categories.map((cat, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => setSelectedCategory(cat)}
-                style={tw`px-4 py-2 mx-2 rounded-full ${selectedCategory === cat ? "bg-blue-500" : "bg-gray-300"}`}
-              >
-                <Text style={tw`${selectedCategory === cat ? "text-white" : "text-black"}`}>{cat}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+    <SafeAreaView style={tw`flex-1 bg-gray-50`}>
+      <ScrollView style={tw`p-4`}>
+        <Text style={tw`text-2xl font-bold mb-6 text-black`}>
+          Browse Categories
+        </Text>
 
-          {/* Product List */}
-          <ScrollView>
-            {filteredProducts.map((item) => (
-              <View key={item.id} style={tw`bg-white p-4 mb-4 rounded-lg shadow`}>                
-                <Image source={{ uri: `${API_URL}${item.images[0]?.image}` }} style={tw`w-full h-40 rounded`} />
-                <Text style={tw`text-lg font-bold mt-2`}>{item.name}</Text>
-                <Text style={tw`text-gray-500`}>{item.brand.name}</Text>
-                <Text style={tw`text-lg text-blue-500`}>${item.price}</Text>
-                {item.discount_percentage > 0 && (
-                  <Text style={tw`text-red-500`}>-{item.discount_percentage}% Off</Text>
-                )}
-                <Text style={tw`mt-1 ${item.stock > 0 ? "text-green-500" : "text-red-500"}`}>
-                  {item.stock > 0 ? `In Stock (${item.stock})` : "Out of Stock"}
-                </Text>
-
-                {/* Wishlist Button */}
-                <TouchableOpacity
-                  onPress={() => toggleWishlist(item.id)}
-                  style={tw`absolute top-2 right-2 p-2 bg-white rounded-full shadow`}
-                >
-                  <Heart size={24} stroke={wishlist.includes(item.id) ? "red" : "black"} />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </ScrollView>
+        <View style={tw`flex-row flex-wrap justify-between`}>
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat.id.toString()}
+              style={tw`bg-white w-[48%] mb-4 rounded-xl shadow py-6 items-center`}
+              onPress={() => navigation.navigate('ProductList', { category: cat.name.toLowerCase(), categoryName: cat.name })}
+            >
+              <FontAwesome5
+                name={categoryIcons[cat.name.toLowerCase() as keyof typeof categoryIcons] || 'tag'}
+                size={36}
+                color="#000"
+              />
+              <Text style={tw`mt-2 text-lg font-semibold capitalize`}>
+                {cat.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
-      )}
+
+        <Text style={tw`text-2xl font-bold mt-6 mb-4 text-black`}>
+          On Sale
+        </Text>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {products.map((item) => (
+            <TouchableOpacity
+              key={item.id.toString()}
+              style={tw`bg-white p-4 rounded-xl shadow mr-4 w-64`}
+              onPress={() => navigation.navigate('ProductDetail', { id: item.id })}
+            >
+              <Image source={{ uri: item.image }} style={tw`h-40 w-full rounded-lg`} />
+              <Text style={tw`text-lg font-semibold mt-2 text-black`} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <Text style={tw`text-gray-700`}>
+                ${item.price}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 };

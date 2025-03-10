@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Image, Product, Category, Brand, Designer
+from .models import Image, Product, Category, Brand, Designer, Size
 from .serializers import ProductSerializer, CategorySerializer, BrandSerializer, DesignerSerializer
 from django.db import transaction
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    
+
     @action(detail=True, methods=['post'])
     def reduce_stock(self, request, pk=None):
         product = get_object_or_404(Product, pk=pk)
@@ -51,81 +51,47 @@ from .serializers import ProductSerializer
 
 
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_product(request):
-    logger.info("Received data: %s", request.data)
-    logger.debug("FILES data: %s", request.FILES)
-    print(request.data)
+    data = request.data
 
-    data = dict(request.data)
-
-    # Ensure category selection/input works correctly
-    category_input = data.get('category', [""])[0]  # Extract as string
-    if category_input.isdigit():
-        category = Category.objects.get(id=int(category_input))
-    elif category_input == "other":
-        category_name = data.get('description', ["Unnamed Category"])[0].strip()
-        category, created = Category.objects.get_or_create(name=category_name)
-    else:
-        category, created = Category.objects.get_or_create(name=category_input.strip())
-
-    # Handle brand (default to "ghanadue")
-    if "brand" not in data or not data["brand"][0].strip():
-        brand, _ = Brand.objects.get_or_create(name="ghanadue")
-    else:
-        brand = Brand.objects.get(id=int(data["brand"][0]))
-
-    # Extract and convert other fields
-    name = data.get("name", [""])[0]
-    description = data.get("description", [""])[0]
-    price = float(data.get("price", ["0"])[0])
-    stock = int(data.get("stock", ["0"])[0])
-    season = data.get("season", [""])[0]
-
-    # Ensure on_sale and discount_percentage are extracted correctly
-    on_sale = data.get("on_sale", ["false"])[0].lower() in ["true", "1"]
-    discount_percentage = float(data.get("discount_percentage", ["0"])[0])
+    category, _ = Category.objects.get_or_create(name=data.get('category', 'Uncategorized').strip())
+    brand, _ = Brand.objects.get_or_create(name=data.get('brand', 'ghanadue').strip())
 
     try:
-        # Create Product
         product = Product.objects.create(
-            name=name,
+            name=data['name'],
+            description=data['description'],
+            price=float(data['price']),
+            stock=int(data['stock']),
+            season=data.get('season', 'all_seasons'),
             category=category,
-            description=description,
-            price=price,
-            stock=stock,
-            season=season,
             brand=brand,
-            on_sale=on_sale,
-            discount_percentage=discount_percentage,
+            on_sale=data.get('on_sale', 'false').lower() in ['true', '1'],
+            discount_percentage=int(data.get('discount_percentage', 0)),
         )
 
-        # Handle uploaded images properly
-        uploaded_images = request.FILES.getlist('images')
-        logger.debug("Received Images: %s", uploaded_images)
+        sizes_list = data.getlist('sizes', [])
+        for size_name in sizes_list:
+            size, _ = Size.objects.get_or_create(name=size_name.strip())
+            product.sizes.add(size)
 
-        if not uploaded_images:
-            logger.warning("No images received!")
+        for image in request.FILES.getlist('images'):
+            img_instance = Image.objects.create(image=image)
+            product.images.add(img_instance)
 
-        for image in uploaded_images:
-            img_instance = Image.objects.create(image=image)  # Create Image instance
-            product.images.add(img_instance)  # Link Image to Product
+        product.save()
 
-        product.save()  # Save product to update ManyToMany relationship
-
-        # Reload product to include images in the serializer
-        product.refresh_from_db()
-
-        # Serialize the product to return response
         serializer = ProductSerializer(product)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     except Exception as e:
-        logger.error("Error creating product: %s", str(e))
         return Response({"error": "Failed to create product", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def sizes_list(request):
+    sizes = Size.objects.all()
+    return Response([{'id': size.id, 'name': size.name} for size in sizes])
