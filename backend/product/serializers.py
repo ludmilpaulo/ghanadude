@@ -10,31 +10,34 @@ class ImageSerializer(serializers.ModelSerializer):
         model = Image
         fields = ["id", "image"]
 class ProductSerializer(serializers.ModelSerializer):
-    category = serializers.CharField(source="category.name", read_only=True)  
-    images = ImageSerializer(many=True, read_only=True)  
+    category = serializers.CharField(source="category.name", read_only=True)
+    sizes = serializers.SerializerMethodField()
+    images = ImageSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(allow_empty_file=False, use_url=False),
         write_only=True,
-        required=False  # ✅ Make this field optional
-    )  
+        required=False
+    )
 
     class Meta:
         model = Product
-        price = serializers.DecimalField(max_digits=10, decimal_places=2)
-        stock = serializers.IntegerField()
         fields = [
-            "id", "name", "description", "price", "category", "brand", "stock", 
-            "on_sale", "discount_percentage", "season", "images", "uploaded_images"
+            "id", "name", "description", "price", "category", "brand", "stock",
+            "on_sale", "discount_percentage", "season", "images", "uploaded_images", "sizes"
         ]
 
+    def get_sizes(self, obj):
+        return [size.name for size in obj.sizes.all()]
+
     def create(self, validated_data):
-        uploaded_images = validated_data.pop("uploaded_images", [])  # Extract images if provided
+        uploaded_images = validated_data.pop("uploaded_images", [])
         product = Product.objects.create(**validated_data)
 
         for image in uploaded_images:
             Image.objects.create(product=product, image=image)
 
         return product
+
 
 
 

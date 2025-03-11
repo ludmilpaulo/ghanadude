@@ -29,25 +29,28 @@ const AuthService = {
       }
       throw 'An unexpected error occurred';
     }
-    
+  
   },
 
   login: async (username: string, password: string) => {
-    console.log("login clicked")
+    console.log("login clicked");
     try {
       const response = await axios.post<AuthResponse>(`${API_BASE_URL}/account/login/`, {
         username,
         password,
       });
-    
-    }catch (error: unknown) {
+  
+      console.log("API response:", response.data);
+      return response.data;
+    } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        throw error.response?.data || 'Error occurred';
+        console.error("Login error response:", error.response?.data);
+        throw error.response?.data || { error: 'Error occurred' };
       }
-      throw 'An unexpected error occurred';
+      throw { error: 'An unexpected error occurred' };
     }
-    
   },
+  
 
   logout: async () => {
     
