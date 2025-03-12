@@ -31,8 +31,8 @@ const CartScreen = () => {
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
           {cartItems.map((item, index) => {
-            const price = Number(item.price) || 0; // 🔹 Ensure price is a number
-            const imageUrl = getImageUrl(item.image); // 🔹 Get first image safely
+            const price = Number(item.price) || 0;
+            const imageUrl = getImageUrl(item.image);
 
             console.log("Image URL:", imageUrl); // Debugging
 
@@ -52,6 +52,7 @@ const CartScreen = () => {
                   <Text style={tw`text-lg font-semibold`} numberOfLines={1}>
                     {item.name || "Unnamed Product"}
                   </Text>
+                  <Text style={tw`text-gray-500`}>Size: {item.selectedSize}</Text> {/* ✅ Display Size */}
                   <Text style={tw`text-gray-500`}>R{price.toFixed(2)}</Text>
 
                   {/* Quantity Controls */}
@@ -59,13 +60,19 @@ const CartScreen = () => {
                     <TouchableOpacity
                       onPress={() => dispatch(decreaseBasket({ id: item.id, selectedSize: item.selectedSize }))}
                       disabled={item.quantity === 1}
+                      style={tw`p-2`}
                     >
                       <FontAwesome name="minus-circle" size={20} color={item.quantity > 1 ? "black" : "gray"} />
                     </TouchableOpacity>
 
                     <Text style={tw`mx-3 text-lg font-semibold`}>{item.quantity}</Text>
 
-                    <TouchableOpacity onPress={() => dispatch(updateBasket(item))}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        dispatch(updateBasket({ id: item.id, selectedSize: item.selectedSize })) // ✅ Fix: Only increases by 1
+                      }
+                      style={tw`p-2`}
+                    >
                       <FontAwesome name="plus-circle" size={20} color="black" />
                     </TouchableOpacity>
                   </View>

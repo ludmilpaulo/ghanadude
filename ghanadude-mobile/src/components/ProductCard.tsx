@@ -7,28 +7,45 @@ import {
   Modal,
   TextInput,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker"; // ✅ Correct import
+import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { updateBasket } from "../redux/slices/basketSlice";
 import { HomeStackParamList } from "../navigation/HomeNavigator"; 
 import { Product } from "../screens/types";
+import { RootState } from "../redux/store";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
+  const dispatch = useDispatch();
   
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
   const [quantity, setQuantity] = useState(1);
 
+  // ✅ Check if product is already in the cart
+  const cartItems = useSelector((state: RootState) => state.basket.items);
+  const isInCart = cartItems.some(item => item.id === product.id && item.selectedSize === selectedSize);
+
   const handleAddToCart = () => {
-    console.log("Added to cart:", { product, selectedSize, quantity });
+    const cartItem = {
+      ...product,
+      selectedSize,
+      quantity,
+      image: product.images?.[0]?.image || "",
+    };
+
+    dispatch(updateBasket(cartItem));
     setModalVisible(false);
+    alert(`${product.name} (Size: ${selectedSize}) added to cart!`);
   };
 
   return (
-    <View style={tw`bg-white rounded-2xl shadow-lg p-4 mb-6 w-56 relative mr-4`}>
+    <View style={tw`bg-white rounded-2xl shadow-lg p-4 mb-6 w-64 relative mx-2`}>
+      {/* Wishlist Button */}
       <TouchableOpacity
         style={tw`absolute top-3 right-3 p-2 rounded-full ${isWishlisted ? "bg-red-200" : "bg-gray-200"}`}
         onPress={() => setIsWishlisted(!isWishlisted)}
@@ -36,14 +53,17 @@ const ProductCard = ({ product }: { product: Product }) => {
         <FontAwesome name={isWishlisted ? "heart" : "heart-o"} size={18} color={isWishlisted ? "red" : "black"} />
       </TouchableOpacity>
 
+      {/* Product Image */}
       <TouchableOpacity onPress={() => navigation.navigate("ProductDetail", { id: product.id })}>
-        <Image source={{ uri: product.images[0]?.image }} style={tw`h-48 w-full rounded-2xl`} />
+        <Image source={{ uri: product.images[0]?.image }} style={tw`h-40 w-full rounded-xl`} />
       </TouchableOpacity>
 
-      <Text style={tw`mt-2 font-semibold text-lg text-black`} numberOfLines={1}>
+      {/* Product Info */}
+      <Text style={tw`mt-2 font-semibold text-lg text-gray-800`} numberOfLines={1}>
         {product.name}
       </Text>
 
+      {/* Price Display */}
       <View style={tw`flex-row items-center mt-1`}>
         {product.discount_percentage > 0 && (
           <Text style={tw`text-gray-400 line-through mr-2`}>R{product.price}</Text>
@@ -53,21 +73,26 @@ const ProductCard = ({ product }: { product: Product }) => {
         </Text>
       </View>
 
+      {/* Buttons - Inside the Card */}
       <View style={tw`mt-3 flex-row justify-between items-center`}>
+        {/* View Button */}
         <TouchableOpacity
-          style={tw`bg-black px-4 py-2 rounded-xl flex-row items-center`}
+          style={tw`bg-gray-900 px-3 py-2 rounded-lg flex-row items-center w-[48%] justify-center`}
           onPress={() => navigation.navigate("ProductDetail", { id: product.id })}
         >
           <FontAwesome5 name="eye" size={14} color="white" />
           <Text style={tw`text-white font-semibold ml-2`}>View</Text>
         </TouchableOpacity>
 
+        {/* Cart Button - Different Colors */}
         <TouchableOpacity
-          style={tw`bg-black px-4 py-2 rounded-xl flex-row items-center`}
-          onPress={() => setModalVisible(true)}
+          style={tw`${isInCart ? "bg-green-600" : "bg-blue-600"} px-3 py-2 rounded-lg flex-row items-center w-[48%] justify-center`}
+          onPress={() => isInCart ? navigation.navigate("Cart") : setModalVisible(true)}
         >
           <FontAwesome5 name="shopping-cart" size={14} color="white" />
-          <Text style={tw`text-white font-semibold ml-2`}>Cart</Text>
+          <Text style={tw`text-white font-semibold ml-2`}>
+            {isInCart ? "Go to Cart" : "Add to Cart"}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -116,7 +141,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 <Text style={tw`font-semibold`}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={tw`px-4 py-2 bg-black rounded-lg`}
+                style={tw`px-4 py-2 bg-blue-600 rounded-lg`}
                 onPress={handleAddToCart}
               >
                 <Text style={tw`text-white font-semibold`}>Add to Cart</Text>

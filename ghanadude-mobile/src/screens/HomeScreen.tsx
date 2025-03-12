@@ -36,8 +36,10 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   }, []);
 
   useEffect(() => {
-    filterProducts();
-  }, [searchQuery, selectedCategory]);
+    if (allProducts.length > 0) {
+      filterProducts(selectedCategory, searchQuery);
+    }
+  }, [searchQuery, selectedCategory, allProducts]);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -45,7 +47,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
     try {
       const res = await ProductService.getProducts();
-     // console.log("Fetched products:", res);
+      console.log("Fetched products:", res);
 
       setAllProducts(res);
       setFilteredProducts(res); // Ensures "All Products" initially shows everything
@@ -69,56 +71,56 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const filterProducts = () => {
+  const filterProducts = (category = selectedCategory, query = searchQuery) => {
     console.log("Filtering products...");
-    console.log("Selected Category:", selectedCategory);
-    console.log("Search Query:", searchQuery);
-
+    console.log("Selected Category:", category);
+    console.log("Search Query:", query);
+  
     let updatedProducts = [...allProducts];
-
-    // If "All Products" is selected, reset to allProducts immediately
-    if (selectedCategory === "all") {
-      console.log("All Products selected. Showing all products.");
+  
+    // ✅ If "All Products" is selected, show everything
+    if (category.toLowerCase() === "all products" || category.toLowerCase() === "all") {
+      console.log("✅ Showing all products.");
       setFilteredProducts(allProducts);
       setNotFound(allProducts.length === 0);
       return;
     }
-
+  
     // Apply category filter
     updatedProducts = updatedProducts.filter(
-      (product) => product.category.toLowerCase() === selectedCategory.toLowerCase()
+      (product) => product.category.toLowerCase() === category.toLowerCase()
     );
-
+  
     console.log("Filtered by category:", updatedProducts);
-
+  
     // Apply search filter
-    if (searchQuery) {
+    if (query) {
       updatedProducts = updatedProducts.filter((product) =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+        product.name.toLowerCase().includes(query.toLowerCase())
       );
       console.log("Filtered by search query:", updatedProducts);
     }
-
+  
     setFilteredProducts(updatedProducts);
     setNotFound(updatedProducts.length === 0);
-
-    console.log("Final filtered products:", updatedProducts);
   };
+  
 
   const handleCategorySelect = (category: string) => {
     console.log(`Category selected: ${category}`);
-
+  
     setSelectedCategory(category);
     setSearchQuery(""); // Reset search when changing category
-
-    // Immediately reset to all products if "All Products" is clicked
-    if (category === "all") {
-      console.log("Resetting to show all products.");
+  
+    // ✅ Ensure "All Products" works correctly
+    if (category.toLowerCase() === "all products" || category.toLowerCase() === "all") {
+      console.log("✅ Resetting to show all products.");
       setFilteredProducts(allProducts);
       setNotFound(allProducts.length === 0);
+      return;
     }
   };
-
+  
   const onSaleProducts = filteredProducts.filter((product) => product.on_sale);
   console.log("On Sale Products:", onSaleProducts);
 
@@ -143,7 +145,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
           ))}
         </View>
 
-        {/* Search Bar (Moved Below Categories) */}
+        {/* Search Bar */}
         <View style={tw`flex-row items-center bg-white rounded-xl p-3 shadow mb-6`}>
           <FontAwesome5 name="search" size={18} color="#333" style={tw`mr-2`} />
           <TextInput
