@@ -5,8 +5,8 @@ import { FontAwesome } from "@expo/vector-icons";
 import tw from "twrnc";
 import { RootState } from "../redux/store";
 import { updateBasket, decreaseBasket, removeFromBasket } from "../redux/slices/basketSlice";
+import { API_BASE_URL } from "../services/AuthService";
 
-const API_BASE_URL = "https://your-backend-api.com"; // 🔹 Update with your backend URL
 
 const getImageUrl = (image: string | null | undefined): string | null => {
   if (!image) return null;

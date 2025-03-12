@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, ActivityIndicator, ScrollView, SafeAreaView } from 'react-native';
 import tw from 'twrnc';
 import { Product } from './types';
+import { API_BASE_URL } from '../services/AuthService';
 
 const ProductListScreen = ({ route, navigation }: any) => {
   const { category, size } = route.params;
@@ -13,7 +14,7 @@ const ProductListScreen = ({ route, navigation }: any) => {
       setLoading(true);
       const query = category !== 'all' ? `?category=${category}` : '';
       const sizeQuery = size ? `${query ? '&' : '?'}size=${size}` : '';
-      const response = await fetch(`https://www.ghanadude.co.za/product/products/${query}${sizeQuery}`);
+      const response = await fetch(`${API_BASE_URL}/product/products/${query}${sizeQuery}`);
       const data = await response.json();
       setProducts(data);
       setLoading(false);

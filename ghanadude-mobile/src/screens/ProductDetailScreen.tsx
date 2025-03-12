@@ -13,6 +13,7 @@ import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { Product } from './types';
 import { RootState } from "../redux/store";
 import { useNavigation, NavigationProp } from "@react-navigation/native"; // ✅ Use correct type
+import { API_BASE_URL } from '../services/AuthService';
 
 type ProductDetailProps = StackScreenProps<HomeStackParamList, "ProductDetail">;
 
@@ -34,7 +35,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`https://www.ghanadude.co.za/product/products/${id}/`);
+        const response = await fetch(`${API_BASE_URL}/product/products/${id}/`);
         const data = await response.json();
         console.log("API response==>", data);
         setProduct(data);
