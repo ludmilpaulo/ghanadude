@@ -1,91 +1,152 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather, Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
+import { Feather, AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, SafeAreaView } from "react-native";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import { LinearGradient } from "expo-linear-gradient";
+import axios from "axios";
 import HomeScreen from "../screens/HomeScreen";
 import AccountScreen from "../screens/AccountScreen";
 import DealsScreen from "../screens/DealsScreen";
+
 import { RootState } from "../redux/store";
+import CartScreen from "../screens/CartScreen";
+import WishlistScreen from "../screens/WishlistScreen";
+
+const API_BASE_URL = "https://your-backend-api.com"; // Change to actual backend URL
 
 const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = () => {
   const cartItems = useSelector((state: RootState) => state.basket.items);
-  const itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
+
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  useEffect(() => {
+    fetchWishlistCount();
+  }, []);
+
+  const fetchWishlistCount = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/wishlist/count/`, {
+        headers: { Authorization: `Bearer YOUR_AUTH_TOKEN` }, // Replace with auth method
+      });
+      setWishlistCount(response.data.count);
+    } catch (error) {
+      console.error("Failed to fetch wishlist count:", error);
+    }
+  };
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: "#fff",
-        tabBarInactiveTintColor: "#000",
-        headerShown: false,
-        tabBarStyle: {
-          borderTopWidth: 0,
-          paddingTop: 10,
-          paddingBottom: 25,
-          height: 75,
-        },
-      }}
-      tabBar={(props) => (
-        <View style={styles.tabBarContainer}>
-          <LinearGradient colors={["#FCD34D", "#3B82F6"]} style={styles.gradient}>
-            <BottomTabBar {...props} style={styles.tabBar} />
-          </LinearGradient>
-        </View>
-      )}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <AntDesign name="home" color={color} size={size} />
-          ),
+    <SafeAreaView style={{ flex: 1 }}>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: "#fff",
+          tabBarInactiveTintColor: "#000",
+          headerShown: false,
+          tabBarStyle: {
+            backgroundColor: "transparent",
+            elevation: 0, // Removes shadow on Android
+            paddingBottom: 10, // Adjusts padding to prevent overlap
+            height: 75,
+          },
         }}
-      />
-      
-      <Tab.Screen
-        name="Deals"
-        component={DealsScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="local-offer" color={color} size={size} />
-          ),
-        }}
-      />
-      
-      <Tab.Screen
-        name="Account"
-        component={AccountScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Feather name="user" color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        tabBar={(props) => (
+          <View>
+            <LinearGradient colors={["#FCD34D", "#3B82F6"]} style={{ height: 75 }}>
+              <BottomTabBar {...props} />
+            </LinearGradient>
+          </View>
+        )}
+      >
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => <AntDesign name="home" color={color} size={size} />,
+          }}
+        />
+
+        <Tab.Screen
+          name="Deals"
+          component={DealsScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => <MaterialIcons name="local-offer" color={color} size={size} />,
+          }}
+        />
+
+        {/* Cart Screen with Badge */}
+        <Tab.Screen
+          name="Cart"
+          component={CartScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <View>
+                <FontAwesome name="shopping-cart" color={color} size={size} />
+                {cartCount > 0 && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -5,
+                      right: -10,
+                      backgroundColor: "red",
+                      borderRadius: 10,
+                      width: 18,
+                      height: 18,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{cartCount}</Text>
+                  </View>
+                )}
+              </View>
+            ),
+          }}
+        />
+
+        {/* Wishlist Screen with Badge */}
+        <Tab.Screen
+          name="Wishlist"
+          component={WishlistScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <View>
+                <FontAwesome name="heart" color={color} size={size} />
+                {wishlistCount > 0 && (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -5,
+                      right: -10,
+                      backgroundColor: "red",
+                      borderRadius: 10,
+                      width: 18,
+                      height: 18,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{wishlistCount}</Text>
+                  </View>
+                )}
+              </View>
+            ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Account"
+          component={AccountScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} />,
+          }}
+        />
+      </Tab.Navigator>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  tabBarContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  gradient: {
-    height: 75,
-  },
-  tabBar: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-  },
-});
 
 export default MainTabNavigator;

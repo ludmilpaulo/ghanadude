@@ -2,8 +2,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { Product } from "../../screens/types";
 
+interface CartItem extends Product {
+  selectedSize: string;
+  quantity: number;
+  image: string;
+}
+
 interface BasketState {
-  items: (Product & { quantity: number })[];
+  items: CartItem[];
 }
 
 const initialState: BasketState = {
@@ -14,28 +20,31 @@ const basketSlice = createSlice({
   name: "basket",
   initialState,
   reducers: {
-    updateBasket: (state, action: PayloadAction<Product>) => {
+    updateBasket: (state, action: PayloadAction<CartItem>) => {
       const product = action.payload;
-      const index = state.items.findIndex((item) => item.id === product.id);
+      const index = state.items.findIndex((item) => item.id === product.id && item.selectedSize === product.selectedSize);
 
       if (index >= 0) {
-        state.items[index].quantity += 1;
+        state.items[index].quantity += product.quantity;
       } else {
-        state.items.push({ ...product, quantity: 1 });
+        state.items.push(product);
       }
     },
-    decreaseBasket: (state, action: PayloadAction<number>) => {
-      const productId = action.payload;
-      const index = state.items.findIndex((item) => item.id === productId);
-
+    decreaseBasket: (state, action: PayloadAction<{ id: number; selectedSize: string }>) => {
+      const index = state.items.findIndex((item) => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize);
+      
       if (index >= 0 && state.items[index].quantity > 1) {
         state.items[index].quantity -= 1;
       } else {
-        state.items = state.items.filter((item) => item.id !== productId);
+        state.items = state.items.filter(
+          (item) => item.id !== action.payload.id || item.selectedSize !== action.payload.selectedSize
+        );
       }
     },
-    removeFromBasket: (state, action: PayloadAction<number>) => {
-      state.items = state.items.filter((item) => item.id !== action.payload);
+    removeFromBasket: (state, action: PayloadAction<{ id: number; selectedSize: string }>) => {
+      state.items = state.items.filter(
+        (item) => item.id !== action.payload.id || item.selectedSize !== action.payload.selectedSize
+      );
     },
     clearCart: (state) => {
       state.items = [];
@@ -44,5 +53,4 @@ const basketSlice = createSlice({
 });
 
 export const { updateBasket, decreaseBasket, removeFromBasket, clearCart } = basketSlice.actions;
-export const selectCartItems = (state: RootState) => state.basket.items;
 export default basketSlice.reducer;

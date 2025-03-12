@@ -57,3 +57,14 @@ class DesignerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Designer
         fields = '__all__'
+        
+        
+class WishlistSerializer(serializers.ModelSerializer):
+    product_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Wishlist
+        fields = ["id", "user", "product", "product_price", "added_at"]
+
+    def get_product_price(self, obj):
+        return obj.product.price if obj.product and obj.product.price else 0.00

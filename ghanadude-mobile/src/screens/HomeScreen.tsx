@@ -45,7 +45,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
     try {
       const res = await ProductService.getProducts();
-      console.log("Fetched products:", res);
+     // console.log("Fetched products:", res);
 
       setAllProducts(res);
       setFilteredProducts(res); // Ensures "All Products" initially shows everything
