@@ -1,26 +1,26 @@
 import axios from "axios";
 import CryptoJS from "crypto-js";
 
-const PAYFAST_MERCHANT_ID = "10034002"; // Replace with your Merchant ID
-const PAYFAST_MERCHANT_KEY = "lbs5ilpk38s8g"; // Replace with your Merchant Key
+const PAYFAST_MERCHANT_ID = "10034002"; // Your PayFast Merchant ID
+const PAYFAST_MERCHANT_KEY = "lbs5ilpk38s8g"; // Your PayFast Merchant Key
 const PAYFAST_PASSPHRASE = ""; // Leave blank if not set
 const PAYFAST_RETURN_URL = "https://www.trustmenclinic.com/thank-you";
 const PAYFAST_CANCEL_URL = "https://www.trustmenclinic.com/cancel";
 const PAYFAST_NOTIFY_URL = "https://ludmil.pythonanywhere.com/order/notify/";
 const PAYFAST_URL = "https://sandbox.payfast.co.za/onsite/process";
 
-// ✅ Generate Secure PayFast Signature
+// ✅ Generate Secure PayFast Signature (Fixed)
 const generateSignature = (data: Record<string, string>, passphrase?: string): string => {
   const queryString = Object.keys(data)
+    .sort()
     .map((key) => `${key}=${encodeURIComponent(data[key]).replace(/%20/g, "+")}`)
     .join("&");
 
-  // Include passphrase only if it's set
-  const signatureString = passphrase?.trim()
-    ? `${queryString}&passphrase=${encodeURIComponent(passphrase)}`
+  const finalQueryString = passphrase && passphrase.trim() !== ""
+    ? `${queryString}&passphrase=${encodeURIComponent(passphrase).replace(/%20/g, "+")}`
     : queryString;
 
-  return CryptoJS.MD5(signatureString).toString();
+  return CryptoJS.MD5(finalQueryString).toString();
 };
 
 // ✅ Convert Data to PayFast Format
@@ -42,10 +42,15 @@ export const handleMakePayment = async (form: any, totalPrice: number) => {
     notify_url: PAYFAST_NOTIFY_URL,
     name_first: form.fullName.split(" ")[0] || "Customer",
     name_last: form.fullName.split(" ")[1] || "Unknown",
-    email_address: form.email || "no-email@example.com",
-    m_payment_id: `${new Date().getTime()}`, // Unique transaction ID
+    email_address: form.email,
+    phone: form.phone,
+    address: form.address,
+    city: form.city,
+    postal_code: form.postalCode,
+    country: form.country,
+    m_payment_id: `${new Date().getTime()}`,
     amount: totalPrice.toFixed(2),
-    item_name: `Order #${new Date().getTime()}`,
+    item_name: form.item_name,
   };
 
   paymentData.signature = generateSignature(paymentData, PAYFAST_PASSPHRASE);
@@ -60,7 +65,6 @@ export const handleMakePayment = async (form: any, totalPrice: number) => {
 
     console.log("✅ PayFast Response:", response.data);
 
-    // ✅ Extract UUID
     const paymentUUID = response.data.uuid || null;
 
     if (paymentUUID) {

@@ -8,13 +8,14 @@ import tw from 'twrnc';
 import { FontAwesome, Feather, AntDesign } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateBasket } from '../redux/slices/basketSlice';
-import { addToWishlist, removeFromWishlist } from '../redux/slices/wishlistSlice';
+import { selectUser } from '../redux/slices/authSlice';
 import { StackScreenProps } from "@react-navigation/stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { Product } from './types';
 import { RootState } from "../redux/store";
 import { useNavigation, NavigationProp } from "@react-navigation/native"; 
 import { API_BASE_URL } from '../services/AuthService';
+import { getWishlist, addToWishlist, removeFromWishlist } from '../services/WishlistService';
 
 type ProductDetailProps = StackScreenProps<HomeStackParamList, "ProductDetail">;
 
@@ -29,21 +30,18 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
 
-  // ✅ Get wishlist & cart items from Redux store
-  const wishlistItems = useSelector((state: RootState) => state.wishlist?.items || []);
-  const cartItems = useSelector((state: RootState) => state.basket.items);
+  // ✅ Get the user token from Redux state
+  const user = useSelector(selectUser);
+  const token = user?.token;
 
-  // ✅ Check if the product is in the wishlist
-  const isWishlisted = wishlistItems.includes(id);
-  // ✅ Check if the product is in the cart
-  const isInCart = cartItems.some(item => item.id === id && item.selectedSize === selectedSize);
+  // ✅ Wishlist state
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/product/products/${id}/`);
         const data = await response.json();
-        console.log("API response==>", data);
         setProduct(data);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -52,8 +50,17 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       }
     };
 
+    const checkWishlist = async () => {
+      if (!token) return;
+
+      const wishlist = await getWishlist(token);
+      const isItemInWishlist = wishlist.some((item: any) => item.product.id === id);
+      setIsWishlisted(isItemInWishlist);
+    };
+
     fetchProduct();
-  }, [id]);
+    checkWishlist();
+  }, [id, token]);
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -73,13 +80,28 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
     Alert.alert("Success", `${product.name} (Size: ${selectedSize}) added to cart!`);
   };
 
-  const toggleWishlist = () => {
+  const toggleWishlist = async () => {
+    if (!token) {
+      Alert.alert("Login Required", "Please log in to manage your wishlist.");
+      return;
+    }
+
     if (isWishlisted) {
-      dispatch(removeFromWishlist(id));
-      Alert.alert("Removed", `${product?.name} removed from wishlist.`);
+      const result = await removeFromWishlist(token, id);
+      if (result) {
+        setIsWishlisted(false);
+        Alert.alert("Removed", `${product?.name} removed from wishlist.`);
+      } else {
+        Alert.alert("Error", "Failed to remove from wishlist.");
+      }
     } else {
-      dispatch(addToWishlist(id));
-      Alert.alert("Added", `${product?.name} added to wishlist.`);
+      const result = await addToWishlist(token, id);
+      if (result) {
+        setIsWishlisted(true);
+        Alert.alert("Added", `${product?.name} added to wishlist.`);
+      } else {
+        Alert.alert("Error", "Failed to add to wishlist.");
+      }
     }
   };
 
@@ -118,82 +140,6 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         >
           <FontAwesome name={isWishlisted ? "heart" : "heart-o"} size={24} color={isWishlisted ? "red" : "black"} />
         </TouchableOpacity>
-
-        {/* Image Carousel */}
-        <View style={tw`items-center`}>
-          <Carousel
-            loop
-            width={width}
-            height={400}
-            autoPlay={true}
-            autoPlayInterval={4000}
-            data={product.images || []}
-            scrollAnimationDuration={800}
-            renderItem={({ item }) => (
-              <Image
-                source={{ uri: item.image }}
-                style={tw`w-full h-96 rounded-xl`}
-                resizeMode="cover"
-              />
-            )}
-          />
-        </View>
-
-        {/* Product Details */}
-        <View style={tw`px-5 mt-5`}>
-          <Text style={tw`text-2xl font-bold text-gray-900`}>{product.name}</Text>
-
-          {/* Pricing Section */}
-          <View style={tw`flex-row items-center mt-2`}>
-            {product.on_sale ? (
-              <>
-                <Text style={tw`text-lg text-red-500 line-through mr-2`}>
-                  R{Number(product.price).toFixed(2)}
-                </Text>
-                <Text style={tw`text-xl text-green-600 font-bold`}>
-                  R{(Number(product.price) * (1 - Number(product.discount_percentage) / 100)).toFixed(2)}
-                </Text>
-                <Text style={tw`ml-2 text-green-600`}>
-                  ({Number(product.discount_percentage)}% OFF)
-                </Text>
-              </>
-            ) : (
-              <Text style={tw`text-xl font-semibold text-gray-800`}>
-                R{Number(product.price).toFixed(2)}
-              </Text>
-            )}
-          </View>
-
-          {/* Size Selection */}
-          <Text style={tw`mt-5 text-lg font-semibold text-gray-800`}>Select Size:</Text>
-          <View style={tw`flex-row flex-wrap mt-2`}>
-            {product.sizes?.map((size: string) => (
-              <TouchableOpacity
-                key={size}
-                style={tw`px-4 py-2 rounded-lg mr-2 mb-2 ${
-                  selectedSize === size ? "bg-indigo-600" : "bg-gray-200"
-                }`}
-                onPress={() => setSelectedSize(size)}
-              >
-                <Text style={tw`${selectedSize === size ? "text-white" : "text-gray-800"} font-semibold`}>
-                  {size}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Cart Button */}
-          <TouchableOpacity
-            style={tw`mt-6 ${!selectedSize ? "bg-gray-400" : isInCart ? "bg-green-600" : "bg-indigo-600"} rounded-xl py-4 items-center shadow-md flex-row justify-center`}
-            onPress={() => isInCart ? navigation.navigate("Cart") : handleAddToCart()}
-            disabled={!selectedSize}
-          >
-            <Feather name="shopping-cart" size={20} color="white" />
-            <Text style={tw`text-white text-lg font-semibold ml-2`}>
-              {!selectedSize ? "Select Size First" : isInCart ? "Go to Cart" : "Add to Cart"}
-            </Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );

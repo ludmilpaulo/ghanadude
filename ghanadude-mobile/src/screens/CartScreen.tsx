@@ -7,6 +7,10 @@ import { RootState } from "../redux/store";
 import { updateBasket, decreaseBasket, removeFromBasket } from "../redux/slices/basketSlice";
 import { API_BASE_URL } from "../services/AuthService";
 import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "../navigation/types";
+import { StackNavigationProp } from "@react-navigation/stack";
+
+type NavigationProp = StackNavigationProp<RootStackParamList, "CartScreen">;
 
 const getImageUrl = (image: string | null | undefined): string | null => {
   if (!image) return null;
@@ -15,7 +19,7 @@ const getImageUrl = (image: string | null | undefined): string | null => {
 
 const CartScreen = () => {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const cartItems = useSelector((state: RootState) => state.basket.items);
 
   const totalPrice = cartItems.reduce((total, item) => total + (Number(item.price) || 0) * item.quantity, 0);
