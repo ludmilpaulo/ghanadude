@@ -53,7 +53,7 @@ export default function SignUpScreen() {
 
       // Show success alert
       Alert.alert("Success", "Your account has been created!", [
-        { text: "OK", onPress: () => navigation.navigate("UserLogin") },
+        { text: "OK" }
       ]);
 
       // Clear input fields

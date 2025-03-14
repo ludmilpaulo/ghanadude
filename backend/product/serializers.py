@@ -1,6 +1,6 @@
 
 from rest_framework import serializers
-from .models import Brand, Category, Designer, Product, Image
+from .models import Brand, Category, Designer, Product, Image, Wishlist
 
 
 from .models import Product, Image, Category, Brand
@@ -57,8 +57,8 @@ class DesignerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Designer
         fields = '__all__'
-        
-        
+
+
 class WishlistSerializer(serializers.ModelSerializer):
     product_price = serializers.SerializerMethodField()
 

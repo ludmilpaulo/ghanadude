@@ -1,59 +1,42 @@
 "use client";
 import React from "react";
+import { FiUsers, FiShoppingBag, FiBox, FiDollarSign, FiBarChart, FiMapPin } from "react-icons/fi";
 
 interface SidebarProps {
   setActiveComponent: (component: string) => void;
   activeComponent: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
-  setActiveComponent,
-  activeComponent,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ setActiveComponent, activeComponent }) => {
+  const menuItems = [
+    { id: "users", label: "Users", icon: <FiUsers /> },
+    { id: "orders", label: "Orders", icon: <FiShoppingBag /> },
+    { id: "products", label: "Products", icon: <FiBox /> },
+    { id: "revenue", label: "Revenue", icon: <FiDollarSign /> },
+    { id: "user_statistics", label: "User Statistics", icon: <FiBarChart /> },
+    { id: "location_statistics", label: "Location Statistics", icon: <FiMapPin /> },
+  ];
+
   return (
-    <div
-  className="w-64 bg-gradient-to-r from-black via-gray-200 to-white 
-  shadow-md min-h-screen"
->
-      <nav className="p-4">
-        <ul>
-          <li
-            className={`cursor-pointer p-2 ${activeComponent === "users" ? "bg-gray-200" : ""}`}
-            onClick={() => setActiveComponent("users")}
-          >
-            Users
-          </li>
-        
-          <li
-            className={`cursor-pointer p-2 ${activeComponent === "orders" ? "bg-gray-200" : ""}`}
-            onClick={() => setActiveComponent("orders")}
-          >
-            Orders
-          </li>
-          <li
-            className={`cursor-pointer p-2 ${activeComponent === "products" ? "bg-gray-200" : ""}`}
-            onClick={() => setActiveComponent("products")}
-          >
-            Products
-          </li>
-          <li
-            className={`cursor-pointer p-2 ${activeComponent === "revenue" ? "bg-gray-200" : ""}`}
-            onClick={() => setActiveComponent("revenue")}
-          >
-            Revenue
-          </li>
-          <li
-            className={`cursor-pointer p-2 ${activeComponent === "user_statistics" ? "bg-gray-200" : ""}`}
-            onClick={() => setActiveComponent("user_statistics")}
-          >
-            User Statistics
-          </li>
-          <li
-            className={`cursor-pointer p-2 ${activeComponent === "location_statistics" ? "bg-gray-200" : ""}`}
-            onClick={() => setActiveComponent("location_statistics")}
-          >
-            Location Statistics
-          </li>
+    <div className="w-72 bg-gray-900 text-white shadow-lg min-h-screen flex flex-col">
+      <div className="p-6 text-xl font-bold text-center bg-gray-800">
+        Admin Dashboard
+      </div>
+      <nav className="flex-1">
+        <ul className="space-y-1">
+          {menuItems.map((item) => (
+            <li key={item.id}>
+              <button
+                className={`flex items-center gap-3 px-6 py-3 w-full text-left text-gray-300 transition-all 
+                hover:bg-gray-800 hover:text-white ${
+                  activeComponent === item.id ? "bg-gray-700 text-white" : ""
+                }`}
+                onClick={() => setActiveComponent(item.id)}
+              >
+                {item.icon} {item.label}
+              </button>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>

@@ -21,15 +21,17 @@ const ProductCard = ({ product }: { product: Product }) => {
   const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
   const dispatch = useDispatch();
   
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSize, setSelectedSize] = useState(product.sizes[0]);
   const [quantity, setQuantity] = useState(1);
 
-  // ✅ Check if product is already in the cart
+  // ✅ Get Cart state from Redux
   const cartItems = useSelector((state: RootState) => state.basket.items);
+
+  // ✅ Check if the product is in the cart
   const isInCart = cartItems.some(item => item.id === product.id && item.selectedSize === selectedSize);
 
+  // ✅ Handle Add to Cart
   const handleAddToCart = () => {
     const cartItem = {
       ...product,
@@ -45,13 +47,6 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <View style={tw`bg-white rounded-2xl shadow-lg p-4 mb-6 w-64 relative mx-2`}>
-      {/* Wishlist Button */}
-      <TouchableOpacity
-        style={tw`absolute top-3 right-3 p-2 rounded-full ${isWishlisted ? "bg-red-200" : "bg-gray-200"}`}
-        onPress={() => setIsWishlisted(!isWishlisted)}
-      >
-        <FontAwesome name={isWishlisted ? "heart" : "heart-o"} size={18} color={isWishlisted ? "red" : "black"} />
-      </TouchableOpacity>
 
       {/* Product Image */}
       <TouchableOpacity onPress={() => navigation.navigate("ProductDetail", { id: product.id })}>
@@ -84,7 +79,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           <Text style={tw`text-white font-semibold ml-2`}>View</Text>
         </TouchableOpacity>
 
-        {/* Cart Button - Different Colors */}
+        {/* Cart Button */}
         <TouchableOpacity
           style={tw`${isInCart ? "bg-green-600" : "bg-blue-600"} px-3 py-2 rounded-lg flex-row items-center w-[48%] justify-center`}
           onPress={() => isInCart ? navigation.navigate("Cart") : setModalVisible(true)}

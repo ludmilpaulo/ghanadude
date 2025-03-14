@@ -5,14 +5,15 @@ import {
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import tw from 'twrnc';
-import { FontAwesome5, Feather, AntDesign } from '@expo/vector-icons';
+import { FontAwesome, Feather, AntDesign } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateBasket } from '../redux/slices/basketSlice';
+import { addToWishlist, removeFromWishlist } from '../redux/slices/wishlistSlice';
 import { StackScreenProps } from "@react-navigation/stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { Product } from './types';
 import { RootState } from "../redux/store";
-import { useNavigation, NavigationProp } from "@react-navigation/native"; // ✅ Use correct type
+import { useNavigation, NavigationProp } from "@react-navigation/native"; 
 import { API_BASE_URL } from '../services/AuthService';
 
 type ProductDetailProps = StackScreenProps<HomeStackParamList, "ProductDetail">;
@@ -26,10 +27,15 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const dispatch = useDispatch();
-  const navigation = useNavigation<NavigationProp<HomeStackParamList>>(); // ✅ Ensure correct type
+  const navigation = useNavigation<NavigationProp<HomeStackParamList>>();
 
-  // ✅ Get cart items from Redux store
+  // ✅ Get wishlist & cart items from Redux store
+  const wishlistItems = useSelector((state: RootState) => state.wishlist?.items || []);
   const cartItems = useSelector((state: RootState) => state.basket.items);
+
+  // ✅ Check if the product is in the wishlist
+  const isWishlisted = wishlistItems.includes(id);
+  // ✅ Check if the product is in the cart
   const isInCart = cartItems.some(item => item.id === id && item.selectedSize === selectedSize);
 
   useEffect(() => {
@@ -67,6 +73,16 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
     Alert.alert("Success", `${product.name} (Size: ${selectedSize}) added to cart!`);
   };
 
+  const toggleWishlist = () => {
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(id));
+      Alert.alert("Removed", `${product?.name} removed from wishlist.`);
+    } else {
+      dispatch(addToWishlist(id));
+      Alert.alert("Added", `${product?.name} added to wishlist.`);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={tw`flex-1 justify-center items-center bg-gray-100`}>
@@ -86,6 +102,22 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-100`}>
       <ScrollView contentContainerStyle={tw`pb-10`}>
+
+        {/* 🔙 Back Button */}
+        <TouchableOpacity
+          style={tw`absolute top-10 left-5 z-10 bg-white p-3 rounded-full shadow-md`}
+          onPress={() => navigation.goBack()}
+        >
+          <AntDesign name="arrowleft" size={24} color="black" />
+        </TouchableOpacity>
+
+        {/* ❤️ Wishlist Button */}
+        <TouchableOpacity
+          style={tw`absolute top-10 right-5 z-10 bg-white p-3 rounded-full shadow-md`}
+          onPress={toggleWishlist}
+        >
+          <FontAwesome name={isWishlisted ? "heart" : "heart-o"} size={24} color={isWishlisted ? "red" : "black"} />
+        </TouchableOpacity>
 
         {/* Image Carousel */}
         <View style={tw`items-center`}>
@@ -150,11 +182,11 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
             ))}
           </View>
 
-          {/* Cart Button - Different Colors */}
+          {/* Cart Button */}
           <TouchableOpacity
             style={tw`mt-6 ${!selectedSize ? "bg-gray-400" : isInCart ? "bg-green-600" : "bg-indigo-600"} rounded-xl py-4 items-center shadow-md flex-row justify-center`}
             onPress={() => isInCart ? navigation.navigate("Cart") : handleAddToCart()}
-            disabled={!selectedSize} // ✅ Disable button if size is not selected
+            disabled={!selectedSize}
           >
             <Feather name="shopping-cart" size={20} color="white" />
             <Text style={tw`text-white text-lg font-semibold ml-2`}>

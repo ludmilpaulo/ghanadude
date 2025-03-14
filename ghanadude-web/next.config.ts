@@ -14,8 +14,9 @@ const nextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "https",
-        hostname: "play.google.com",
+        protocol: "http",
+        hostname: "192.168.1.109",
+        port: "8000",
         pathname: "/**",
       },
       {
