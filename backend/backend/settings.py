@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+   # 'django.middleware.csrf.CsrfViewMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     'corsheaders.middleware.CorsMiddleware',
@@ -270,6 +271,17 @@ CKEDITOR_5_CONFIGS = {
         }
     }
 }
+
+
+# PayFast Configuration
+PAYFAST_MERCHANT_ID = '10037687'  # Your Merchant ID
+PAYFAST_MERCHANT_KEY = 't9k4qun47sejo'  # Your Merchant Key
+PAYFAST_PASSPHRASE = ''  # If you have set one, otherwise leave empty
+PAYFAST_RETURN_URL = 'https://www.payfast.co.za/return/success'
+PAYFAST_CANCEL_URL = 'https://www.payfast.co.za/return/cancel'
+PAYFAST_NOTIFY_URL = 'https://your-real-domain-or-ngrok-url/order/payfast/payment-notify/'
+
+
 
 
 

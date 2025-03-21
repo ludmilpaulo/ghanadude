@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Processing Payment...</title>
+</head>
+<body>
+    <h1>Processing Payment...</h1>
+    <form action="https://sandbox.payfast.co.za/eng/process" method="POST" id="payfast-form">
+        <input type="hidden" name="merchant_id" value="{{ form_data.merchant_id }}">
+        <input type="hidden" name="merchant_key" value="{{ form_data.merchant_key }}">
+        <input type="hidden" name="amount" value="{{ form_data.amount }}">
+        <input type="hidden" name="item_name" value="{{ form_data.item_name }}">
+        <input type="hidden" name="email_address" value="{{ form_data.email_address }}">
+        <input type="hidden" name="return_url" value="{{ form_data.return_url }}">
+        <input type="hidden" name="cancel_url" value="{{ form_data.cancel_url }}">
+        <input type="hidden" name="notify_url" value="{{ form_data.notify_url }}">
+        <input type="hidden" name="order_id" value="{{ form_data.order_id }}">
+        <input type="hidden" name="pay_on_site" value="1"> <!-- Onsite Payment -->
+        <input type="hidden" name="signature" value="{{ form_data.signature }}">
+        <button type="submit">Complete Payment</button>
+    </form>
+
+    <script>
+        // Automatically submit the form once it's loaded
+        document.getElementById("payfast-form").submit();
+    </script>
+</body>
+</html>

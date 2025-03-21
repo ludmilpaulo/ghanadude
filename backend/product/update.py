@@ -1,3 +1,4 @@
+from django.http import QueryDict  # Import QueryDict
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -18,41 +19,43 @@ def product_detail(request, pk):
         return Response(serializer.data)
 
     elif request.method == 'PUT':
-        data = request.data.copy()
+        # Extract only non-file data safely
+        data = {key: value for key, value in request.data.items() if key != 'uploaded_images'}
 
-        # Handle category
-        category_name = data.get('category')
-        category, created = Category.objects.get_or_create(name=category_name)
-        data['category'] = category.id
+        # ✅ Convert on_sale to boolean
+        if 'on_sale' in data:
+            data['on_sale'] = data['on_sale'].lower() == 'true' if isinstance(data['on_sale'], str) else data['on_sale']
 
-        # Handle on_sale and discount_percentage
-        on_sale = data.get('on_sale')
-        discount_percentage = data.get('discount_percentage')
-
-        # Ensure discount_percentage is valid (between 0 and 100)
-        if discount_percentage:
+        # ✅ Convert discount_percentage to an integer
+        if 'discount_percentage' in data:
             try:
-                discount_percentage = int(discount_percentage)
-                if discount_percentage < 0 or discount_percentage > 100:
+                data['discount_percentage'] = int(data['discount_percentage'])
+                if not (0 <= data['discount_percentage'] <= 100):
                     return Response({"error": "Discount percentage must be between 0 and 100."}, status=status.HTTP_400_BAD_REQUEST)
             except ValueError:
                 return Response({"error": "Invalid discount percentage."}, status=status.HTTP_400_BAD_REQUEST)
-        data['on_sale'] = on_sale
-        data['discount_percentage'] = discount_percentage
 
+        # ✅ Convert sizes to a list
+        if 'sizes' in data and isinstance(data['sizes'], str):
+            data['sizes'] = data['sizes'].split(',')
+
+        # ✅ Handle category (ensure foreign key is set)
+        if 'category' in data:
+            category, created = Category.objects.get_or_create(name=data['category'])
+            data['category'] = category.id
+
+        # ✅ Serialize and validate product data (excluding images)
         serializer = ProductSerializer(product, data=data, context={'request': request})
 
         if serializer.is_valid():
             product = serializer.save()
 
-            # Handle images
-            images = request.FILES.getlist('images')
-            if images:
+            # ✅ Process uploaded images separately
+            uploaded_images = request.FILES.getlist('uploaded_images')
+            if uploaded_images:
                 product.images.clear()  # Remove old images
-                for image in images:
-                    img = Image.objects.create(image=image)
-                    product.images.add(img)
-                product.save()
+                for image in uploaded_images:
+                    Image.objects.create(product=product, image=image)
 
             return Response(serializer.data)
 

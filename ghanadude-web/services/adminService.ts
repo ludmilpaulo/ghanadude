@@ -116,13 +116,15 @@ export const createOrder = async (orderData: OrderData) => {
 
 export const fetchOrders = async () => {
   try {
-    const response = await axios.get(`${baseAPI}/order/orders/`);
-    return response.data;
+    const response = await fetch(`${baseAPI}/orders/`);
+    if (!response.ok) throw new Error("Failed to fetch orders");
+    return await response.json();
   } catch (error) {
     console.error("Error fetching orders:", error);
     return [];
   }
 };
+
 
 export const updateOrderStatus = async (
   orderId: number,

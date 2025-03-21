@@ -9,6 +9,8 @@ import ProductListScreen from "../screens/ProductListScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
+import PaymentSuccess from "../screens/PaymentSuccess";
+import PaymentCancelled from "../screens/PaymentCancelled";
 
 // ✅ Exporting HomeStackParamList so other files can import it
 export type HomeStackParamList = {
@@ -18,6 +20,8 @@ export type HomeStackParamList = {
   ProductList: undefined;
   Cart: undefined;
   CheckoutScreen: undefined;
+  PaymentSuccess: undefined;
+  PaymentCancelled: undefined;
   ProductDetail: { id: number }; // Ensure 'id' is passed
 };
 
@@ -34,6 +38,8 @@ export default function HomeNavigator() {
       <Stack.Screen name="ProductList" component={ProductListScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} />
+      <Stack.Screen name="PaymentSuccess" component={PaymentSuccess} />
+      <Stack.Screen name="PaymentCancelled" component={PaymentCancelled} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
