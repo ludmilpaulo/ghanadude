@@ -2,8 +2,17 @@
 
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, SafeAreaView, View, Button, Text } from 'react-native';
-import { WebView } from 'react-native-webview';
+import { WebView, WebViewNavigation } from 'react-native-webview';
+
+import { PayFastMerchantDetails, PayFastTransactionDetails } from './types';
 import { buildQueryString, generateMD5, removeUndefined } from './Helpers';
+
+type Props = PayFastMerchantDetails & {
+  paymentMethod?: 'ef' | 'cc' | 'dc' | 'mp' | 'mc' | 'sc' | 'ss' | 'zp' | 'mt' | 'rcs'
+  transactionDetails: PayFastTransactionDetails
+  isVisible: boolean
+  onClose: (reference?: string) => void
+}
 
 const PayFast = ({
   paymentMethod = 'cc',
@@ -16,7 +25,7 @@ const PayFast = ({
   merchantId,
   merchantKey,
   passPhrase,
-}) => {
+}: Props) => {
   const [showWeb, setShowWeb] = useState(false);
   const [postBody, setPostBody] = useState('');
 
@@ -66,7 +75,7 @@ const PayFast = ({
     }
   }, [isVisible]);
 
-  const handleNavigationChange = (event) => {
+  const handleNavigationChange = (event: WebViewNavigation) => {
     if (event.url.includes('finish')) {
       setShowWeb(false);
       onClose(TRANSACTION_DETAILS.m_payment_id);

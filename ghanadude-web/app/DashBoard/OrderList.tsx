@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { fetchOrders, updateOrderStatus } from "@/services/adminService";
-import { Transition } from "@headlessui/react";
 
-// Define the Order and OrderItem types
+import React, { useEffect, useState, useRef } from 'react';
+import { fetchOrders, updateOrderStatus } from '@/services/adminService';
+import { Dialog, Transition } from '@headlessui/react';
+import { CSVLink } from 'react-csv';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { useReactToPrint } from 'react-to-print';
+
 interface OrderItem {
   id: number;
-  product_name: string; // Use product_name instead of product.name
+  product_name: string;
   quantity: number;
   price: string;
 }
 
 interface Order {
   id: number;
-  user:  string;
+  user: string;
   total_price: number;
   status: string;
   created_at: string;
@@ -25,139 +29,182 @@ const OrderList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<string | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [statusFilter, setStatusFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 10;
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function loadOrders() {
       setLoading(true);
-      const data = await fetchOrders();
-      console.log("Orders fetched", data);
-      setOrders(data);
-      setLoading(false);
+      try {
+        const data = await fetchOrders();
+        setOrders(data);
+      } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        setAlert('❌ Failed to fetch orders.');
+      } finally {
+        setLoading(false);
+      }
     }
 
     loadOrders();
   }, []);
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
-    const order = orders.find((order) => order.id === orderId);
-    if (
-      order &&
-      (order.status === "Completed" || order.status === "Cancelled")
-    ) {
-      setAlert(
-        "This order is already marked as Completed or Cancelled. Please contact the admin to make changes.",
-      );
-      setTimeout(() => setAlert(null), 5000);
+    const order = orders.find((o) => o.id === orderId);
+    if (order && ['Completed', 'Cancelled'].includes(order.status)) {
+      setAlert('Order already Completed or Cancelled.');
+      setTimeout(() => setAlert(null), 4000);
       return;
     }
 
     try {
       setLoading(true);
       await updateOrderStatus(orderId, { status: newStatus });
-      const updatedOrders = orders.map((order) =>
-        order.id === orderId ? { ...order, status: newStatus } : order,
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, status: newStatus } : order
+        )
       );
-      setOrders(updatedOrders);
-      setLoading(false);
-      setAlert("Order status updated successfully!");
-      setTimeout(() => setAlert(null), 5000);
+      setAlert('✅ Order status updated!');
     } catch (error) {
-      console.error("Failed to update order status:", error);
+      console.error('Failed to update status:', error);
+      setAlert('❌ Failed to update order.');
+    } finally {
       setLoading(false);
+      setTimeout(() => setAlert(null), 4000);
     }
   };
 
+  const exportPDF = () => {
+    const doc = new jsPDF();
+    autoTable(doc, {
+      head: [['ID', 'User', 'Total', 'Status', 'Created At', 'Address']],
+      body: orders.map((order) => [
+        order.id,
+        order.user,
+        `R${order.total_price}`,
+        order.status,
+        new Date(order.created_at).toLocaleDateString(),
+        order.address,
+      ]),
+    });
+    doc.save('orders.pdf');
+  };
+
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesStatus = statusFilter ? order.status === statusFilter : true;
+    const matchesUser = userFilter
+      ? order.user.toLowerCase().includes(userFilter.toLowerCase())
+      : true;
+    const matchesDate = dateFilter
+      ? new Date(order.created_at).toLocaleDateString() ===
+        new Date(dateFilter).toLocaleDateString()
+      : true;
+    return matchesStatus && matchesUser && matchesDate;
+  });
+
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Orders</h1>
+    <div className="p-6 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">📦 Orders Dashboard</h1>
 
-      {alert && (
-        <div
-          className="bg-blue-100 border-t border-b border-blue-500 text-blue-700 px-4 py-3"
-          role="alert"
-        >
-          <p className="font-bold">Notice</p>
-          <p className="text-sm">{alert}</p>
-        </div>
-      )}
+      {alert && <div className="mb-4 text-blue-700">{alert}</div>}
 
-      <Transition
-        show={loading}
-        enter="transition-opacity duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-300"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
-        </div>
-      </Transition>
+      <div className="flex gap-4 mb-4">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border px-3 py-2 rounded text-sm">
+          <option value="">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Processing">Processing</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <input type="text" placeholder="Filter by user" value={userFilter} onChange={(e) => setUserFilter(e.target.value)} className="border px-3 py-2 rounded text-sm" />
+        <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="border px-3 py-2 rounded text-sm" />
+      </div>
 
-      <table className="w-full table-auto bg-white shadow-md rounded">
-        <thead>
-          <tr className="bg-gray-200 text-left">
-            <th className="px-4 py-2">ID</th>
-            <th className="px-4 py-2">User</th>
-            <th className="px-4 py-2">Total Price</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Created At</th>
-            <th className="px-4 py-2">Address</th>
-            <th className="px-4 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order.id} className="border-b">
-              <td className="px-4 py-2">{order.id}</td>
-              <td className="px-4 py-2">{order.user}</td>
-              <td className="px-4 py-2">{order.total_price}</td>
-              <td className="px-4 py-2">
-                <select
-                  value={order.status}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  className="border rounded px-2 py-1"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Cancelled">Cancelled</option>
-                </select>
-              </td>
-              <td className="px-4 py-2">{order.created_at}</td>
-              <td className="px-4 py-2">{order.address}</td>
-              <td className="px-4 py-2">
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={() => setViewingOrder(order)}
-                >
-                  View Products
-                </button>
-              </td>
+      <div className="flex justify-end gap-4 mb-4">
+        <CSVLink data={orders} filename="orders.csv" className="bg-green-600 text-white px-4 py-2 rounded text-sm">Export CSV</CSVLink>
+        <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded text-sm">Export PDF</button>
+        <button onClick={handlePrint} className="bg-indigo-600 text-white px-4 py-2 rounded text-sm">Print</button>
+      </div>
+
+      <div ref={printRef} className="overflow-x-auto border rounded bg-white shadow">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              {['ID', 'User', 'Total', 'Status', 'Date', 'Address', 'Actions'].map((h) => (
+                <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">{h}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {viewingOrder && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold">Order Products</h2>
-          <ul className="list-disc text-white ml-6">
-            {viewingOrder.items.map((item) => (
-              <li key={item.id}>
-                {item.product_name} - Quantity: {item.quantity} - Price: {item.price}
-              </li>
+          </thead>
+          <tbody className="divide-y divide-gray-100 text-sm text-gray-800">
+            {currentOrders.map((order) => (
+              <tr key={order.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4">{order.id}</td>
+                <td className="px-6 py-4">{order.user}</td>
+                <td className="px-6 py-4">R{order.total_price}</td>
+                <td className="px-6 py-4">
+                  <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="border px-2 py-1 rounded">
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </td>
+                <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
+                <td className="px-6 py-4">{order.address}</td>
+                <td className="px-6 py-4">
+                  <button onClick={() => setViewingOrder(order)} className="bg-blue-500 text-white px-3 py-1 rounded">View</button>
+                </td>
+              </tr>
             ))}
-          </ul>
-          <button
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
-            onClick={() => setViewingOrder(null)}
-          >
-            Close
-          </button>
+          </tbody>
+        </table>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center mt-4">
+          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">← Prev</button>
+          <span className="text-sm text-gray-600">Page {currentPage} of {totalPages}</span>
+          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">Next →</button>
         </div>
       )}
+
+      <Transition appear show={!!viewingOrder} as={React.Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={() => setViewingOrder(null)}>
+          <Transition.Child enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100"
+                            leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex items-center justify-center min-h-full p-4">
+              <Dialog.Panel className="bg-white max-w-md w-full rounded p-6 shadow-lg">
+                <Dialog.Title className="text-lg font-semibold mb-4">Order #{viewingOrder?.id} Products</Dialog.Title>
+                <ul className="space-y-2">
+                  {viewingOrder?.items.map((item) => (
+                    <li key={item.id}>
+                      {item.product_name} - Qty: {item.quantity} - R{item.price}
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => setViewingOrder(null)} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
+              </Dialog.Panel>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   );
 };

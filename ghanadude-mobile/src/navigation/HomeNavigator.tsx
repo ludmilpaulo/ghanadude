@@ -20,10 +20,11 @@ export type HomeStackParamList = {
   ProductList: undefined;
   Cart: undefined;
   CheckoutScreen: undefined;
-  SuccessScreen: undefined;
+  SuccessScreen: { order_id: number };
   PaymentCancelled: undefined;
-  ProductDetail: { id: number }; // Ensure 'id' is passed
+  ProductDetail: { id: number };
 };
+
 
 const Stack = createStackNavigator<HomeStackParamList>();
 

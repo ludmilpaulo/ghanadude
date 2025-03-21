@@ -1,11 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeStackParamList } from '../navigation/HomeNavigator';
 import tw from 'twrnc';
 
+type SuccessScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'SuccessScreen'>;
+type SuccessScreenRouteProp = RouteProp<HomeStackParamList, 'SuccessScreen'>;
+
 const SuccessScreen = () => {
-  const navigation = useNavigation();
-  const route = useRoute<any>();
+  const navigation = useNavigation<SuccessScreenNavigationProp>();
+  const route = useRoute<SuccessScreenRouteProp>();
 
   return (
     <View style={tw`flex-1 justify-center items-center bg-white px-5`}>

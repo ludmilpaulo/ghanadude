@@ -116,7 +116,7 @@ export const createOrder = async (orderData: OrderData) => {
 
 export const fetchOrders = async () => {
   try {
-    const response = await fetch(`${baseAPI}/orders/`);
+    const response = await fetch(`${baseAPI}/order/orders/`);
     if (!response.ok) throw new Error("Failed to fetch orders");
     return await response.json();
   } catch (error) {

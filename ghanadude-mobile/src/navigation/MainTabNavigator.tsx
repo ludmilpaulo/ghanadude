@@ -48,8 +48,8 @@ const MainTabNavigator = () => {
           headerShown: false,
           tabBarStyle: {
             backgroundColor: "transparent",
-            elevation: 0, // Removes shadow on Android
-            paddingBottom: 10, // Adjusts padding to prevent overlap
+            elevation: 0,
+            paddingBottom: 10,
             height: 75,
           },
         }}
@@ -73,19 +73,20 @@ const MainTabNavigator = () => {
           name="Deals"
           component={DealsScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <MaterialIcons name="local-offer" color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="local-offer" color={color} size={size} />
+            ),
           }}
         />
 
-        {/* Cart Screen with Badge */}
-        <Tab.Screen
-          name="Cart"
-          component={CartScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <View>
-                <FontAwesome name="shopping-cart" color={color} size={size} />
-                {cartCount > 0 && (
+        {cartCount > 0 && (
+          <Tab.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <View>
+                  <FontAwesome name="shopping-cart" color={color} size={size} />
                   <View
                     style={{
                       position: "absolute",
@@ -99,15 +100,16 @@ const MainTabNavigator = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{cartCount}</Text>
+                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
+                      {cartCount}
+                    </Text>
                   </View>
-                )}
-              </View>
-            ),
-          }}
-        />
+                </View>
+              ),
+            }}
+          />
+        )}
 
-        {/* Wishlist Screen with Badge */}
         <Tab.Screen
           name="Wishlist"
           component={WishlistScreen}
@@ -129,7 +131,9 @@ const MainTabNavigator = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>{wishlistCount}</Text>
+                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
+                      {wishlistCount}
+                    </Text>
                   </View>
                 )}
               </View>
