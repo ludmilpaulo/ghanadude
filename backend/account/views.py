@@ -140,7 +140,7 @@ class PasswordResetConfirmView(APIView):
         except (User.DoesNotExist, ValueError):
             return Response({'error': 'Invalid user.'}, status=status.HTTP_400_BAD_REQUEST)
 class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated]
+   # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         serializer = UserSerializer(request.user)
@@ -153,10 +153,21 @@ def get_user_profile(request, user_id):
     try:
         user = User.objects.get(id=user_id)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
+
+        data = serializer.data
+        # Explicitly include First name, Last name, and Email address clearly
+        response_data = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            **data  # include all serialized data as well
+        }
+
+        return Response(response_data)
     except User.DoesNotExist:
         logger.error(f'User with id {user_id} not found')
         return Response({"error": "User not found"}, status=404)
+
 
 
 @api_view(['PUT'])

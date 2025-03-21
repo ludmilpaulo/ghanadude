@@ -14,9 +14,13 @@
     },
     "ios": {
       "supportsTablet": true,
+      "infoPlist": {
+    "NSLocationWhenInUseUsageDescription": "We use your location to autofill your delivery address."
+  },
       "bundleIdentifier": "com.ludmil.ghanadudemobile"
     },
     "android": {
+      "permissions": ["ACCESS_FINE_LOCATION"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

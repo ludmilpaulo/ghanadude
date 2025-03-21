@@ -10,9 +10,7 @@ from product.models import Product
 @permission_classes([AllowAny])
 def checkout(request):
     data = request.data
-
     user = User.objects.get(pk=data['user_id'])
-
     order = Order.objects.create(
         user=user,
         total_price=data['total_price'],
@@ -30,10 +28,11 @@ def checkout(request):
             order=order,
             product=product,
             quantity=item['quantity'],
-            price=product.price  # <-- Critical fix here
+            price=product.price
         )
 
     return Response({'order_id': order.id}, status=201)
+
 
 
 
