@@ -2,17 +2,22 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   SafeAreaView,
   ActivityIndicator,
   TextInput,
+  Dimensions,
 } from "react-native";
-import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
+import tw from "twrnc";
+import { MotiView } from "moti";
+import HeroCarousel from "../components/HeroCarousel";
+
 import ProductService from "../services/ProductService";
-import ProductCard from "../components/ProductCard";
 import { Product, Category } from "./types";
+import ProductCard from "../components/ProductCard";
+
+const { width } = Dimensions.get("window");
 
 const categoryIcons: { [key: string]: string } = {
   all: "tags",
@@ -43,14 +48,10 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
   const fetchProducts = async () => {
     setLoading(true);
-    console.log("Fetching all products...");
-
     try {
       const res = await ProductService.getProducts();
-      console.log("Fetched products:", res);
-
       setAllProducts(res);
-      setFilteredProducts(res); // Ensures "All Products" initially shows everything
+      setFilteredProducts(res);
       setNotFound(res.length === 0);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -61,130 +62,107 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
   const fetchCategories = async () => {
     try {
-      console.log("Fetching categories...");
       const data = await ProductService.getCategories();
-      console.log("Fetched categories:", data);
-
-      setCategories([{ id: "all", name: "All Products" }, ...data]);
+      setCategories([{ id: "all", name: "All" }, ...data]);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
   };
 
   const filterProducts = (category = selectedCategory, query = searchQuery) => {
-    console.log("Filtering products...");
-    console.log("Selected Category:", category);
-    console.log("Search Query:", query);
-  
     let updatedProducts = [...allProducts];
-  
-    // ✅ If "All Products" is selected, show everything
-    if (category.toLowerCase() === "all products" || category.toLowerCase() === "all") {
-      console.log("✅ Showing all products.");
-      setFilteredProducts(allProducts);
-      setNotFound(allProducts.length === 0);
-      return;
+    if (category.toLowerCase() !== "all") {
+      updatedProducts = updatedProducts.filter(
+        (product) => product.category.toLowerCase() === category.toLowerCase()
+      );
     }
-  
-    // Apply category filter
-    updatedProducts = updatedProducts.filter(
-      (product) => product.category.toLowerCase() === category.toLowerCase()
-    );
-  
-    console.log("Filtered by category:", updatedProducts);
-  
-    // Apply search filter
     if (query) {
       updatedProducts = updatedProducts.filter((product) =>
         product.name.toLowerCase().includes(query.toLowerCase())
       );
-      console.log("Filtered by search query:", updatedProducts);
     }
-  
     setFilteredProducts(updatedProducts);
     setNotFound(updatedProducts.length === 0);
   };
-  
 
-  const handleCategorySelect = (category: string) => {
-    console.log(`Category selected: ${category}`);
-  
-    setSelectedCategory(category);
-    setSearchQuery(""); // Reset search when changing category
-  
-    // ✅ Ensure "All Products" works correctly
-    if (category.toLowerCase() === "all products" || category.toLowerCase() === "all") {
-      console.log("✅ Resetting to show all products.");
-      setFilteredProducts(allProducts);
-      setNotFound(allProducts.length === 0);
-      return;
-    }
-  };
-  
   const onSaleProducts = filteredProducts.filter((product) => product.on_sale);
-  console.log("On Sale Products:", onSaleProducts);
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-[#F8F8F8]`}>
-      <ScrollView style={tw`p-4`}>
-        {/* Categories */}
-        <Text style={tw`text-2xl font-bold text-black mb-4`}>Categories</Text>
+    <SafeAreaView style={tw`flex-1 bg-white`}>
+      <ScrollView style={tw`p-4`} showsVerticalScrollIndicator={false}>
+        <HeroCarousel />
+
+        <Text style={tw`text-xl font-bold mt-4 mb-2`}>Categories</Text>
         <View style={tw`flex-row flex-wrap justify-between mb-4`}>
-          {categories.map((cat) => (
-            <TouchableOpacity
+          {categories.map((cat, index) => (
+            <MotiView
               key={cat.id}
-              style={[
-                tw`w-[48%] bg-white shadow rounded-xl py-5 items-center mb-4`,
-                selectedCategory === cat.name && tw`border-2 border-black`,
-              ]}
-              onPress={() => handleCategorySelect(cat.name)}
+              from={{ opacity: 0, translateY: 10 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              transition={{ delay: index * 60 }}
+              style={tw`w-[48%] mb-3`}
             >
-              <FontAwesome5 name={categoryIcons[cat.name.toLowerCase()] || "tag"} size={32} color="black" />
-              <Text style={tw`capitalize mt-2 text-lg text-black`}>{cat.name}</Text>
-            </TouchableOpacity>
+              <View
+                style={[
+                  tw`bg-white p-4 rounded-xl items-center shadow`,
+                  selectedCategory === cat.name && tw`border-2 border-blue-600`,
+                ]}
+              >
+                <FontAwesome5
+                  name={categoryIcons[cat.name.toLowerCase()] || "tag"}
+                  size={24}
+                  color="black"
+                />
+                <Text
+                  style={tw`capitalize mt-2 text-black font-semibold`}
+                  onPress={() => {
+                    setSelectedCategory(cat.name);
+                    setSearchQuery("");
+                  }}
+                >
+                  {cat.name}
+                </Text>
+              </View>
+            </MotiView>
           ))}
         </View>
 
-        {/* Search Bar */}
-        <View style={tw`flex-row items-center bg-white rounded-xl p-3 shadow mb-6`}>
-          <FontAwesome5 name="search" size={18} color="#333" style={tw`mr-2`} />
+        <View style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 mb-6`}>
+          <FontAwesome5 name="search" size={16} color="#666" style={tw`mr-3`} />
           <TextInput
             placeholder="Search for products..."
+            placeholderTextColor="#888"
             style={tw`flex-1 text-base text-black`}
             value={searchQuery}
-            onChangeText={(text) => {
-              console.log("User typed in search bar:", text);
-              setSearchQuery(text);
-            }}
+            onChangeText={(text) => setSearchQuery(text)}
           />
         </View>
 
-        {/* Alert if no product is found */}
         {notFound && (
           <View style={tw`bg-red-100 p-4 rounded-lg mb-4`}>
-            <Text style={tw`text-red-600 font-semibold text-center`}>⚠️ Product not found!</Text>
+            <Text style={tw`text-red-600 font-semibold text-center`}>
+              ⚠️ No products found
+            </Text>
           </View>
         )}
 
-        {/* Products Section - Horizontal Scroll */}
-        <Text style={tw`text-2xl font-bold text-black mt-6 mb-4`}>🛍️ New Arrivals</Text>
+        <Text style={tw`text-xl font-bold text-gray-800 mb-4`}>🛍️ Products</Text>
         {loading ? (
-          <ActivityIndicator size="large" color="black" />
+          <ActivityIndicator size="large" color="#000" />
         ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`mb-6`}>
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {filteredProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
             ))}
           </ScrollView>
         )}
 
-        {/* Products On Sale - Horizontal Scroll */}
         {onSaleProducts.length > 0 && (
           <>
-            <Text style={tw`text-2xl font-bold text-black mt-8 mb-4`}>🔥 On Sale</Text>
+            <Text style={tw`text-xl font-bold text-gray-800 mt-6 mb-4`}>🔥 On Sale</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {onSaleProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {onSaleProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
               ))}
             </ScrollView>
           </>
