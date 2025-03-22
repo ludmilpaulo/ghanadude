@@ -1,61 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  ScrollView
+  View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView
 } from 'react-native';
 import * as Location from 'expo-location';
 import tw from 'twrnc';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeStackParamList } from '../navigation/HomeNavigator';
 import PayFast from './PayFast';
 import { checkoutOrder } from '../services/Checkout';
 import { fetchUserProfile, updateUserProfile } from '../services/UserService';
+import { getUserCoupons } from '../services/CouponService';
 import { selectCartItems, clearCart } from '../redux/slices/basketSlice';
 import { selectUser } from '../redux/slices/authSlice';
 import { API_BASE_URL } from '../services/AuthService';
 
-import { StackNavigationProp } from '@react-navigation/stack';
-import { HomeStackParamList } from '../navigation/HomeNavigator';
-
-
 type CheckoutScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'CheckoutScreen'>;
-const navigation = useNavigation<CheckoutScreenNavigationProp>();
-
-
-interface FormData {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  address: string;
-  city: string;
-  postal_code: string;
-  country: string;
-}
 
 const CheckoutScreen = () => {
   const dispatch = useDispatch();
- // const navigation = useNavigation();
+  const navigation = useNavigation<CheckoutScreenNavigationProp>();
   const user = useSelector(selectUser);
   const cartItems = useSelector(selectCartItems);
 
   const [payFastVisible, setPayFastVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.quantity * Number(item.price),
     0
   );
 
-  const itemNames = cartItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
-
-  const [form, setForm] = useState<FormData>({
+  const [form, setForm] = useState({
     first_name: '',
     last_name: '',
     email: '',
@@ -66,7 +46,7 @@ const CheckoutScreen = () => {
     country: '',
   });
 
-  const [editableFields, setEditableFields] = useState<Record<keyof FormData, boolean>>({
+  const [editableFields, setEditableFields] = useState<Record<keyof typeof form, boolean>>({
     first_name: true,
     last_name: true,
     email: true,
@@ -77,11 +57,17 @@ const CheckoutScreen = () => {
     country: true,
   });
 
+  const discountedPrice = selectedCoupon
+    ? Math.max(0, totalPrice - Number(selectedCoupon.value))
+    : totalPrice;
+
+  const itemNames = cartItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
+
   useEffect(() => {
-    const loadProfile = async () => {
+    const load = async () => {
       try {
         const profile = await fetchUserProfile(user.user_id);
-        const updatedForm: FormData = {
+        setForm({
           first_name: profile.first_name,
           last_name: profile.last_name,
           email: profile.email,
@@ -90,29 +76,27 @@ const CheckoutScreen = () => {
           city: profile.city || '',
           postal_code: profile.postal_code || '',
           country: profile.country || '',
-        };
-        setForm(updatedForm);
+        });
 
-        const updatedEditable: Record<keyof FormData, boolean> = {
-          first_name: updatedForm.first_name === '',
-          last_name: updatedForm.last_name === '',
-          email: updatedForm.email === '',
-          phone_number: updatedForm.phone_number === '',
-          address: updatedForm.address === '',
-          city: updatedForm.city === '',
-          postal_code: updatedForm.postal_code === '',
-          country: updatedForm.country === '',
-        };
-        setEditableFields(updatedEditable);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to load user profile.');
+        const couponRes = await getUserCoupons(user.user_id); // Using user_id
+        const now = new Date();
+        const validCoupons = couponRes
+          .filter((c: any) => !c.is_redeemed && new Date(c.expires_at) > now)
+          .sort((a: any, b: any) => Number(b.value) - Number(a.value));
+
+        setCoupons(validCoupons);
+        if (validCoupons.length > 0) {
+          setSelectedCoupon(validCoupons[0]); // auto-select best
+        }
+      } catch (err) {
+        Alert.alert('Error', 'Failed to load profile or coupons');
       }
     };
 
-    loadProfile();
+    load();
   }, [user.user_id]);
 
-  const handleChange = (name: keyof FormData, value: string) => {
+  const handleChange = (name: keyof typeof form, value: string) => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
@@ -129,16 +113,12 @@ const CheckoutScreen = () => {
     const geo = await Location.reverseGeocodeAsync(location.coords);
     if (geo.length > 0) {
       const place = geo[0];
-      const updatedLocationFields: Partial<FormData> = {
+      setForm(prev => ({
+        ...prev,
         address: `${place.streetNumber || ''} ${place.street || ''}`.trim(),
         city: place.city || '',
         postal_code: place.postalCode || '',
         country: place.country || '',
-      };
-
-      setForm(prev => ({
-        ...prev,
-        ...updatedLocationFields,
       }));
 
       setEditableFields(prev => ({
@@ -159,7 +139,8 @@ const CheckoutScreen = () => {
     try {
       const checkoutData = {
         user_id: user.user_id,
-        total_price: totalPrice,
+        total_price: discountedPrice,
+        coupon_code: selectedCoupon?.code || null,
         address: form.address,
         city: form.city,
         postal_code: form.postal_code,
@@ -182,7 +163,8 @@ const CheckoutScreen = () => {
     if (reference && orderId) {
       const finalCheckoutData = {
         user_id: user.user_id,
-        total_price: totalPrice,
+        total_price: discountedPrice,
+        coupon_code: selectedCoupon?.code || null,
         address: form.address,
         city: form.city,
         postal_code: form.postal_code,
@@ -195,7 +177,7 @@ const CheckoutScreen = () => {
 
       try {
         await checkoutOrder(finalCheckoutData);
-        await updateUserProfile(user.user_id, form);
+        await updateUserProfile(user.user_id, form); // No token required
         dispatch(clearCart());
         navigation.navigate('SuccessScreen', { order_id: orderId });
       } catch (error) {
@@ -210,7 +192,7 @@ const CheckoutScreen = () => {
     <ScrollView style={tw`flex-1 bg-gray-50 p-4`}>
       <Text style={tw`text-2xl font-bold text-center mb-4`}>Checkout 🛒</Text>
 
-      {(Object.keys(form) as (keyof FormData)[]).map((field) => (
+      {(Object.keys(form) as (keyof typeof form)[]).map((field) => (
         <TextInput
           key={field}
           placeholder={field.replace('_', ' ').toUpperCase()}
@@ -224,6 +206,36 @@ const CheckoutScreen = () => {
         />
       ))}
 
+      {coupons.length > 0 && (
+        <View style={tw`my-4`}>
+          <Text style={tw`text-lg font-bold mb-2`}>🎟️ Applied Coupon</Text>
+          {coupons.map((coupon: any) => (
+            <TouchableOpacity
+              key={coupon.code}
+              onPress={() => setSelectedCoupon(coupon)}
+              style={[
+                tw`p-3 rounded-lg mb-2 border`,
+                selectedCoupon?.code === coupon.code ? tw`border-green-600 bg-green-100` : tw`border-gray-300`
+              ]}
+            >
+              <Text style={tw`text-base font-semibold`}>{coupon.code}</Text>
+              <Text style={tw`text-sm text-gray-600`}>
+                R{coupon.value} off • Expires {new Date(coupon.expires_at).toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      <View style={tw`mb-4`}>
+        <Text style={tw`text-lg`}>
+          🧾 Total: <Text style={tw`line-through text-gray-500`}>R{totalPrice.toFixed(2)}</Text>
+        </Text>
+        <Text style={tw`text-2xl font-bold text-green-700`}>
+          💰 Pay: R{discountedPrice.toFixed(2)}
+        </Text>
+      </View>
+
       <TouchableOpacity onPress={useCurrentLocation} style={tw`bg-blue-600 py-3 rounded-lg mt-3`}>
         {loading
           ? <ActivityIndicator color="#fff" />
@@ -232,7 +244,7 @@ const CheckoutScreen = () => {
 
       <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 py-3 rounded-lg my-3`}>
         <Text style={tw`text-white text-center font-bold`}>
-          💳 Pay R{totalPrice}
+          💳 Pay R{discountedPrice.toFixed(2)}
         </Text>
       </TouchableOpacity>
 
@@ -250,7 +262,7 @@ const CheckoutScreen = () => {
             customerEmailAddress: form.email,
             customerPhoneNumber: form.phone_number,
             reference: `ORDER_${orderId}`,
-            amount: totalPrice,
+            amount: discountedPrice,
             itemName: itemNames,
             itemDescription: 'Checkout Payment',
           }}

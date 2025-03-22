@@ -11,6 +11,10 @@ import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 import SuccessScreen from "../screens/SuccessScreen";
 import PaymentCancelled from "../screens/PaymentCancelled";
+import MyCouponsScreen from "../screens/MyCouponsScreen";
+import OrderHistory from "../screens/OrderHistory";
+import InvoiceHistoryScreen from "../screens/InvoiceHistoryScreen";
+import FullReviewScreen from "../screens/FullReviewScreen";
 
 // ✅ Exporting HomeStackParamList so other files can import it
 export type HomeStackParamList = {
@@ -23,6 +27,12 @@ export type HomeStackParamList = {
   SuccessScreen: { order_id: number };
   PaymentCancelled: undefined;
   ProductDetail: { id: number };
+  MyCouponsScreen: undefined;
+  OrderHistory: undefined;
+  InvoiceHistoryScreen: undefined;
+  FullReview: { id: number }; // ✅ ADD THIS
+
+
 };
 
 
@@ -41,6 +51,14 @@ export default function HomeNavigator() {
       <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} />
       <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
       <Stack.Screen name="PaymentCancelled" component={PaymentCancelled} />
+      <Stack.Screen name="MyCouponsScreen" component={MyCouponsScreen} />
+      <Stack.Screen name="OrderHistory" component={OrderHistory} />
+      <Stack.Screen name="InvoiceHistoryScreen" component={InvoiceHistoryScreen} />
+      <Stack.Screen name="FullReview" component={FullReviewScreen} />
+
+
+
+
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );

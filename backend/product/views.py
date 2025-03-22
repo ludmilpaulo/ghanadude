@@ -95,3 +95,16 @@ def create_product(request):
 def sizes_list(request):
     sizes = Size.objects.all()
     return Response([{'id': size.id, 'name': size.name} for size in sizes])
+
+
+# views.py
+@api_view(["GET"])
+def related_products(request, product_id):
+    try:
+        current = Product.objects.get(id=product_id)
+        related = Product.objects.filter(category=current.category).exclude(id=product_id)[:10]
+        serializer = ProductSerializer(related, many=True)
+        return Response(serializer.data)
+    except Product.DoesNotExist:
+        return Response([], status=200)
+

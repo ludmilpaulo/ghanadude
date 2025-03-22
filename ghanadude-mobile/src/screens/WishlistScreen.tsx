@@ -3,21 +3,26 @@ import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Ale
 import tw from "twrnc";
 import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
-
-const API_BASE_URL = "https://your-backend-api.com"; // 🔹 Change this to your backend URL
+import { API_BASE_URL } from "../services/AuthService";
+import { useSelector } from "react-redux";
+import { selectUser } from "../redux/slices/authSlice";
 
 const WishlistScreen = () => {
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const user = useSelector(selectUser);
+  const userId = user?.user_id;
 
   useEffect(() => {
-    fetchWishlist();
-  }, []);
+    if (userId) {
+      fetchWishlist();
+    }
+  }, [userId]);
 
   const fetchWishlist = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/wishlist/`, {
-        headers: { Authorization: `Bearer YOUR_AUTH_TOKEN` }, // 🔹 Replace with your auth method
+      const response = await axios.get(`${API_BASE_URL}/product/wishlist/`, {
+        params: { user_id: userId }
       });
       setWishlist(response.data);
     } catch (err) {
@@ -29,8 +34,8 @@ const WishlistScreen = () => {
 
   const removeFromWishlist = async (productId: number) => {
     try {
-      await axios.delete(`${API_BASE_URL}/wishlist/${productId}/`, {
-        headers: { Authorization: `Bearer YOUR_AUTH_TOKEN` },
+      await axios.delete(`${API_BASE_URL}/product/wishlist/remove/${productId}/`, {
+        params: { user_id: userId }
       });
       setWishlist((prev) => prev.filter((item) => item.product?.id !== productId));
     } catch (err) {
@@ -52,19 +57,17 @@ const WishlistScreen = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           {wishlist.map((item, index) => {
             if (!item.product || typeof item.product.price !== "number") {
-              return null; // 🔹 Skip invalid items
+              return null;
             }
 
             return (
               <View key={index} style={tw`flex-row items-center bg-gray-100 p-3 rounded-lg mb-3`}>
-                {/* Product Image */}
                 {item.product.image ? (
                   <Image source={{ uri: item.product.image }} style={tw`w-16 h-16 rounded-lg mr-3`} />
                 ) : (
                   <View style={tw`w-16 h-16 bg-gray-300 rounded-lg mr-3`} />
                 )}
 
-                {/* Product Details */}
                 <View style={tw`flex-1`}>
                   <Text style={tw`text-lg font-semibold`} numberOfLines={1}>
                     {item.product.name || "Unnamed Product"}
@@ -72,7 +75,6 @@ const WishlistScreen = () => {
                   <Text style={tw`text-gray-500`}>R{item.product.price.toFixed(2)}</Text>
                 </View>
 
-                {/* Remove Item */}
                 <TouchableOpacity onPress={() => removeFromWishlist(item.product.id)} style={tw`p-2`}>
                   <FontAwesome name="trash" size={20} color="red" />
                 </TouchableOpacity>

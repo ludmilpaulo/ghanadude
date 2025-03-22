@@ -11,6 +11,20 @@ from product.models import Product
 def checkout(request):
     data = request.data
     user = User.objects.get(pk=data['user_id'])
+
+    coupon_code = data.get('coupon_code')
+    coupon = None
+    discount_amount = 0
+
+    if coupon_code:
+        try:
+            coupon = Coupon.objects.get(code=coupon_code, user=user, is_redeemed=False)
+            discount_amount = coupon.value
+            coupon.is_redeemed = True
+            coupon.save()
+        except Coupon.DoesNotExist:
+            pass
+
     order = Order.objects.create(
         user=user,
         total_price=data['total_price'],
@@ -19,7 +33,9 @@ def checkout(request):
         postal_code=data['postal_code'],
         country=data['country'],
         payment_method=data['payment_method'],
-        status=data['status']
+        status=data['status'],
+        coupon=coupon,
+        discount_amount=discount_amount
     )
 
     for item in data['items']:
@@ -32,6 +48,7 @@ def checkout(request):
         )
 
     return Response({'order_id': order.id}, status=201)
+
 
 
 

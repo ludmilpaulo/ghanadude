@@ -3,12 +3,15 @@ import { RootState } from "../store"; // ✅ Import RootState
 
 interface CartItem {
   id: number;
-  name: string;  // ✅ Add this property
+  name: string;
   selectedSize: string;
   quantity: number;
   image: string;
-  price: number;
+  price: number; // final price (after discount)
+  originalPrice: number; // original price before discount
+  stock: number;
 }
+
 
 
 interface BasketState {
@@ -23,15 +26,21 @@ const basketSlice = createSlice({
   name: "basket",
   initialState,
   reducers: {
-    updateBasket: (state, action: PayloadAction<{ id: number; selectedSize: string }>) => {
-      const index = state.items.findIndex((item) => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize);
-
+    updateBasket: (state, action: PayloadAction<CartItem>) => {
+      const index = state.items.findIndex(
+        (item) => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize
+      );
+    
       if (index >= 0) {
-        state.items[index].quantity += 1;
+        // Prevent exceeding stock
+        if (state.items[index].quantity < state.items[index].stock) {
+          state.items[index].quantity += 1;
+        }
       } else {
-        state.items.push({ ...action.payload, quantity: 1 } as CartItem);
+        state.items.push(action.payload);
       }
     },
+    
 
     decreaseBasket: (state, action: PayloadAction<{ id: number; selectedSize: string }>) => {
       const index = state.items.findIndex((item) => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize);

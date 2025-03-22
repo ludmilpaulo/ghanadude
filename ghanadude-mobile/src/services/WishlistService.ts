@@ -1,65 +1,42 @@
+// WishlistService.ts
+
 import { API_BASE_URL } from "./AuthService";
 
-export const getWishlist = async (token: string) => {
+export const getWishlist = async (userId: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/wishlist/`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch wishlist");
-    }
-
-    return await response.json();
+    const response = await fetch(`${API_BASE_URL}/product/wishlist/?user_id=${userId}`);
+    const data = await response.json();
+    return data;
   } catch (error) {
     console.error("Error fetching wishlist:", error);
     return [];
   }
 };
 
-export const addToWishlist = async (token: string, productId: number) => {
+export const addToWishlist = async (userId: number, productId: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/wishlist/add/`, {
+    const response = await fetch(`${API_BASE_URL}/product/wishlist/add/`, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ product_id: productId }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, product_id: productId })
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to add to wishlist");
-    }
-
-    return await response.json();
+    return response.ok;
   } catch (error) {
     console.error("Error adding to wishlist:", error);
-    return null;
+    return false;
   }
 };
 
-export const removeFromWishlist = async (token: string, productId: number) => {
+export const removeFromWishlist = async (userId: number, productId: number) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/wishlist/remove/${productId}/`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const response = await fetch(`${API_BASE_URL}/product/wishlist/remove/${productId}/?user_id=${userId}`, {
+      method: "DELETE"
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to remove from wishlist");
-    }
-
-    return await response.json();
+    return response.ok;
   } catch (error) {
     console.error("Error removing from wishlist:", error);
-    return null;
+    return false;
   }
 };

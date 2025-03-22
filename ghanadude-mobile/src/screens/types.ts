@@ -18,6 +18,11 @@ export interface ProductImage {
     season: 'summer' | 'winter' | 'all_seasons';
     images: ProductImage[];
     sizes: string[];
+
+      // ✅ Optional fields for richer display
+    average_rating?: number;   // for displaying stars
+    total_reviews?: number;    // optional: number of reviews
+    is_featured?: boolean;
   }
   
   export interface Category {

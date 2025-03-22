@@ -10,6 +10,8 @@ import tw from 'twrnc';
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+import Toast from 'react-native-toast-message';
+
 import ErrorBoundary from "./src/components/ErrorBoundary"; // Ensure correct import path
 import { SafeAreaView } from "react-native";
 
@@ -23,6 +25,7 @@ export default function App() {
             <ErrorBoundary>
             <SafeAreaView style={tw`flex-1 bg-gray-50`}>
               <AppNavigator />
+              <Toast />
               </SafeAreaView>
             </ErrorBoundary>
           </PersistGate>

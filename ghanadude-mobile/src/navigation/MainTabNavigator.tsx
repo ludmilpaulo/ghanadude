@@ -81,12 +81,13 @@ const MainTabNavigator = () => {
 
         {cartCount > 0 && (
           <Tab.Screen
-            name="Cart"
-            component={CartScreen}
-            options={{
-              tabBarIcon: ({ color, size }) => (
-                <View>
-                  <FontAwesome name="shopping-cart" color={color} size={size} />
+          name="Cart"
+          component={CartScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <View>
+                <FontAwesome name="shopping-cart" color={color} size={size} />
+                {cartCount > 0 && (
                   <View
                     style={{
                       position: "absolute",
@@ -104,10 +105,12 @@ const MainTabNavigator = () => {
                       {cartCount}
                     </Text>
                   </View>
-                </View>
-              ),
-            }}
-          />
+                )}
+              </View>
+            ),
+          }}
+        />
+        
         )}
 
         <Tab.Screen

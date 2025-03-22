@@ -1,9 +1,11 @@
 from django.urls import path
 
+from .reviews import get_product_reviews, react_review
+
 from .wishlist import add_to_wishlist, get_wishlist, remove_from_wishlist
 
 from .update import product_detail
-from .views import ProductViewSet, CategoryViewSet, BrandViewSet, DesignerViewSet, create_product, sizes_list
+from .views import ProductViewSet, CategoryViewSet, BrandViewSet, DesignerViewSet, create_product, related_products, sizes_list
 
 urlpatterns = [
     path('products/create/', create_product, name='create-product'),
@@ -18,7 +20,11 @@ urlpatterns = [
     path('brands/<int:pk>/', BrandViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='brand-detail'),
     path('designers/', DesignerViewSet.as_view({'get': 'list', 'post': 'create'}), name='designer-list'),
     path('designers/<int:pk>/', DesignerViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='designer-detail'),
-    path("wishlist/", get_wishlist, name="get_wishlist"),
-    path("wishlist/add/", add_to_wishlist, name="add_to_wishlist"),
-    path("wishlist/remove/<int:product_id>/", remove_from_wishlist, name="remove_from_wishlist"),
+    path("wishlist/", get_wishlist),
+    path("wishlist/add/", add_to_wishlist),
+    path("wishlist/remove/<int:product_id>/", remove_from_wishlist),
+    path("products/related/<int:product_id>/", related_products),
+    path('products/<int:product_id>/reviews/', get_product_reviews, name='get_product_reviews'),
+    path("reviews/<int:review_id>/react/", react_review),
+
 ]

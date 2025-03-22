@@ -24,7 +24,7 @@ const SuccessScreen = () => {
 
       <TouchableOpacity
         style={tw`bg-blue-600 py-3 px-6 rounded-full mt-6`}
-        onPress={() => navigation.navigate('Home')}
+        onPress={() => navigation.navigate('HomeScreen')}
       >
         <Text style={tw`text-white font-semibold`}>Continue Shopping</Text>
       </TouchableOpacity>

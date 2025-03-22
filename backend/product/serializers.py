@@ -4,6 +4,13 @@ from .models import Brand, Category, Designer, Product, Image, Wishlist
 
 
 from .models import Product, Image, Category, Brand
+from .models import Review
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()  # or serializers.SerializerMethodField() for custom username
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'comment', 'rating', 'created_at']
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:

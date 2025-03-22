@@ -103,3 +103,25 @@ class Wishlist(models.Model):
 
     class Meta:
         unique_together = ('user', 'product')
+        
+
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name="reviews", on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField()
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    likes = models.ManyToManyField(User, related_name="liked_reviews", blank=True)
+    dislikes = models.ManyToManyField(User, related_name="disliked_reviews", blank=True)
+
+    def like_count(self):
+        return self.likes.count()
+
+    def dislike_count(self):
+        return self.dislikes.count()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
+
