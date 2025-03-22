@@ -19,7 +19,6 @@
     "@tinymce/tinymce-react": "^6.0.0",
     "@tiptap/react": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
-    "@types/react-csv": "^1.1.10",
     "axios": "^1.8.1",
     "chart.js": "^4.4.8",
     "class-variance-authority": "^0.7.1",

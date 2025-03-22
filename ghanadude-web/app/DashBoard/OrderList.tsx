@@ -3,9 +3,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { fetchOrders, updateOrderStatus } from '@/services/adminService';
 import { Dialog, Transition } from '@headlessui/react';
 import { CSVLink } from 'react-csv';
+
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useReactToPrint } from 'react-to-print';
+
 
 interface OrderItem {
   id: number;
@@ -26,7 +29,10 @@ interface Order {
 
 const OrderList: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+const [loading, setLoading] = useState(false);
+
+
   const [alert, setAlert] = useState<string | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
@@ -97,7 +103,10 @@ const OrderList: React.FC = () => {
 
   const handlePrint = useReactToPrint({
     content: () => printRef.current,
-  });
+  } as unknown as Parameters<typeof useReactToPrint>[0]);
+  
+  
+  
 
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = statusFilter ? order.status === statusFilter : true;
@@ -135,9 +144,22 @@ const OrderList: React.FC = () => {
       </div>
 
       <div className="flex justify-end gap-4 mb-4">
-        <CSVLink data={orders} filename="orders.csv" className="bg-green-600 text-white px-4 py-2 rounded text-sm">Export CSV</CSVLink>
+      <span>
+  <CSVLink
+    data={orders}
+    filename="orders.csv"
+    className="bg-green-600 text-white px-4 py-2 rounded text-sm"
+  >
+    Export CSV
+  </CSVLink>
+</span>
+
+
         <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded text-sm">Export PDF</button>
-        <button onClick={handlePrint} className="bg-indigo-600 text-white px-4 py-2 rounded text-sm">Print</button>
+        <button onClick={() => handlePrint?.()} className="bg-indigo-600 text-white px-4 py-2 rounded text-sm">
+  Print
+</button>
+
       </div>
 
       <div ref={printRef} className="overflow-x-auto border rounded bg-white shadow">

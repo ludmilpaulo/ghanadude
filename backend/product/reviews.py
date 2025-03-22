@@ -7,13 +7,16 @@ from .serializers import ReviewSerializer  # Make sure you have this serializer
 
 @api_view(["GET"])
 def get_product_reviews(request, product_id):
+    user_id = request.GET.get("user_id")  # get from query string
     try:
         product = Product.objects.get(id=product_id)
         reviews = Review.objects.filter(product=product).order_by("-created_at")
-        serializer = ReviewSerializer(reviews, many=True)
+        user = User.objects.filter(id=user_id).first() if user_id else None
+        serializer = ReviewSerializer(reviews, many=True, context={"request_user": user})
         return Response(serializer.data, status=200)
     except Product.DoesNotExist:
         return Response({"error": "Product not found"}, status=404)
+
 
 
 

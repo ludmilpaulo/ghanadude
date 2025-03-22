@@ -77,15 +77,22 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/product/products/${id}/reviews/`);
+        const response = await fetch(
+          `${API_BASE_URL}/product/products/${id}/reviews/?user_id=${userId}`
+        );
         const data = await response.json();
         setReviews(data);
-        const avg = data.length ? data.reduce((sum: number, r: any) => sum + r.rating, 0) / data.length : 0;
+    
+        const avg = data.length
+          ? data.reduce((sum: number, r: any) => sum + r.rating, 0) / data.length
+          : 0;
+    
         setAverageRating(parseFloat(avg.toFixed(1)));
       } catch (error) {
         console.error("Failed to load reviews:", error);
       }
     };
+    
 
     fetchRelated();
     fetchReviews();
