@@ -18,7 +18,13 @@ import {
 const AccountScreen = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
-  const token = useSelector((state: any) => state.auth.token);
+  interface RootState {
+    auth: {
+      token: string;
+    };
+  }
+
+  const token = useSelector((state: RootState) => state.auth.token);
 
   const [statusFilter, setStatusFilter] = useState<string>('Completed');
   const [orders, setOrders] = useState([]);
@@ -164,7 +170,7 @@ const AccountScreen = () => {
         {loadingOrders ? (
           <ActivityIndicator size="large" color="#4A5568" />
         ) : orders.length > 0 ? (
-          orders.map((order: any) => (
+          orders.map((order: { id: string; status: string; total_price: number; created_at: string }) => (
             <View
               key={order.id}
               style={tw`bg-white p-4 rounded-lg shadow-md mb-3`}

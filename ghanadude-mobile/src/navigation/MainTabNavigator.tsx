@@ -13,8 +13,9 @@ import DealsScreen from "../screens/DealsScreen";
 import { RootState } from "../redux/store";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
+import { API_BASE_URL } from "../services/AuthService";
 
-const API_BASE_URL = "https://your-backend-api.com"; // Change to actual backend URL
+
 
 const Tab = createBottomTabNavigator();
 

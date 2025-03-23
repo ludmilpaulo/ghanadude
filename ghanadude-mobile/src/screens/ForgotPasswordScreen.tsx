@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Button, ActivityIndicator, Alert } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { RootStackParamList } from "../utils/types"; // Adjust the import according to your project structure
-import LinearGradient from "react-native-linear-gradient";
+import { LinearGradient } from "expo-linear-gradient";
 
 import authService from "../services/AuthService";
 
@@ -24,7 +24,7 @@ const ForgotPasswordScreen = () => {
       setLoading(false);
       Alert.alert("Success", "Password reset email sent successfully.");
       navigation.navigate("Login");
-    } catch (err) {
+    } catch {
       setError("Failed to send password reset email. Please try again.");
       setMessage("");
       setLoading(false);
