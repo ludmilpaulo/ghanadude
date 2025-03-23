@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import CryptoJS from "crypto-js";
 
 const PAYFAST_MERCHANT_ID = "10034002"; // Your PayFast Merchant ID
@@ -31,7 +31,18 @@ const dataToString = (data: Record<string, string>): string => {
 };
 
 // ✅ Handle PayFast Payment Request
-export const handleMakePayment = async (form: any, totalPrice: number) => {
+interface PaymentForm {
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  item_name: string;
+}
+
+export const handleMakePayment = async (form: PaymentForm, totalPrice: number) => {
   console.log("🚀 Initiating PayFast Payment...");
 
   const paymentData: Record<string, string> = {
@@ -74,8 +85,9 @@ export const handleMakePayment = async (form: any, totalPrice: number) => {
       console.error("❌ No PayFast UUID found in response:", response.data);
       return null;
     }
-  } catch (error: any) {
-    console.error("❌ PayFast API Error:", error.response ? error.response.data : error.message);
+  } catch (error: unknown) {
+    const err = error as AxiosError;
+    console.error("❌ PayFast API Error:", err.response ? err.response.data : err.message);
     return null;
   }
 };

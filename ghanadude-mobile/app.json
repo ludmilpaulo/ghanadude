@@ -15,12 +15,15 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-    "NSLocationWhenInUseUsageDescription": "We use your location to autofill your delivery address."
-  },
+        "NSLocationWhenInUseUsageDescription": "We use your location to autofill your delivery address.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
       "bundleIdentifier": "com.ludmil.ghanadudemobile"
     },
     "android": {
-      "permissions": ["ACCESS_FINE_LOCATION"],
+      "permissions": [
+        "ACCESS_FINE_LOCATION"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
