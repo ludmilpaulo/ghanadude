@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import tw from "twrnc";
-import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
-import { API_BASE_URL } from "../services/AuthService";
 import { useSelector } from "react-redux";
 import { selectUser } from "../redux/slices/authSlice";
+import { API_BASE_URL } from "../services/AuthService";
+import { Swipeable } from "react-native-gesture-handler";
+import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { HomeStackParamList } from "../navigation/HomeNavigator";
 
 const WishlistScreen = () => {
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const user = useSelector(selectUser);
   const userId = user?.user_id;
+  const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
 
   useEffect(() => {
     if (userId) {
@@ -22,7 +35,7 @@ const WishlistScreen = () => {
   const fetchWishlist = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/product/wishlist/`, {
-        params: { user_id: userId }
+        params: { user_id: userId },
       });
       setWishlist(response.data);
     } catch (err) {
@@ -34,14 +47,34 @@ const WishlistScreen = () => {
 
   const removeFromWishlist = async (productId: number) => {
     try {
-      await axios.delete(`${API_BASE_URL}/product/wishlist/remove/${productId}/`, {
-        params: { user_id: userId }
-      });
-      setWishlist((prev) => prev.filter((item) => item.product?.id !== productId));
+      await axios.delete(
+        `${API_BASE_URL}/product/wishlist/remove/${productId}/`,
+        { params: { user_id: userId } }
+      );
+      setWishlist((prev) =>
+        prev.filter((item) => item.product?.id !== productId)
+      );
     } catch (err) {
       Alert.alert("Error", "Failed to remove item.");
     }
   };
+
+  const getImageUrl = (images: any[]): string => {
+    const imagePath = images?.[0]?.image;
+    if (!imagePath) return "https://via.placeholder.com/150";
+    return imagePath.startsWith("http")
+      ? imagePath
+      : `${API_BASE_URL}${imagePath}`;
+  };
+
+  const renderRightActions = (productId: number) => (
+    <TouchableOpacity
+      onPress={() => removeFromWishlist(productId)}
+      style={tw`bg-red-500 justify-center items-center px-5 rounded-r-lg`}
+    >
+      <FontAwesome name="trash" size={24} color="white" />
+    </TouchableOpacity>
+  );
 
   return (
     <View style={tw`flex-1 bg-white p-5`}>
@@ -56,29 +89,66 @@ const WishlistScreen = () => {
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
           {wishlist.map((item, index) => {
-            if (!item.product || typeof item.product.price !== "number") {
-              return null;
-            }
+            const product = item.product;
+            if (!product) return null;
+
+            const imageUrl = getImageUrl(product.images || []);
+            const price = parseFloat(product.price || "0");
+            const productName = product.name || "Unnamed";
 
             return (
-              <View key={index} style={tw`flex-row items-center bg-gray-100 p-3 rounded-lg mb-3`}>
-                {item.product.image ? (
-                  <Image source={{ uri: item.product.image }} style={tw`w-16 h-16 rounded-lg mr-3`} />
-                ) : (
-                  <View style={tw`w-16 h-16 bg-gray-300 rounded-lg mr-3`} />
-                )}
+              <Swipeable
+                key={index}
+                renderRightActions={() => renderRightActions(product.id)}
+              >
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate("ProductDetail", { id: product.id })
+                  }
+                  style={tw`flex-row items-center bg-gray-100 p-3 rounded-lg mb-3`}
+                >
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={tw`w-16 h-16 rounded-lg mr-3`}
+                    resizeMode="cover"
+                  />
 
-                <View style={tw`flex-1`}>
-                  <Text style={tw`text-lg font-semibold`} numberOfLines={1}>
-                    {item.product.name || "Unnamed Product"}
-                  </Text>
-                  <Text style={tw`text-gray-500`}>R{item.product.price.toFixed(2)}</Text>
-                </View>
+                  <View style={tw`flex-1`}>
+                    <Text
+                      style={tw`text-lg font-semibold`}
+                      numberOfLines={1}
+                    >
+                      {productName}
+                    </Text>
 
-                <TouchableOpacity onPress={() => removeFromWishlist(item.product.id)} style={tw`p-2`}>
-                  <FontAwesome name="trash" size={20} color="red" />
+                    {product.on_sale ? (
+                      <View style={tw`flex-row items-center`}>
+                        <Text style={tw`text-red-600 font-bold mr-2`}>
+                          R
+                          {(
+                            price -
+                            (price * product.discount_percentage) / 100
+                          ).toFixed(2)}
+                        </Text>
+                        <Text style={tw`text-xs line-through text-gray-400`}>
+                          R{price.toFixed(2)}
+                        </Text>
+                        <View style={tw`ml-2 px-2 py-1 bg-red-200 rounded-full`}>
+                          <Text style={tw`text-xs text-red-700 font-bold`}>
+                            -{product.discount_percentage}%
+                          </Text>
+                        </View>
+                      </View>
+                    ) : (
+                      <Text style={tw`text-gray-500`}>
+                        R{price.toFixed(2)}
+                      </Text>
+                    )}
+                  </View>
+
+                  <FontAwesome name="chevron-right" size={16} color="#ccc" />
                 </TouchableOpacity>
-              </View>
+              </Swipeable>
             );
           })}
         </ScrollView>

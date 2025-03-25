@@ -7,6 +7,20 @@ from product.models import Product
 from .serializers import WishlistSerializer
 
 @api_view(["GET"])
+def wishlist_count(request):
+    user_id = request.query_params.get("user_id")
+    if not user_id:
+        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(id=user_id)
+        count = Wishlist.objects.filter(user=user).count()
+        return Response({"count": count}, status=status.HTTP_200_OK)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["GET"])
 def get_wishlist(request):
     user_id = request.query_params.get("user_id")
     if not user_id:

@@ -29,7 +29,7 @@ def order_status_changed(sender, instance, **kwargs):
             <p>If you have any questions or need further assistance, please do not hesitate to contact us.</p>
             <p>Thank you for shopping with us.</p>
             <p>Best regards,</p>
-            <p><strong>Men's Clinic</strong></p>
+            <p><strong>Ghana Dude </strong></p>
             <p>{datetime.now().year}</p>
         </body>
         </html>

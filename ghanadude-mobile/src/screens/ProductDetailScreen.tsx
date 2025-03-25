@@ -36,6 +36,11 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
   const user = useSelector(selectUser);
   const userId = user?.user_id;
+  const cartItems = useSelector((state: any) => state.basket.items);
+  const isInCart = product && selectedSize
+  ? cartItems.some((item: any) => item.id === product.id && item.selectedSize === selectedSize)
+  : false;
+
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   useEffect(() => {
@@ -67,6 +72,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       try {
         const response = await fetch(`${API_BASE_URL}/product/products/related/${id}/`);
         const data = await response.json();
+        console.log("Related products response:", data);
         setRelatedProducts(data);
       } catch (error) {
         console.error("Failed to load related products:", error);
@@ -142,13 +148,12 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       Alert.alert("Success", `${product.name} added to cart!`);
     }
   };
-
   const toggleWishlist = async () => {
     if (!userId) {
       Alert.alert("Login Required", "Please log in to manage your wishlist.");
       return;
     }
-
+  
     if (isWishlisted) {
       const result = await removeFromWishlist(userId, id);
       if (result) {
@@ -156,6 +161,15 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         Alert.alert("Removed", `${product?.name} removed from wishlist.`);
       }
     } else {
+      // Check again before adding
+      const wishlist = await getWishlist(userId);
+      const alreadyExists = wishlist.some((item: any) => item.product.id === id);
+      if (alreadyExists) {
+        Alert.alert("Already in Wishlist", `${product?.name} is already in your wishlist.`);
+        setIsWishlisted(true);
+        return;
+      }
+  
       const result = await addToWishlist(userId, id);
       if (result) {
         setIsWishlisted(true);
@@ -163,6 +177,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       }
     }
   };
+  
 
   const handleShare = async () => {
     try {
@@ -292,17 +307,24 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
           {/* Add to Cart with Animation */}
           <Animated.View entering={FadeInUp.delay(300)}>
-            <TouchableOpacity
-              onPress={handleAddToCart}
+          <TouchableOpacity
+              onPress={() => {
+                if (isInCart) {
+                  navigation.navigate("Cart"); // assumes you have a Cart screen in your stack
+                } else {
+                  handleAddToCart();
+                }
+              }}
               disabled={product.stock === 0}
               style={tw`mt-6 py-4 rounded-xl shadow-lg ${
-                product.stock === 0 ? 'bg-gray-400' : 'bg-green-600'
+                product.stock === 0 ? 'bg-gray-400' : isInCart ? 'bg-blue-600' : 'bg-green-600'
               }`}
             >
               <Text style={tw`text-white text-center font-bold text-lg`}>
-                {product.stock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}
+                {product.stock === 0 ? 'Out of Stock' : isInCart ? '🛒 Go to Cart' : '🛒 Add to Cart'}
               </Text>
             </TouchableOpacity>
+
           </Animated.View>
 
           {/* Rating with Animation */}
@@ -352,11 +374,17 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
                     onPress={() => navigation.push("ProductDetail", { id: item.id })}
                     style={tw`mr-4 w-40 bg-white rounded-xl shadow p-2`}
                   >
-                    <Image
-                      source={{ uri: item.images?.[0]?.image }}
-                      style={tw`w-full h-28 rounded-lg`}
-                      resizeMode="cover"
-                    />
+                   <Image
+                    source={{
+                      uri:
+                        item.images && item.images.length > 0
+                          ? `${API_BASE_URL}${item.images[0].image}` // 👈 FIXED: prepend full base URL
+                          : 'https://via.placeholder.com/150',
+                    }}
+                    style={tw`w-full h-28 rounded-lg`}
+                    resizeMode="cover"
+                  />
+
                     <Text style={tw`mt-2 text-sm font-semibold text-gray-800`} numberOfLines={1}>
                       {item.name}
                     </Text>

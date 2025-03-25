@@ -1,5 +1,3 @@
-// 🎯 Objective: Enhance HomeScreen with Hero Carousel, Animated Entries, and Shared Transitions
-
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -10,7 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  Dimensions
+  Dimensions,
 } from "react-native";
 import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -19,32 +17,13 @@ import ProductCard from "../components/ProductCard";
 import { Product, Category } from "./types";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp, FadeInRight } from "react-native-reanimated";
+import { NavigationProp } from "@react-navigation/native";
+import { HomeStackParamList } from "../navigation/HomeNavigator";
 
 const { width } = Dimensions.get("window");
 
-const categoryIcons: { [key: string]: string } = {
-  all: "tags",
-  mens: "male",
-  woman: "female",
-  kids: "child",
-};
 
-const promoBanners = [
-  {
-    id: 1,
-    title: "Summer Sale",
-    subtitle: "Up to 50% Off",
-    image: "https://via.placeholder.com/400x150",
-  },
-  {
-    id: 2,
-    title: "New Arrivals",
-    subtitle: "Fresh Styles Just Dropped",
-    image: "https://via.placeholder.com/400x150/333",
-  },
-];
-
-const HomeScreen = ({ navigation }: { navigation: any }) => {
+const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -117,28 +96,41 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
   const onSaleProducts = filteredProducts.filter((product) => product.on_sale);
 
+  const promoBanners = onSaleProducts.slice(0, 5).map((product) => ({
+    id: product.id,
+    name: product.name,
+    subtitle: `Save ${product.discount_percentage}%`,
+    image: product.images?.[0]?.image || "https://via.placeholder.com/400x150",
+  }));
+
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero Banner Carousel */}
-        <Carousel
-          loop
-          width={width}
-          height={150}
-          autoPlay
-          autoPlayInterval={4000}
-          data={promoBanners}
-          scrollAnimationDuration={1000}
-          renderItem={({ item }) => (
-            <View style={tw`relative rounded-xl overflow-hidden mx-4 mt-4`}>
-              <Image source={{ uri: item.image }} style={tw`w-full h-40 rounded-xl`} />
-              <View style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}>
-                <Text style={tw`text-white text-lg font-bold`}>{item.title}</Text>
-                <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
-              </View>
-            </View>
-          )}
-        />
+        {promoBanners.length > 0 && (
+          <Carousel
+            loop
+            width={width}
+            height={150}
+            autoPlay
+            autoPlayInterval={4000}
+            data={promoBanners}
+            scrollAnimationDuration={1000}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
+                style={tw`relative rounded-xl overflow-hidden mx-4 mt-4`}
+              >
+                <Image source={{ uri: item.image }} style={tw`w-full h-40 rounded-xl`} />
+                <View style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}>
+                  <Text style={tw`text-white text-lg font-bold`}>{item.name}</Text>
+                  <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
+        )}
 
         {/* Search Bar */}
         <View style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 shadow-sm mx-4 mt-6`}>
@@ -159,13 +151,18 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
             <Animated.View key={cat.id} entering={FadeInRight.delay(index * 100)}>
               <TouchableOpacity
                 onPress={() => handleCategorySelect(cat.name)}
-                style={[tw`px-4 py-2 mr-3 rounded-full border`,
+                style={[
+                  tw`px-4 py-2 mr-3 rounded-full border`,
                   selectedCategory === cat.name
                     ? tw`bg-blue-600 border-blue-600`
-                    : tw`bg-white border-gray-300`
+                    : tw`bg-white border-gray-300`,
                 ]}
               >
-                <Text style={tw`${selectedCategory === cat.name ? "text-white" : "text-gray-800"}`}>{cat.name}</Text>
+                <Text
+                  style={tw`${selectedCategory === cat.name ? "text-white" : "text-gray-800"}`}
+                >
+                  {cat.name}
+                </Text>
               </TouchableOpacity>
             </Animated.View>
           ))}

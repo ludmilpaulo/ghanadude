@@ -2,7 +2,7 @@ from django.urls import path
 
 from .reviews import get_product_reviews, react_review
 
-from .wishlist import add_to_wishlist, get_wishlist, remove_from_wishlist
+from .wishlist import add_to_wishlist, get_wishlist, remove_from_wishlist, wishlist_count
 
 from .update import product_detail
 from .views import ProductViewSet, CategoryViewSet, BrandViewSet, DesignerViewSet, create_product, related_products, sizes_list
@@ -21,6 +21,7 @@ urlpatterns = [
     path('designers/', DesignerViewSet.as_view({'get': 'list', 'post': 'create'}), name='designer-list'),
     path('designers/<int:pk>/', DesignerViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='designer-detail'),
     path("wishlist/", get_wishlist),
+    path("wishlist/count/", wishlist_count),
     path("wishlist/add/", add_to_wishlist),
     path("wishlist/remove/<int:product_id>/", remove_from_wishlist),
     path("products/related/<int:product_id>/", related_products),

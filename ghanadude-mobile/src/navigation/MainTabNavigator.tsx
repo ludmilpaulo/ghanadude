@@ -14,6 +14,7 @@ import { RootState } from "../redux/store";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
 import { API_BASE_URL } from "../services/AuthService";
+import { selectUser } from "../redux/slices/authSlice";
 
 
 
@@ -24,21 +25,28 @@ const MainTabNavigator = () => {
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
   const [wishlistCount, setWishlistCount] = useState(0);
+  const user = useSelector(selectUser);
+  const userId = user?.user_id;
+  
 
   useEffect(() => {
     fetchWishlistCount();
   }, []);
 
-  const fetchWishlistCount = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/wishlist/count/`, {
-        headers: { Authorization: `Bearer YOUR_AUTH_TOKEN` }, // Replace with auth method
-      });
-      setWishlistCount(response.data.count);
-    } catch (error) {
-      console.error("Failed to fetch wishlist count:", error);
-    }
-  };
+ 
+const fetchWishlistCount = async () => {
+  if (!userId) return;
+
+  try {
+    const response = await axios.get(`${API_BASE_URL}/product/wishlist/count/`, {
+      params: { user_id: userId },
+    });
+    setWishlistCount(response.data.count);
+  } catch (error) {
+    console.error("Failed to fetch wishlist count:", error);
+  }
+};
+
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
