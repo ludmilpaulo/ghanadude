@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.http import HttpResponse
+from revenue.models import Coupon
 from orders.models import Order, OrderItem
 from django.contrib.auth.models import User
 from product.models import Product
@@ -10,7 +11,10 @@ from product.models import Product
 @permission_classes([AllowAny])
 def checkout(request):
     data = request.data
-    user = User.objects.get(pk=data['user_id'])
+    try:
+        user = User.objects.get(pk=data['user_id'])
+    except User.DoesNotExist:
+        return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
     coupon_code = data.get('coupon_code')
     coupon = None
@@ -23,8 +27,9 @@ def checkout(request):
             coupon.is_redeemed = True
             coupon.save()
         except Coupon.DoesNotExist:
-            pass
+            pass  # Ignore invalid coupons
 
+    # Create the order
     order = Order.objects.create(
         user=user,
         total_price=data['total_price'],
@@ -38,18 +43,26 @@ def checkout(request):
         discount_amount=discount_amount
     )
 
+    # Handle order items and reduce stock
     for item in data['items']:
-        product = Product.objects.get(pk=item['id'])
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            quantity=item['quantity'],
-            price=product.price
-        )
+        try:
+            product = Product.objects.get(pk=item['id'])
+
+            # Deduct stock
+            product.reduce_stock(item['quantity'])
+
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=item['quantity'],
+                price=product.price
+            )
+        except Product.DoesNotExist:
+            return Response({'error': f'Product with ID {item["id"]} not found'}, status=404)
+        except ValueError as ve:
+            return Response({'error': str(ve)}, status=400)
 
     return Response({'order_id': order.id}, status=201)
-
-
 
 
 
