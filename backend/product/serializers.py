@@ -30,7 +30,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             "id", "name", "description", "price", "category", "brand", "stock",
-            "on_sale", "discount_percentage", "season", "images", "uploaded_images", "sizes"
+            "on_sale", "bulk" "discount_percentage", "season", "images", "uploaded_images", "sizes"
         ]
 
     def get_sizes(self, obj):
