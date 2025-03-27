@@ -15,11 +15,11 @@ const SuccessScreen = () => {
   return (
     <View style={tw`flex-1 justify-center items-center bg-white px-5`}>
       <View style={tw`bg-green-100 p-6 rounded-full`}>
-        <Text style={tw`text-5xl`}>✅</Text>
+        <Text style={{ fontSize: 48 }}>✓</Text>
       </View>
       <Text style={tw`text-3xl font-bold my-4`}>Thank You!</Text>
       <Text style={tw`text-center text-lg text-gray-600`}>
-        Your order #{route.params.order_id} has been successfully placed.
+        Your order #{route.params?.order_id || 'N/A'} has been successfully placed.
       </Text>
 
       <TouchableOpacity

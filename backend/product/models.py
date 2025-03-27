@@ -53,7 +53,7 @@ class Product(models.Model):
     sizes = models.ManyToManyField(Size, blank=True)
     stock = models.PositiveIntegerField(default=0)
     on_sale = models.BooleanField(default=False)
-    bulk = models.BooleanField(default=False)
+    bulk_sale = models.BooleanField(default=False)
     discount_percentage = models.PositiveIntegerField(default=0)
     season = models.CharField(max_length=20, choices=SEASON_CHOICES, default='all_seasons')
 

@@ -1,18 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "../store"; // ✅ Import RootState
+import { RootState } from "../store";
 
-interface CartItem {
+// ✅ Export the CartItem interface
+export interface CartItem {
   id: number;
   name: string;
   selectedSize: string;
   quantity: number;
   image: string;
-  price: number; // final price (after discount)
-  originalPrice: number; // original price before discount
+  price: number;
+  originalPrice: number;
   stock: number;
+  isBulk?: boolean;
+  brandLogo?: string | null;
+  customDesign?: string | null;
 }
-
-
 
 interface BasketState {
   items: CartItem[];
@@ -28,32 +30,56 @@ const basketSlice = createSlice({
   reducers: {
     updateBasket: (state, action: PayloadAction<CartItem>) => {
       const index = state.items.findIndex(
-        (item) => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize
+        (item) =>
+          item.id === action.payload.id &&
+          item.selectedSize === action.payload.selectedSize &&
+          item.isBulk === action.payload.isBulk
       );
-    
+
       if (index >= 0) {
-        // Prevent exceeding stock
-        if (state.items[index].quantity < state.items[index].stock) {
-          state.items[index].quantity += 1;
+        if (state.items[index].quantity + action.payload.quantity <= state.items[index].stock) {
+          state.items[index].quantity += action.payload.quantity;
+        } else {
+          state.items[index].quantity = state.items[index].stock;
         }
       } else {
         state.items.push(action.payload);
       }
     },
-    
 
-    decreaseBasket: (state, action: PayloadAction<{ id: number; selectedSize: string }>) => {
-      const index = state.items.findIndex((item) => item.id === action.payload.id && item.selectedSize === action.payload.selectedSize);
+    decreaseBasket: (
+      state,
+      action: PayloadAction<{ id: number; selectedSize: string; isBulk?: boolean }>
+    ) => {
+      const index = state.items.findIndex(
+        (item) =>
+          item.id === action.payload.id &&
+          item.selectedSize === action.payload.selectedSize &&
+          item.isBulk === action.payload.isBulk
+      );
 
       if (index >= 0 && state.items[index].quantity > 1) {
         state.items[index].quantity -= 1;
       } else {
-        state.items = state.items.filter((item) => item.id !== action.payload.id || item.selectedSize !== action.payload.selectedSize);
+        state.items = state.items.filter(
+          (item) =>
+            item.id !== action.payload.id ||
+            item.selectedSize !== action.payload.selectedSize ||
+            item.isBulk !== action.payload.isBulk
+        );
       }
     },
 
-    removeFromBasket: (state, action: PayloadAction<{ id: number; selectedSize: string }>) => {
-      state.items = state.items.filter((item) => item.id !== action.payload.id || item.selectedSize !== action.payload.selectedSize);
+    removeFromBasket: (
+      state,
+      action: PayloadAction<{ id: number; selectedSize: string; isBulk?: boolean }>
+    ) => {
+      state.items = state.items.filter(
+        (item) =>
+          item.id !== action.payload.id ||
+          item.selectedSize !== action.payload.selectedSize ||
+          item.isBulk !== action.payload.isBulk
+      );
     },
 
     clearCart: (state) => {
@@ -62,7 +88,6 @@ const basketSlice = createSlice({
   },
 });
 
-// ✅ Export selector properly
 export const selectCartItems = (state: RootState) => state.basket.items;
 
 export const { updateBasket, decreaseBasket, removeFromBasket, clearCart } = basketSlice.actions;

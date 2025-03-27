@@ -1,7 +1,5 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { useSelector } from "react-redux";
-import { selectUser } from "../redux/slices/authSlice";
 import MainTabNavigator from "./MainTabNavigator";
 import HomeScreen from "../screens/HomeScreen";
 import ProductScreen from "../screens/ProductScreen";
@@ -16,6 +14,9 @@ import OrderHistory from "../screens/OrderHistory";
 import InvoiceHistoryScreen from "../screens/InvoiceHistoryScreen";
 import FullReviewScreen from "../screens/FullReviewScreen";
 
+
+
+
 // ✅ Exporting HomeStackParamList so other files can import it
 export type HomeStackParamList = {
   HomeScreen: undefined;
@@ -23,13 +24,15 @@ export type HomeStackParamList = {
   Home: undefined;
   ProductList: undefined;
   Cart: undefined;
+  DealsScreen:undefined;
   CheckoutScreen: undefined;
   SuccessScreen: { order_id: number };
   PaymentCancelled: undefined;
   ProductDetail: { id: number };
   MyCouponsScreen: undefined;
-  OrderHistory: undefined;
+
   InvoiceHistoryScreen: undefined;
+  OrderHistory: undefined;
   FullReview: { id: number }; // ✅ ADD THIS
 
 
@@ -39,7 +42,6 @@ export type HomeStackParamList = {
 const Stack = createStackNavigator<HomeStackParamList>();
 
 export default function HomeNavigator() {
-  const user = useSelector(selectUser);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -55,10 +57,7 @@ export default function HomeNavigator() {
       <Stack.Screen name="OrderHistory" component={OrderHistory} />
       <Stack.Screen name="InvoiceHistoryScreen" component={InvoiceHistoryScreen} />
       <Stack.Screen name="FullReview" component={FullReviewScreen} />
-
-
-
-
+    
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   );

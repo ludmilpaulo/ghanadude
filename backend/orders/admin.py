@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import OrderItem
+from .models import BulkOrder, OrderItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -28,4 +28,10 @@ class OrderAdmin(admin.ModelAdmin):
         }),
     )
 
+
+@admin.register(BulkOrder)
+class BulkOrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'product', 'quantity', 'status', 'created_at')
+    list_filter = ('status', 'created_at')
+    search_fields = ('user__username', 'product__name')
 

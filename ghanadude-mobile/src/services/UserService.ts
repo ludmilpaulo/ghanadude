@@ -12,7 +12,14 @@ export const fetchUserProfile = async (user_id: number) => {
 
 
 
-export const updateUserProfile = async (user_id: number, profileData: any) => {
+interface UserProfile {
+  name: string;
+  email: string;
+  phone?: string;
+  // Add other fields as needed
+}
+
+export const updateUserProfile = async (user_id: number, profileData: UserProfile) => {
   console.log("update user account")
   const res = await axios.put(`${API_BASE_URL}/account/update/${user_id}/`, profileData);
   return res.data;
@@ -21,9 +28,9 @@ export const updateUserProfile = async (user_id: number, profileData: any) => {
 
 
 export const fetchRewards = async (user_id: number) => {
-  const res = await axios.get(`${API_BASE_URL}/rewards/`, {
+  const res = await axios.get(`${API_BASE_URL}/rewards/status/`, {
     params: { user_id },
-   
+  
   });
   return res.data;
 };

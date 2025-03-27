@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from revenue.models import Coupon
-from product.models import Product
+from product.models import Designer, Product
 
 from dirtyfields import DirtyFieldsMixin
 
@@ -51,10 +51,23 @@ class OrderItem(models.Model):
         return f"{self.quantity} x {self.product.name} in order {self.order.id}"
     
     
-    
-class TempOrder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    cart_items = models.JSONField()
-    shipping_info = models.JSONField()
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+class BulkOrder(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
+    user = models.ForeignKey(User, related_name='bulk_orders', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='bulk_orders', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    brand_logo = models.ImageField(upload_to='bulk_order_logos/', null=True, blank=True)
+    custom_design = models.ImageField(upload_to='bulk_order_designs/', null=True, blank=True)
+    designer = models.ForeignKey(Designer, related_name='bulk_orders', null=True, blank=True, on_delete=models.SET_NULL)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Bulk Order #{self.id} by {self.user.username}"
+

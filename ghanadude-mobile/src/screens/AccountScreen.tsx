@@ -1,33 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Alert,
-  ActivityIndicator, Modal, TextInput
+  ActivityIndicator, Modal, TextInput, Image,
 } from 'react-native';
 import tw from 'twrnc';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser, selectUser } from '../redux/slices/authSlice';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import { fetchUserOrders } from '../services/OrderService';
+import {
+  fetchUserOrders,
+  Order,
+} from '../services/OrderService';
 import {
   fetchRewards,
   fetchUserProfile,
   updateUserProfile,
   redeemRewards,
 } from '../services/UserService';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeStackParamList } from '../navigation/HomeNavigator';
+import { RootState } from '../redux/store';
+type NavigationProp = StackNavigationProp<HomeStackParamList>;
 
-const AccountScreen = () => {
+const AccountScreen: React.FC = () => {
   const dispatch = useDispatch();
+  const navigation = useNavigation<NavigationProp>();
   const user = useSelector(selectUser);
-  interface RootState {
-    auth: {
-      token: string;
-    };
-  }
 
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useSelector((state: RootState) => state.auth?.token);
 
   const [statusFilter, setStatusFilter] = useState<string>('Completed');
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
   const [rewards, setRewards] = useState<{
@@ -47,6 +51,7 @@ const AccountScreen = () => {
 
   useEffect(() => {
     if (user && token) {
+      console.log('🔄 useEffect triggered for user:', user.user_id);
       loadOrders(statusFilter);
       loadRewards();
     }
@@ -54,25 +59,33 @@ const AccountScreen = () => {
 
   const loadOrders = async (status: string) => {
     setLoadingOrders(true);
+    console.log('📦 Loading orders for status:', status);
     try {
       const res = await fetchUserOrders(user.user_id, token, status);
+      console.log('✅ Orders fetched:', res);
       setOrders(res);
-    } catch {
+    } catch (error) {
+      console.log('❌ Error fetching orders:', error);
       Alert.alert('Error', 'Failed to load orders');
+    } finally {
+      setLoadingOrders(false);
     }
-    setLoadingOrders(false);
   };
 
   const loadRewards = async () => {
+    console.log('🎁 Loading rewards...');
     try {
       const res = await fetchRewards(user.user_id);
+      console.log('✅ Rewards:', res);
       setRewards(res);
-    } catch {
+    } catch (error) {
+      console.log('❌ Error loading rewards:', error);
       Alert.alert('Error', 'Failed to load rewards');
     }
   };
 
   const handleLogout = () => {
+    console.log('🚪 Logging out...');
     Alert.alert('Logout', 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Logout', style: 'destructive', onPress: () => dispatch(logoutUser()) },
@@ -80,23 +93,28 @@ const AccountScreen = () => {
   };
 
   const handleRedeem = async () => {
+    console.log('🎟️ Redeem clicked');
     try {
       const res = await redeemRewards(user.user_id);
+      console.log('✅ Coupon redeemed:', res);
       Alert.alert('Success 🎉', `Coupon generated: ${res.coupon_code}`);
       setRewards((prev) => ({
-        ...prev,
+        ...prev!,
         redeemable: false,
         coupon_code: res.coupon_code,
         total_points: 0,
       }));
-    } catch {
+    } catch (error) {
+      console.log('❌ Error redeeming:', error);
       Alert.alert('Error', 'Failed to redeem rewards');
     }
   };
 
   const loadProfileData = async () => {
+    console.log('👤 Loading profile...');
     try {
       const res = await fetchUserProfile(user.user_id);
+      console.log('✅ Profile loaded:', res);
       setProfileForm(res);
       setProfileModalVisible(true);
     } catch {
@@ -105,6 +123,7 @@ const AccountScreen = () => {
   };
 
   const handleProfileUpdate = async () => {
+    console.log('✏️ Updating profile...', profileForm);
     try {
       await updateUserProfile(user.user_id, profileForm);
       Alert.alert('Success', 'Profile updated');
@@ -113,6 +132,18 @@ const AccountScreen = () => {
       Alert.alert('Error', 'Failed to update profile');
     }
   };
+
+  const groupOrdersByMonth = (ordersList: Order[]) => {
+    const grouped: Record<string, Order[]> = {};
+    for (const order of ordersList) {
+      const month = new Date(order.created_at).toLocaleString('default', { month: 'long', year: 'numeric' });
+      if (!grouped[month]) grouped[month] = [];
+      grouped[month].push(order);
+    }
+    return grouped;
+  };
+
+  const groupedOrders = groupOrdersByMonth(orders);
 
   return (
     <ScrollView style={tw`flex-1 bg-gray-100`}>
@@ -125,29 +156,22 @@ const AccountScreen = () => {
         <Text style={tw`text-lg font-bold text-gray-800 mb-2`}>🎁 Rewards</Text>
         {rewards ? (
           <>
-            <Text style={tw`text-gray-700`}>
-              Total Points: <Text style={tw`font-bold`}>{rewards.total_points}</Text>
-            </Text>
-            <Text style={tw`text-gray-700 mb-2`}>
+            <Text>Total Points: <Text style={tw`font-bold`}>{rewards.total_points}</Text></Text>
+            <Text>
               Redeemable: {rewards.redeemable ? '✅ Yes' : '❌ Not yet (min: 5 points)'}
             </Text>
             {rewards.coupon_code && (
               <Text style={tw`text-green-600 font-semibold`}>
-                🎟️ Your Coupon: {rewards.coupon_code}
+                🎟️ Coupon: {rewards.coupon_code}
               </Text>
             )}
             {rewards.redeemable && (
-              <TouchableOpacity
-                onPress={handleRedeem}
-                style={tw`mt-3 bg-green-600 py-2 px-4 rounded-lg`}
-              >
+              <TouchableOpacity onPress={handleRedeem} style={tw`mt-3 bg-green-600 py-2 px-4 rounded-lg`}>
                 <Text style={tw`text-white text-center font-bold`}>Redeem Now</Text>
               </TouchableOpacity>
             )}
           </>
-        ) : (
-          <ActivityIndicator size="small" color="#4A5568" />
-        )}
+        ) : <ActivityIndicator size="small" color="#4A5568" />}
       </View>
 
       {/* Orders */}
@@ -160,29 +184,38 @@ const AccountScreen = () => {
               style={tw`px-3 py-2 rounded-full mr-2 mb-2 ${statusFilter === status ? 'bg-blue-600' : 'bg-gray-300'}`}
               onPress={() => setStatusFilter(status)}
             >
-              <Text style={tw`${statusFilter === status ? 'text-white' : 'text-black'}`}>
-                {status}
-              </Text>
+              <Text style={tw`${statusFilter === status ? 'text-white' : 'text-black'}`}>{status}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {loadingOrders ? (
           <ActivityIndicator size="large" color="#4A5568" />
-        ) : orders.length > 0 ? (
-          orders.map((order: { id: string; status: string; total_price: number; created_at: string }) => (
-            <View
-              key={order.id}
-              style={tw`bg-white p-4 rounded-lg shadow-md mb-3`}
-            >
-              <Text style={tw`font-bold text-gray-800`}>Order #{order.id}</Text>
-              <Text>Status: {order.status}</Text>
-              <Text>Total: R{order.total_price}</Text>
-              <Text>Created: {new Date(order.created_at).toLocaleDateString()}</Text>
+        ) : (
+          Object.entries(groupedOrders).map(([month, monthOrders]) => (
+            <View key={month} style={tw`mb-6`}>
+              <Text style={tw`text-base font-bold mb-2`}>{month}</Text>
+              {monthOrders.map((order) => (
+                <TouchableOpacity
+                  key={order.id}
+                  onPress={() => navigation.navigate('OrderDetail', { order })}
+                  style={tw`bg-white p-4 rounded-lg shadow-md mb-3`}
+                >
+                  <Text style={tw`font-bold text-gray-800`}>Order #{order.id}</Text>
+                  <Text>Status: {order.status}</Text>
+                  <Text>Total: R{order.total_price}</Text>
+                  <Text>{new Date(order.created_at).toLocaleDateString()}</Text>
+                  {order.items?.[0]?.product?.images?.[0]?.image && (
+                    <Image
+                      source={{ uri: order.items[0].product.images[0].image }}
+                      style={tw`w-full h-32 mt-2 rounded`}
+                      resizeMode="cover"
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
             </View>
           ))
-        ) : (
-          <Text style={tw`text-gray-600`}>No orders found.</Text>
         )}
       </View>
 

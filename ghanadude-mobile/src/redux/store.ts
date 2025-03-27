@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import authReducer from "./slices/authSlice";
 import basketReducer from "./slices/basketSlice";
+import designReducer from "./slices/designSlice";
 import wishlistReducer from "./slices/wishlistSlice"; // ✅ Import wishlist slice
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,6 +16,7 @@ const rootPersistConfig = {
 const rootReducer = combineReducers({
   basket: basketReducer,
   auth: authReducer,
+  design: designReducer,
   wishlist: wishlistReducer, // ✅ Add wishlist to persisted reducer
 });
 

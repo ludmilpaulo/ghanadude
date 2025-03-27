@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Order, OrderItem
+from .models import BulkOrder, Order, OrderItem
+
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.ReadOnlyField(source='product.name')
@@ -16,3 +17,12 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = '__all__'
         read_only_fields = ('user', 'created_at', 'updated_at')
+        
+
+
+class BulkOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BulkOrder
+        fields = '__all__'
+        read_only_fields = ['user', 'status', 'created_at']
+

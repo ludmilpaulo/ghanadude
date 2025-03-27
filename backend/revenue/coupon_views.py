@@ -46,10 +46,10 @@ def redeem_rewards(request):
 
     return Response({'coupon_code': coupon.code, 'value': str(coupon.value)})
 
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 def get_user_rewards(request):
-    user_id = request.data.get('user_id')
+    user_id = request.data.get('user_id') or request.query_params.get('user_id')
     if not user_id:
         return Response({'detail': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
 

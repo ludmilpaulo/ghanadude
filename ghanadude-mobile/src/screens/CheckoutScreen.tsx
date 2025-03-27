@@ -1,41 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView
+  View, Text, TextInput, TouchableOpacity,
+  ActivityIndicator, Alert, ScrollView,
 } from 'react-native';
 import * as Location from 'expo-location';
 import tw from 'twrnc';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { HomeStackParamList } from '../navigation/HomeNavigator';
-import PayFast from './PayFast';
 import { checkoutOrder } from '../services/Checkout';
 import { fetchUserProfile, updateUserProfile } from '../services/UserService';
 import { getUserCoupons } from '../services/CouponService';
 import { selectCartItems, clearCart } from '../redux/slices/basketSlice';
 import { selectUser } from '../redux/slices/authSlice';
+import { selectDesign, clearDesign } from '../redux/slices/designSlice';
+import PayFast from './PayFast';
 import { API_BASE_URL } from '../services/AuthService';
+import { HomeStackParamList } from '../navigation/HomeNavigator';
 
-type CheckoutScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'CheckoutScreen'>;
+type NavigationProp = StackNavigationProp<HomeStackParamList, 'CheckoutScreen'>;
 
-const CheckoutScreen = () => {
+interface Coupon {
+  code: string;
+  value: number;
+  expires_at: string;
+  is_redeemed: boolean;
+}
+
+interface FormFields {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+}
+
+const CheckoutScreen: React.FC = () => {
   const dispatch = useDispatch();
-  const navigation = useNavigation<CheckoutScreenNavigationProp>();
+  const navigation = useNavigation<NavigationProp>();
   const user = useSelector(selectUser);
   const cartItems = useSelector(selectCartItems);
+  const design = useSelector(selectDesign);
 
-  const [payFastVisible, setPayFastVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [orderId, setOrderId] = useState<number | null>(null);
-  const [coupons, setCoupons] = useState<any[]>([]);
-  const [selectedCoupon, setSelectedCoupon] = useState<any>(null);
-
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.quantity * Number(item.price),
-    0
-  );
-
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormFields>({
     first_name: '',
     last_name: '',
     email: '',
@@ -46,7 +56,7 @@ const CheckoutScreen = () => {
     country: '',
   });
 
-  const [editableFields, setEditableFields] = useState<Record<keyof typeof form, boolean>>({
+  const [editableFields, setEditableFields] = useState<Record<keyof FormFields, boolean>>({
     first_name: true,
     last_name: true,
     email: true,
@@ -57,14 +67,55 @@ const CheckoutScreen = () => {
     country: true,
   });
 
-  const discountedPrice = selectedCoupon
-    ? Math.max(0, totalPrice - Number(selectedCoupon.value))
-    : totalPrice;
+  const [payFastVisible, setPayFastVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
 
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.quantity * Number(item.price), 0);
+  const discountedPrice = selectedCoupon ? Math.max(0, totalPrice - Number(selectedCoupon.value)) : totalPrice;
   const itemNames = cartItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
 
+  const handleChange = (field: keyof FormFields, value: string) =>
+    setForm(prev => ({ ...prev, [field]: value }));
+
+  const useCurrentLocation = async () => {
+    setLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location access is needed.');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const [geo] = await Location.reverseGeocodeAsync(location.coords);
+      if (geo) {
+        setForm(prev => ({
+          ...prev,
+          address: `${geo.streetNumber || ''} ${geo.street || ''}`.trim(),
+          city: geo.city || '',
+          postal_code: geo.postalCode || '',
+          country: geo.country || '',
+        }));
+        setEditableFields(prev => ({
+          ...prev,
+          address: false,
+          city: false,
+          postal_code: false,
+          country: false,
+        }));
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to fetch location.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const load = async () => {
+    const loadData = async () => {
       try {
         const profile = await fetchUserProfile(user.user_id);
         setForm({
@@ -78,121 +129,128 @@ const CheckoutScreen = () => {
           country: profile.country || '',
         });
 
-        const couponRes = await getUserCoupons(user.user_id); // Using user_id
-        const now = new Date();
-        const validCoupons = couponRes
-          .filter((c: any) => !c.is_redeemed && new Date(c.expires_at) > now)
-          .sort((a: any, b: any) => Number(b.value) - Number(a.value));
+        const res = await getUserCoupons(user.user_id);
+        const valid: Coupon[] = res
+          .filter((c: Coupon) => !c.is_redeemed && new Date(c.expires_at) > new Date())
+          .sort((a: Coupon, b: Coupon) => b.value - a.value);
 
-        setCoupons(validCoupons);
-        if (validCoupons.length > 0) {
-          setSelectedCoupon(validCoupons[0]); // auto-select best
-        }
-      } catch (err) {
-        Alert.alert('Error', 'Failed to load profile or coupons');
+        setCoupons(valid);
+        if (valid.length > 0) setSelectedCoupon(valid[0]); // Auto-apply highest value
+      } catch {
+        Alert.alert('Error', 'Failed to load profile or coupons.');
       }
     };
 
-    load();
+    loadData();
   }, [user.user_id]);
-
-  const handleChange = (name: keyof typeof form, value: string) => {
-    setForm(prev => ({ ...prev, [name]: value }));
-  };
-
-  const useCurrentLocation = async () => {
-    setLoading(true);
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission Denied', 'Location access is needed.');
-      setLoading(false);
-      return;
-    }
-
-    const location = await Location.getCurrentPositionAsync({});
-    const geo = await Location.reverseGeocodeAsync(location.coords);
-    if (geo.length > 0) {
-      const place = geo[0];
-      setForm(prev => ({
-        ...prev,
-        address: `${place.streetNumber || ''} ${place.street || ''}`.trim(),
-        city: place.city || '',
-        postal_code: place.postalCode || '',
-        country: place.country || '',
-      }));
-
-      setEditableFields(prev => ({
-        ...prev,
-        address: false,
-        city: false,
-        postal_code: false,
-        country: false,
-      }));
-    } else {
-      Alert.alert('Error', 'Unable to determine address.');
-    }
-    setLoading(false);
-  };
 
   const initiatePayment = async () => {
     setLoading(true);
     try {
-      const checkoutData = {
+      const res = await checkoutOrder({
         user_id: user.user_id,
         total_price: discountedPrice,
-        coupon_code: selectedCoupon?.code || null,
         address: form.address,
         city: form.city,
         postal_code: form.postal_code,
         country: form.country,
         payment_method: 'payfast',
         status: 'pending',
-        items: cartItems.map(item => ({ id: item.id, quantity: item.quantity })),
-      };
-      const res = await checkoutOrder(checkoutData);
+        items: cartItems.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+          is_bulk: item.isBulk || false,
+        })),
+        coupon_code: selectedCoupon?.code,
+      });
+
       setOrderId(res.order_id);
       setPayFastVisible(true);
-    } catch (error) {
-      Alert.alert('Error', 'Checkout initiation failed.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string; missing_fields?: string[] } } };
+      const errorMsg = error.response?.data?.error || 'Checkout initiation failed.';
+      const missingFields = error.response?.data?.missing_fields;
+
+      if (missingFields) {
+        Alert.alert('Missing Fields', `Please complete: ${missingFields.join(', ')}`);
+      } else if (errorMsg.includes('Insufficient stock')) {
+        Alert.alert(
+          'Stock Error',
+          errorMsg,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Remove and Continue',
+              style: 'destructive',
+              onPress: () => {
+                dispatch(clearCart());
+                navigation.navigate('HomeScreen');
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Error', errorMsg);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handlePaymentClose = async (reference?: string) => {
-    setPayFastVisible(false);
-    if (reference && orderId) {
-      const finalCheckoutData = {
-        user_id: user.user_id,
-        total_price: discountedPrice,
-        coupon_code: selectedCoupon?.code || null,
-        address: form.address,
-        city: form.city,
-        postal_code: form.postal_code,
-        country: form.country,
-        payment_method: 'payfast',
-        status: 'completed',
-        items: cartItems.map(item => ({ id: item.id, quantity: item.quantity })),
-        phone_number: form.phone_number,
-      };
+    if (!reference || !orderId) return;
 
-      try {
-        await checkoutOrder(finalCheckoutData);
-        await updateUserProfile(user.user_id, form); // No token required
-        dispatch(clearCart());
-        navigation.navigate('SuccessScreen', { order_id: orderId });
-      } catch (error) {
-        Alert.alert('Error', 'Checkout confirmation failed.');
-      }
-    } else {
-      Alert.alert('Payment Cancelled', 'Payment was cancelled or unsuccessful.');
+    const formData = new FormData();
+    formData.append('user_id', user.user_id.toString());
+    formData.append('order_id', orderId.toString());
+    formData.append('total_price', discountedPrice.toString());
+    if (selectedCoupon) {
+      formData.append('coupon_code', selectedCoupon.code);
+    }
+
+    cartItems.forEach((item, idx) => {
+      formData.append(`items[${idx}][id]`, item.id.toString());
+      formData.append(`items[${idx}][size]`, item.selectedSize);
+      formData.append(`items[${idx}][quantity]`, item.quantity.toString());
+      formData.append(`items[${idx}][is_bulk]`, item.isBulk ? 'true' : 'false');
+    });
+
+    Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+
+    if (design.brandLogo) {
+      formData.append('brand_logo', {
+        uri: design.brandLogo,
+        type: 'image/png',
+        name: 'brand_logo.png',
+      } as unknown as Blob);
+      
+    }
+
+    if (design.customDesign) {
+      formData.append('custom_design', {
+        uri: design.customDesign,
+        type: 'image/jpeg',
+        name: 'custom_design.jpg',
+      } as unknown as Blob);
+      
+    }
+
+    try {
+      await checkoutOrder(formData);
+      await updateUserProfile(user.user_id, form);
+      dispatch(clearCart());
+      dispatch(clearDesign());
+      navigation.navigate('SuccessScreen', { order_id: orderId });
+    } catch {
+      Alert.alert('Error', 'Checkout confirmation failed.');
     }
   };
 
   return (
-    <ScrollView style={tw`flex-1 bg-gray-50 p-4`}>
+    <ScrollView style={tw`flex-1 bg-white p-4`}>
       <Text style={tw`text-2xl font-bold text-center mb-4`}>Checkout 🛒</Text>
 
-      {(Object.keys(form) as (keyof typeof form)[]).map((field) => (
+      {(Object.keys(form) as (keyof FormFields)[]).map((field) => (
         <TextInput
           key={field}
           placeholder={field.replace('_', ' ').toUpperCase()}
@@ -208,14 +266,16 @@ const CheckoutScreen = () => {
 
       {coupons.length > 0 && (
         <View style={tw`my-4`}>
-          <Text style={tw`text-lg font-bold mb-2`}>🎟️ Applied Coupon</Text>
-          {coupons.map((coupon: any) => (
+          <Text style={tw`text-lg font-bold mb-2`}>🎟️ Available Coupons</Text>
+          {coupons.map((coupon) => (
             <TouchableOpacity
               key={coupon.code}
               onPress={() => setSelectedCoupon(coupon)}
               style={[
                 tw`p-3 rounded-lg mb-2 border`,
-                selectedCoupon?.code === coupon.code ? tw`border-green-600 bg-green-100` : tw`border-gray-300`
+                selectedCoupon?.code === coupon.code
+                  ? tw`border-green-600 bg-green-100`
+                  : tw`border-gray-300`,
               ]}
             >
               <Text style={tw`text-base font-semibold`}>{coupon.code}</Text>
@@ -227,22 +287,13 @@ const CheckoutScreen = () => {
         </View>
       )}
 
-      <View style={tw`mb-4`}>
-        <Text style={tw`text-lg`}>
-          🧾 Total: <Text style={tw`line-through text-gray-500`}>R{totalPrice.toFixed(2)}</Text>
-        </Text>
-        <Text style={tw`text-2xl font-bold text-green-700`}>
-          💰 Pay: R{discountedPrice.toFixed(2)}
-        </Text>
-      </View>
-
-      <TouchableOpacity onPress={useCurrentLocation} style={tw`bg-blue-600 py-3 rounded-lg mt-3`}>
+      <TouchableOpacity onPress={useCurrentLocation} style={tw`bg-blue-600 py-3 rounded-lg mb-3`}>
         {loading
           ? <ActivityIndicator color="#fff" />
           : <Text style={tw`text-white text-center font-bold`}>📍 Use Current Location</Text>}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 py-3 rounded-lg my-3`}>
+      <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 py-3 rounded-lg`}>
         <Text style={tw`text-white text-center font-bold`}>
           💳 Pay R{discountedPrice.toFixed(2)}
         </Text>
@@ -252,10 +303,8 @@ const CheckoutScreen = () => {
         <PayFast
           merchantId="10037687"
           merchantKey="t9k4qun47sejo"
-          passPhrase=""
-          sandbox={true}
+          sandbox
           notifyUrl={`${API_BASE_URL}/order/notify/`}
-          signature={false}
           transactionDetails={{
             customerFirstName: form.first_name,
             customerLastName: form.last_name,
