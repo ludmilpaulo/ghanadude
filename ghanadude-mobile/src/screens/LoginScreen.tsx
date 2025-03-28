@@ -149,7 +149,7 @@ export default function LoginScreen() {
 
           {/* Signup Navigation */}
           <View style={tw`mt-6 flex-row justify-center`}>
-            <Text style={tw`text-gray-600 text-base`}>Don't have an account? </Text>
+            <Text style={tw`text-gray-600 text-base`}>Don&apos;t have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate("SignupScreen")}>
               <Text style={tw`text-blue-600 text-base font-semibold`}>
                 Sign Up

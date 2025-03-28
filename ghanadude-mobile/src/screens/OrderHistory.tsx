@@ -13,7 +13,6 @@ import tw from 'twrnc';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../services/AuthService';
 import { selectUser, selectToken } from '../redux/slices/authSlice';
-import { RootState } from '../redux/store';
 
 interface Order {
   id: number;

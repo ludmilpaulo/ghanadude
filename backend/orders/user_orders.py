@@ -47,7 +47,7 @@ def get_order_detail(request, order_id):
         return Response({"error": "Order not found"}, status=404)
 
 
-@api_view(['POST'])
+@api_view(['POST' 'GET'])
 @permission_classes([AllowAny])
 def get_user_orders(request):
     user_id = request.data.get('user_id')

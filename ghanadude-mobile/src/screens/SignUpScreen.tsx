@@ -164,19 +164,6 @@ export default function SignUpScreen() {
           <View style={tw`flex-1 h-0.5 bg-gray-300`} />
         </View>
 
-        {/* Social Login */}
-        <View style={tw`flex-row justify-center space-x-4`}>
-          <TouchableOpacity
-            style={tw`p-3 bg-white border border-gray-300 rounded-full shadow w-12 h-12 justify-center items-center`}
-          >
-            <FontAwesome name="google" size={24} color="#DB4437" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={tw`p-3 bg-white border border-gray-300 rounded-full shadow w-12 h-12 justify-center items-center`}
-          >
-            <FontAwesome name="facebook" size={24} color="#4267B2" />
-          </TouchableOpacity>
-        </View>
 
         {/* Login Link */}
         <View style={tw`flex-row justify-center mt-6`}>

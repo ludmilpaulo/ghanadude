@@ -9,15 +9,16 @@ import { API_BASE_URL } from '../services/AuthService';
 import tw from 'twrnc';
 import * as FileSystem from 'expo-file-system';
 import { WebView } from 'react-native-webview';
+import { Order } from '../services/OrderService';
 
 type FilterType = 'all' | 'with_invoice' | 'without_invoice';
 
 const InvoiceHistoryScreen = () => {
   const user = useSelector(selectUser);
   const token = useSelector(selectToken);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
-  const [loading, setLoading] = useState(false);
+
   const [selectedPDF, setSelectedPDF] = useState<string | null>(null);
 
   const ensureAuth = () => {
