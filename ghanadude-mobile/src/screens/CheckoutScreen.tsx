@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { checkoutOrder } from '../services/Checkout';
-import { fetchUserProfile, updateUserProfile } from '../services/UserService';
+import { fetchUserProfile, updateUserProfile, ProfileForm } from '../services/UserService';
 import { getUserCoupons } from '../services/CouponService';
 import { selectCartItems, clearCart } from '../redux/slices/basketSlice';
 import { selectUser } from '../redux/slices/authSlice';
@@ -77,6 +77,14 @@ const CheckoutScreen: React.FC = () => {
   const discountedPrice = selectedCoupon ? Math.max(0, totalPrice - Number(selectedCoupon.value)) : totalPrice;
   const itemNames = cartItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
 
+  const ensureAuth = () => {
+    if (!user) {
+      Alert.alert('Error', 'User not found.');
+      return null;
+    }
+    return { user };
+  };
+
   const handleChange = (field: keyof FormFields, value: string) =>
     setForm(prev => ({ ...prev, [field]: value }));
 
@@ -115,13 +123,16 @@ const CheckoutScreen: React.FC = () => {
   };
 
   useEffect(() => {
+    const auth = ensureAuth();
+    if (!auth) return;
+
     const loadData = async () => {
       try {
-        const profile = await fetchUserProfile(user.user_id);
+        const profile = await fetchUserProfile(auth.user.user_id);
         setForm({
-          first_name: profile.first_name,
-          last_name: profile.last_name,
-          email: profile.email,
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          email: profile.email || '',
           phone_number: profile.phone_number || '',
           address: profile.address || '',
           city: profile.city || '',
@@ -129,26 +140,29 @@ const CheckoutScreen: React.FC = () => {
           country: profile.country || '',
         });
 
-        const res = await getUserCoupons(user.user_id);
+        const res = await getUserCoupons(auth.user.user_id);
         const valid: Coupon[] = res
           .filter((c: Coupon) => !c.is_redeemed && new Date(c.expires_at) > new Date())
           .sort((a: Coupon, b: Coupon) => b.value - a.value);
 
         setCoupons(valid);
-        if (valid.length > 0) setSelectedCoupon(valid[0]); // Auto-apply highest value
+        if (valid.length > 0) setSelectedCoupon(valid[0]);
       } catch {
         Alert.alert('Error', 'Failed to load profile or coupons.');
       }
     };
 
     loadData();
-  }, [user.user_id]);
+  }, []);
 
   const initiatePayment = async () => {
+    const auth = ensureAuth();
+    if (!auth) return;
+
     setLoading(true);
     try {
       const res = await checkoutOrder({
-        user_id: user.user_id,
+        user_id: auth.user.user_id,
         total_price: discountedPrice,
         address: form.address,
         city: form.city,
@@ -198,10 +212,11 @@ const CheckoutScreen: React.FC = () => {
   };
 
   const handlePaymentClose = async (reference?: string) => {
-    if (!reference || !orderId) return;
+    const auth = ensureAuth();
+    if (!auth || !orderId || !reference) return;
 
     const formData = new FormData();
-    formData.append('user_id', user.user_id.toString());
+    formData.append('user_id', auth.user.user_id.toString());
     formData.append('order_id', orderId.toString());
     formData.append('total_price', discountedPrice.toString());
     if (selectedCoupon) {
@@ -223,7 +238,6 @@ const CheckoutScreen: React.FC = () => {
         type: 'image/png',
         name: 'brand_logo.png',
       } as unknown as Blob);
-      
     }
 
     if (design.customDesign) {
@@ -232,12 +246,20 @@ const CheckoutScreen: React.FC = () => {
         type: 'image/jpeg',
         name: 'custom_design.jpg',
       } as unknown as Blob);
-      
     }
 
     try {
       await checkoutOrder(formData);
-      await updateUserProfile(user.user_id, form);
+      const profileUpdate: ProfileForm = {
+        name: `${form.first_name} ${form.last_name}`,
+        email: form.email,
+        phone_number: form.phone_number,
+        address: form.address,
+        city: form.city,
+        postal_code: form.postal_code,
+        country: form.country,
+      };
+      await updateUserProfile(auth.user.user_id, profileUpdate);
       dispatch(clearCart());
       dispatch(clearDesign());
       navigation.navigate('SuccessScreen', { order_id: orderId });

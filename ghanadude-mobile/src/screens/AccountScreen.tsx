@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import tw from 'twrnc';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser, selectUser } from '../redux/slices/authSlice';
+import { logoutUser, selectUser, selectToken } from '../redux/slices/authSlice';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import {
   fetchUserOrders,
@@ -16,19 +16,21 @@ import {
   fetchUserProfile,
   updateUserProfile,
   redeemRewards,
+  ProfileForm,
 } from '../services/UserService';
+import { fetchAndPrefillLocation } from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
-import { RootState } from '../redux/store';
+
+
 type NavigationProp = StackNavigationProp<HomeStackParamList>;
 
 const AccountScreen: React.FC = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp>();
   const user = useSelector(selectUser);
-
-  const token = useSelector((state: RootState) => state.auth?.token);
+  const token = useSelector(selectToken);
 
   const [statusFilter, setStatusFilter] = useState<string>('Completed');
   const [orders, setOrders] = useState<Order[]>([]);
@@ -41,7 +43,9 @@ const AccountScreen: React.FC = () => {
   } | null>(null);
 
   const [profileModalVisible, setProfileModalVisible] = useState(false);
-  const [profileForm, setProfileForm] = useState({
+  const [profileForm, setProfileForm] = useState<ProfileForm>({
+    name: '',
+    email: '',
     phone_number: '',
     address: '',
     city: '',
@@ -49,23 +53,31 @@ const AccountScreen: React.FC = () => {
     country: '',
   });
 
+  const ensureAuth = () => {
+    if (!user || !token) {
+      Alert.alert('Error', 'You must be logged in.');
+      return null;
+    }
+    return { user, token };
+  };
+
   useEffect(() => {
-    if (user && token) {
-      console.log('🔄 useEffect triggered for user:', user.user_id);
+    const auth = ensureAuth();
+    if (auth) {
       loadOrders(statusFilter);
       loadRewards();
     }
-  }, [statusFilter, user, token]);
+  }, [statusFilter]);
 
   const loadOrders = async (status: string) => {
+    const auth = ensureAuth();
+    if (!auth) return;
+
     setLoadingOrders(true);
-    console.log('📦 Loading orders for status:', status);
     try {
-      const res = await fetchUserOrders(user.user_id, token, status);
-      console.log('✅ Orders fetched:', res);
+      const res = await fetchUserOrders(auth.user.user_id, auth.token, status);
       setOrders(res);
-    } catch (error) {
-      console.log('❌ Error fetching orders:', error);
+    } catch {
       Alert.alert('Error', 'Failed to load orders');
     } finally {
       setLoadingOrders(false);
@@ -73,19 +85,18 @@ const AccountScreen: React.FC = () => {
   };
 
   const loadRewards = async () => {
-    console.log('🎁 Loading rewards...');
+    const auth = ensureAuth();
+    if (!auth) return;
+
     try {
-      const res = await fetchRewards(user.user_id);
-      console.log('✅ Rewards:', res);
+      const res = await fetchRewards(auth.user.user_id);
       setRewards(res);
-    } catch (error) {
-      console.log('❌ Error loading rewards:', error);
+    } catch {
       Alert.alert('Error', 'Failed to load rewards');
     }
   };
 
   const handleLogout = () => {
-    console.log('🚪 Logging out...');
     Alert.alert('Logout', 'Are you sure you want to log out?', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Logout', style: 'destructive', onPress: () => dispatch(logoutUser()) },
@@ -93,10 +104,11 @@ const AccountScreen: React.FC = () => {
   };
 
   const handleRedeem = async () => {
-    console.log('🎟️ Redeem clicked');
+    const auth = ensureAuth();
+    if (!auth) return;
+
     try {
-      const res = await redeemRewards(user.user_id);
-      console.log('✅ Coupon redeemed:', res);
+      const res = await redeemRewards(auth.user.user_id);
       Alert.alert('Success 🎉', `Coupon generated: ${res.coupon_code}`);
       setRewards((prev) => ({
         ...prev!,
@@ -104,18 +116,27 @@ const AccountScreen: React.FC = () => {
         coupon_code: res.coupon_code,
         total_points: 0,
       }));
-    } catch (error) {
-      console.log('❌ Error redeeming:', error);
+    } catch {
       Alert.alert('Error', 'Failed to redeem rewards');
     }
   };
 
   const loadProfileData = async () => {
-    console.log('👤 Loading profile...');
+    const auth = ensureAuth();
+    if (!auth) return;
+
     try {
-      const res = await fetchUserProfile(user.user_id);
-      console.log('✅ Profile loaded:', res);
+      const res = await fetchUserProfile(auth.user.user_id);
       setProfileForm(res);
+
+      const location = await fetchAndPrefillLocation();
+      if (location) {
+        setProfileForm(prev => ({
+          ...prev,
+          ...location,
+        }));
+      }
+
       setProfileModalVisible(true);
     } catch {
       Alert.alert('Error', 'Could not load profile');
@@ -123,9 +144,11 @@ const AccountScreen: React.FC = () => {
   };
 
   const handleProfileUpdate = async () => {
-    console.log('✏️ Updating profile...', profileForm);
+    const auth = ensureAuth();
+    if (!auth) return;
+
     try {
-      await updateUserProfile(user.user_id, profileForm);
+      await updateUserProfile(auth.user.user_id, profileForm);
       Alert.alert('Success', 'Profile updated');
       setProfileModalVisible(false);
     } catch {
@@ -157,13 +180,9 @@ const AccountScreen: React.FC = () => {
         {rewards ? (
           <>
             <Text>Total Points: <Text style={tw`font-bold`}>{rewards.total_points}</Text></Text>
-            <Text>
-              Redeemable: {rewards.redeemable ? '✅ Yes' : '❌ Not yet (min: 5 points)'}
-            </Text>
+            <Text>Redeemable: {rewards.redeemable ? '✅ Yes' : '❌ Not yet (min: 5 points)'}</Text>
             {rewards.coupon_code && (
-              <Text style={tw`text-green-600 font-semibold`}>
-                🎟️ Coupon: {rewards.coupon_code}
-              </Text>
+              <Text style={tw`text-green-600 font-semibold`}>🎟️ Coupon: {rewards.coupon_code}</Text>
             )}
             {rewards.redeemable && (
               <TouchableOpacity onPress={handleRedeem} style={tw`mt-3 bg-green-600 py-2 px-4 rounded-lg`}>

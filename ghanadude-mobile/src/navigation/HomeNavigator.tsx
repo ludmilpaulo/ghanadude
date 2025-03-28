@@ -13,31 +13,30 @@ import MyCouponsScreen from "../screens/MyCouponsScreen";
 import OrderHistory from "../screens/OrderHistory";
 import InvoiceHistoryScreen from "../screens/InvoiceHistoryScreen";
 import FullReviewScreen from "../screens/FullReviewScreen";
+import { Order } from '../services/OrderService';
 
 
 
 
-// ✅ Exporting HomeStackParamList so other files can import it
 export type HomeStackParamList = {
   HomeScreen: undefined;
   ProductScreen: undefined;
   Home: undefined;
   ProductList: undefined;
   Cart: undefined;
-  DealsScreen:undefined;
+  DealsScreen: undefined;
   CheckoutScreen: undefined;
   SuccessScreen: { order_id: number };
   PaymentCancelled: undefined;
   ProductDetail: { id: number };
   MyCouponsScreen: undefined;
-
   InvoiceHistoryScreen: undefined;
   OrderHistory: undefined;
-  FullReview: { id: number }; // ✅ ADD THIS
+  FullReview: { id: number };
 
-
+  // ✅ Add this line:
+  OrderDetail: { order: Order };
 };
-
 
 const Stack = createStackNavigator<HomeStackParamList>();
 

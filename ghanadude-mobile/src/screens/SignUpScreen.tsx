@@ -46,9 +46,19 @@ export default function SignUpScreen() {
     setError("");
 
     try {
-      const data = await AuthService.signup(username, email, password);
+      const response = await AuthService.signup(username, email, password);
 
-      dispatch(loginUser(data));
+      dispatch(
+        loginUser({
+          user: {
+            user_id: response.user_id,
+            username: response.username,
+            is_staff: response.is_staff,
+            is_superuser: response.is_superuser,
+          },
+          token: response.token,
+        })
+      );
       setLoading(false);
 
       // Show success alert

@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { selectUser } from '../redux/slices/authSlice';
+import { selectUser, selectToken } from '../redux/slices/authSlice';
 import { API_BASE_URL } from '../services/AuthService';
 import tw from 'twrnc';
 import * as FileSystem from 'expo-file-system';
@@ -14,16 +14,27 @@ type FilterType = 'all' | 'with_invoice' | 'without_invoice';
 
 const InvoiceHistoryScreen = () => {
   const user = useSelector(selectUser);
-  const token = useSelector((state: any) => state.auth.token);
+  const token = useSelector(selectToken);
   const [orders, setOrders] = useState<any[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
   const [loading, setLoading] = useState(false);
   const [selectedPDF, setSelectedPDF] = useState<string | null>(null);
 
+  const ensureAuth = () => {
+    if (!user || !token) {
+      Alert.alert('Error', 'You must be logged in.');
+      return null;
+    }
+    return { user, token };
+  };
+
   const loadOrders = async () => {
+    const auth = ensureAuth();
+    if (!auth) return;
+
     try {
-      const res = await axios.get(`${API_BASE_URL}/orders/user/${user.user_id}/`, {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await axios.get(`${API_BASE_URL}/orders/user/${auth.user.user_id}/`, {
+        headers: { Authorization: `Bearer ${auth.token}` }
       });
       setOrders(res.data);
     } catch {

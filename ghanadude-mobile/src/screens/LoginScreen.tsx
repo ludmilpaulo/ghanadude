@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/slices/authSlice";
 import tw from "twrnc";
 import authService from "../services/AuthService";
+import logo from '../../assets/logo.png';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
 
@@ -39,7 +40,17 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       const response = await authService.login(usernameOrEmail, password);
-      dispatch(loginUser(response));
+      dispatch(
+        loginUser({
+          user: {
+            user_id: response.user_id,
+            username: response.username,
+            is_staff: response.is_staff,
+            is_superuser: response.is_superuser,
+          },
+          token: response.token,
+        })
+      );
       Alert.alert("Success", "Login successful!");
       console.log("Login successful", response);
     } catch (error: unknown) {
@@ -54,8 +65,8 @@ export default function LoginScreen() {
     <SafeAreaView style={tw`flex-1 bg-gray-100`}>
       {/* Full-Width Logo */}
       <View style={tw`w-full h-56 bg-white items-center justify-center shadow-md`}>
-        <Image
-          source={require("../../assets/logo.png")} // Ensure correct logo path
+      <Image
+          source={logo}
           style={tw`w-48 h-48`}
           resizeMode="contain"
         />

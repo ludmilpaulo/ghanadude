@@ -12,7 +12,7 @@ import axios from 'axios';
 import tw from 'twrnc';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../services/AuthService';
-import { selectUser } from '../redux/slices/authSlice';
+import { selectUser, selectToken } from '../redux/slices/authSlice';
 import { RootState } from '../redux/store';
 
 interface Order {
@@ -24,17 +24,28 @@ interface Order {
 
 const OrderHistory: React.FC = () => {
   const user = useSelector(selectUser);
-  const token = useSelector((state: RootState) => state.auth.token);
+  const token = useSelector(selectToken);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const ensureAuth = () => {
+    if (!user || !token) {
+      Alert.alert('Error', 'You must be logged in to view orders.');
+      return null;
+    }
+    return { user, token };
+  };
+
   const loadOrders = async () => {
+    const auth = ensureAuth();
+    if (!auth) return;
+
     setLoading(true);
     try {
       const res = await axios.get<Order[]>(
-        `${API_BASE_URL}/orders/user/${user.user_id}/`,
+        `${API_BASE_URL}/orders/user/${auth.user.user_id}/`,
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${auth.token}` },
         }
       );
       setOrders(res.data);
@@ -48,12 +59,15 @@ const OrderHistory: React.FC = () => {
   };
 
   const cancelOrder = async (orderId: number) => {
+    const auth = ensureAuth();
+    if (!auth) return;
+
     try {
       await axios.post(
         `${API_BASE_URL}/orders/${orderId}/cancel/`,
         {},
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${auth.token}` },
         }
       );
       Alert.alert('Cancelled', 'Order cancelled successfully');

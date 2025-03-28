@@ -898,10 +898,10 @@
   dependencies:
     uuid "^8.0.0"
 
-"@expo/cli@0.22.21":
-  version "0.22.21"
-  resolved "https://registry.yarnpkg.com/@expo/cli/-/cli-0.22.21.tgz#847a1e2587f8b680a591a8a4dd7a544daef955b2"
-  integrity sha512-lLtH0CiNTwB+qgduew61Jocgj0B092QiQllBuPXigHI4VQms5VXYXHfQC2pMZ7KWFKhNjBIjLSD8A2n1dBMb1Q==
+"@expo/cli@0.22.22":
+  version "0.22.22"
+  resolved "https://registry.yarnpkg.com/@expo/cli/-/cli-0.22.22.tgz#a759becb73a8e1bbe1b5bb748e506d8d75872d08"
+  integrity sha512-sOttVuk/8gdnsiSeDpnRNpLgBJHLbyQQC0QBGd2iHpr/x6xSYpgoRO6AqwAwGtQsk4ZEPZ83ulvccei1IIPdwg==
   dependencies:
     "@0no-co/graphql.web" "^1.0.8"
     "@babel/runtime" "^7.20.0"
@@ -4081,10 +4081,10 @@ expo-image-picker@~16.0.6:
   dependencies:
     expo-image-loader "~5.0.0"
 
-expo-image@~2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-2.0.6.tgz#94a9e01df7306c4e8b5f1e76647f9eea54cfaec1"
-  integrity sha512-NHpIZmGnrPbyDadil6eK+sUgyFMQfapEVb7YaGgxSFWBUQ1rSpjqdIQrCD24IZTO9uSH8V+hMh2ROxrAjAixzQ==
+expo-image@~2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-2.0.7.tgz#087ca651e3dcd2e92efdda11a6c9e3ad6fddc127"
+  integrity sha512-kv40OIJOkItwznhdqFmKxTMC5O8GkpyTf8ng7Py4Hy6IBiH59dkeP6vUZQhzPhJOm5v1kZK4XldbskBosqzOug==
 
 expo-intent-launcher@~12.0.2:
   version "12.0.2"
@@ -4142,13 +4142,13 @@ expo-web-browser@~14.0.2:
   resolved "https://registry.yarnpkg.com/expo-web-browser/-/expo-web-browser-14.0.2.tgz#52d53947c42fdfb225e8c230418ffe508bcf98a7"
   integrity sha512-Hncv2yojhTpHbP6SGWARBFdl7P6wBHc1O8IKaNsH0a/IEakq887o1eRhLxZ5IwztPQyRDhpqHdgJ+BjWolOnwA==
 
-expo@~52.0.38:
-  version "52.0.40"
-  resolved "https://registry.yarnpkg.com/expo/-/expo-52.0.40.tgz#8a9d668f43afe34fd889d219d55ee2b19cc4cd9e"
-  integrity sha512-kRRXW0VRlnc49LiMO9csF5DjWmUQhQ0lHudNIi3m9Z4nvecJbDaKWI5nNxB5UG7Sqj0I/wsBMes5G6gEndeYlQ==
+expo@~52.0.41:
+  version "52.0.41"
+  resolved "https://registry.yarnpkg.com/expo/-/expo-52.0.41.tgz#e53f3544f1c07aab08a7e37fd975944ef892dcbe"
+  integrity sha512-qFdt1l2ltj5XWf1tnQ5UidWkaNQWf3CbhldjVb/ui/iGp1x038W7QUhT6BwaCOY6N9yuCZKnFS4Uk9Cxwfsc+w==
   dependencies:
     "@babel/runtime" "^7.20.0"
-    "@expo/cli" "0.22.21"
+    "@expo/cli" "0.22.22"
     "@expo/config" "~10.0.11"
     "@expo/config-plugins" "~9.0.17"
     "@expo/fingerprint" "0.11.11"
