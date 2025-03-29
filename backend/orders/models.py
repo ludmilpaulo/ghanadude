@@ -36,6 +36,11 @@ class Order(DirtyFieldsMixin, models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
+    
+    @property
+    def earned_points(self):
+        return int(self.total_price // 100)  # 1 point per R100
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
@@ -49,6 +54,8 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in order {self.order.id}"
+    
+  
     
     
 class BulkOrder(models.Model):

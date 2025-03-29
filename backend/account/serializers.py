@@ -13,14 +13,21 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'first_name', 'last_name', "password", "is_staff"]
 
         extra_kwargs = {'password': {'write_only': True}}
-        
-        
-
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = '__all__'
+
+# serializers.py
+
+class UserWithProfileSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(read_only=True)
+
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'profile']
 
 

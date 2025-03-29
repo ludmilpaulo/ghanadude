@@ -5,6 +5,8 @@ import { API_BASE_URL } from './AuthService';
 export interface UserProfile {
   user_id: number; // <- this is required
   name: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone_number?: string;
   address: string;
@@ -42,7 +44,7 @@ export const updateUserProfile = async (user_id: number, profileData: ProfileFor
 
 
 export const fetchRewards = async (user_id: number) => {
-  const res = await axios.get(`${API_BASE_URL}/rewards/status/`, {
+  const res = await axios.get(`${API_BASE_URL}/reward/status/`, {
     params: { user_id },
   
   });

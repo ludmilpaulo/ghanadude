@@ -252,6 +252,8 @@ const CheckoutScreen: React.FC = () => {
       await checkoutOrder(formData);
       const profileUpdate: ProfileForm = {
         name: `${form.first_name} ${form.last_name}`,
+        first_name: form.first_name,                 // ✅ Add this
+        last_name: form.last_name,                   // ✅ Add this
         email: form.email,
         phone_number: form.phone_number,
         address: form.address,

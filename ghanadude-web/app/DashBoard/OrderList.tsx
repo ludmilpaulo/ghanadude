@@ -1,69 +1,50 @@
-
-import React, { useEffect, useState, useRef } from 'react';
+// app/DashBoard/OrderList.tsx
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import { Transition } from '@headlessui/react';
 import { fetchOrders, updateOrderStatus } from '@/services/adminService';
-import { Dialog, Transition } from '@headlessui/react';
-import { CSVLink } from 'react-csv';
-
-
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { useReactToPrint } from 'react-to-print';
-
-
-interface OrderItem {
-  id: number;
-  product_name: string;
-  quantity: number;
-  price: string;
-}
-
-interface Order {
-  id: number;
-  user: string;
-  total_price: number;
-  status: string;
-  created_at: string;
-  address: string;
-  items: OrderItem[];
-}
+import { Order } from './orders/types';
+import OrderTable from './orders/OrderTable';
+import OrderModal from './orders/OrderModal';
+import ExportButtons from './orders/ExportButtons';
+import SearchSortBar from './orders/SearchSortBar';
 
 const OrderList: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const [loading, setLoading] = useState(false);
-
-
+  const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<string | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
+  const [activeTab, setActiveTab] = useState<'regular' | 'bulk'>('regular');
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10;
   const printRef = useRef<HTMLDivElement>(null);
+  const ordersPerPage = 10;
 
   useEffect(() => {
-    async function loadOrders() {
+    const loadOrders = async () => {
       setLoading(true);
       try {
-        const data = await fetchOrders();
+        const data = await fetchOrders(); // <- check this returns the array correctly
+        console.log('✅ Orders fetched:', data); // Add this
         setOrders(data);
-      } catch (error) {
-        console.error('Failed to fetch orders:', error);
-        setAlert('❌ Failed to fetch orders.');
+      } catch (err) {
+        console.error('❌ Failed to fetch orders:', err);
+        setAlert('Failed to load orders.');
       } finally {
         setLoading(false);
       }
-    }
-
+    };
+  
     loadOrders();
   }, []);
+  
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
-    const order = orders.find((o) => o.id === orderId);
-    if (order && ['Completed', 'Cancelled'].includes(order.status)) {
-      setAlert('Order already Completed or Cancelled.');
-      setTimeout(() => setAlert(null), 4000);
+    const target = orders.find((o) => o.id === orderId);
+    if (!target || ['Completed', 'Cancelled'].includes(target.status)) {
+      setAlert('Cannot update status. Order already completed or cancelled.');
       return;
     }
 
@@ -71,59 +52,36 @@ const [loading, setLoading] = useState(false);
       setLoading(true);
       await updateOrderStatus(orderId, { status: newStatus });
       setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, status: newStatus } : order
+        prev.map((o) =>
+          o.id === orderId ? { ...o, status: newStatus } : o
         )
       );
-      setAlert('✅ Order status updated!');
-    } catch (error) {
-      console.error('Failed to update status:', error);
+      setAlert('✅ Order status updated.');
+    } catch {
       setAlert('❌ Failed to update order.');
     } finally {
       setLoading(false);
-      setTimeout(() => setAlert(null), 4000);
     }
   };
 
-  const exportPDF = () => {
-    const doc = new jsPDF();
-    autoTable(doc, {
-      head: [['ID', 'User', 'Total', 'Status', 'Created At', 'Address']],
-      body: orders.map((order) => [
-        order.id,
-        order.user,
-        `R${order.total_price}`,
-        order.status,
-        new Date(order.created_at).toLocaleDateString(),
-        order.address,
-      ]),
-    });
-    doc.save('orders.pdf');
-  };
+  const filtered = orders.filter((order) => {
+    const isMatchingType = activeTab === 'bulk' ? order.items.length === 0 : order.items.length > 0;
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-  } as unknown as Parameters<typeof useReactToPrint>[0]);
-  
-  
-  
-
-  const filteredOrders = orders.filter((order) => {
-    const matchesStatus = statusFilter ? order.status === statusFilter : true;
-    const matchesUser = userFilter
+    const isStatusMatch = statusFilter ? order.status === statusFilter : true;
+    const isUserMatch = userFilter
       ? order.user.toLowerCase().includes(userFilter.toLowerCase())
       : true;
-    const matchesDate = dateFilter
+    const isDateMatch = dateFilter
       ? new Date(order.created_at).toLocaleDateString() ===
         new Date(dateFilter).toLocaleDateString()
       : true;
-    return matchesStatus && matchesUser && matchesDate;
+    return isMatchingType && isStatusMatch && isUserMatch && isDateMatch;
   });
 
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
-  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+  const indexOfLast = currentPage * ordersPerPage;
+  const indexOfFirst = indexOfLast - ordersPerPage;
+  const currentOrders = filtered.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filtered.length / ordersPerPage);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -131,101 +89,91 @@ const [loading, setLoading] = useState(false);
 
       {alert && <div className="mb-4 text-blue-700">{alert}</div>}
 
-      <div className="flex gap-4 mb-4">
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border px-3 py-2 rounded text-sm">
-          <option value="">All Statuses</option>
-          <option value="Pending">Pending</option>
-          <option value="Processing">Processing</option>
-          <option value="Completed">Completed</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
-        <input type="text" placeholder="Filter by user" value={userFilter} onChange={(e) => setUserFilter(e.target.value)} className="border px-3 py-2 rounded text-sm" />
-        <input type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} className="border px-3 py-2 rounded text-sm" />
+      {/* Tabs */}
+      <div className="flex space-x-3 mb-4">
+        {(['regular', 'bulk'] as const).map((tab) => (
+          <button
+            key={tab}
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              activeTab === tab
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 text-gray-700'
+            }`}
+            onClick={() => {
+              setActiveTab(tab);
+              setCurrentPage(1);
+            }}
+          >
+            {tab === 'regular' ? '🧾 Regular Orders' : '📦 Bulk Orders'}
+          </button>
+        ))}
       </div>
+
+      <SearchSortBar
+        statusFilter={statusFilter}
+        userFilter={userFilter}
+        dateFilter={dateFilter}
+        setStatusFilter={setStatusFilter}
+        setUserFilter={setUserFilter}
+        setDateFilter={setDateFilter}
+      />
 
       <div className="flex justify-end gap-4 mb-4">
-      <span>
-  <CSVLink
-    data={orders}
-    filename="orders.csv"
-    className="bg-green-600 text-white px-4 py-2 rounded text-sm"
-  >
-    Export CSV
-  </CSVLink>
-</span>
-
-
-        <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded text-sm">Export PDF</button>
-        <button onClick={() => handlePrint?.()} className="bg-indigo-600 text-white px-4 py-2 rounded text-sm">
-  Print
-</button>
-
+        <ExportButtons orders={orders} printRef={printRef} />
       </div>
 
-      <div ref={printRef} className="overflow-x-auto border rounded bg-white shadow">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              {['ID', 'User', 'Total', 'Status', 'Date', 'Address', 'Actions'].map((h) => (
-                <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100 text-sm text-gray-800">
-            {currentOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">{order.id}</td>
-                <td className="px-6 py-4">{order.user}</td>
-                <td className="px-6 py-4">R{order.total_price}</td>
-                <td className="px-6 py-4">
-                  <select value={order.status} onChange={(e) => handleStatusChange(order.id, e.target.value)} className="border px-2 py-1 rounded">
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
-                </td>
-                <td className="px-6 py-4">{new Date(order.created_at).toLocaleDateString()}</td>
-                <td className="px-6 py-4">{order.address}</td>
-                <td className="px-6 py-4">
-                  <button onClick={() => setViewingOrder(order)} className="bg-blue-500 text-white px-3 py-1 rounded">View</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* Orders Table */}
+      <div ref={printRef}>
+        <OrderTable
+          orders={currentOrders}
+          onStatusChange={handleStatusChange}
+          onViewOrder={setViewingOrder}
+        />
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-4">
-          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1} className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">← Prev</button>
-          <span className="text-sm text-gray-600">Page {currentPage} of {totalPages}</span>
-          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">Next →</button>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            ← Prev
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Next →
+          </button>
         </div>
       )}
 
-      <Transition appear show={!!viewingOrder} as={React.Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={() => setViewingOrder(null)}>
-          <Transition.Child enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100"
-                            leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-            <div className="fixed inset-0 bg-black bg-opacity-25" />
-          </Transition.Child>
-          <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex items-center justify-center min-h-full p-4">
-              <Dialog.Panel className="bg-white max-w-md w-full rounded p-6 shadow-lg">
-                <Dialog.Title className="text-lg font-semibold mb-4">Order #{viewingOrder?.id} Products</Dialog.Title>
-                <ul className="space-y-2">
-                  {viewingOrder?.items.map((item) => (
-                    <li key={item.id}>
-                      {item.product_name} - Qty: {item.quantity} - R{item.price}
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => setViewingOrder(null)} className="mt-4 bg-red-500 text-white px-4 py-2 rounded">Close</button>
-              </Dialog.Panel>
-            </div>
-          </div>
-        </Dialog>
+      {/* Modal */}
+      {viewingOrder && (
+        <OrderModal order={viewingOrder} onClose={() => setViewingOrder(null)} />
+      )}
+
+      {/* Loader */}
+      <Transition
+        show={loading}
+        enter="transition-opacity duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-300"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
+          <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin" />
+        </div>
       </Transition>
     </div>
   );

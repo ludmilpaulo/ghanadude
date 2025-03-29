@@ -4,7 +4,9 @@ from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-from .serializers import UserSerializer
+
+from .models import UserProfile
+from .serializers import UserProfileSerializer, UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,12 +15,24 @@ from rest_framework.decorators import permission_classes
 from rest_framework.authtoken.models import Token
 from django.conf import settings
 from rest_framework.decorators import api_view
-
+from .serializers import UserWithProfileSerializer
 from rest_framework import generics, permissions
 import logging
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
+
+class UserListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        print("📢 Fetching all users with profiles...")
+        users = User.objects.select_related('profile').all()
+        serializer = UserWithProfileSerializer(users, many=True)
+        print(f"✅ Found {len(users)} users.")
+        return Response(serializer.data)
 
 @permission_classes([AllowAny])
 class UserSignupView(APIView):
@@ -146,41 +160,21 @@ class UserProfileView(APIView):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
+logger = logging.getLogger(__name__)
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_user_profile(request, user_id):
     logger.debug(f'Received user_id: {user_id}')
     try:
         user = User.objects.get(id=user_id)
-        serializer = UserSerializer(user)
+        serializer = UserWithProfileSerializer(user)
+        print(serializer.data)
 
-        data = serializer.data
-        # Explicitly include First name, Last name, and Email address clearly
-        response_data = {
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "email": user.email,
-            **data  # include all serialized data as well
-        }
+        return Response(serializer.data)
 
-        return Response(response_data)
     except User.DoesNotExist:
         logger.error(f'User with id {user_id} not found')
         return Response({"error": "User not found"}, status=404)
 
 
-
-@api_view(['PUT'])
-@permission_classes([AllowAny])
-def update_user_profile(request, user_id):
-    logger.debug(f'Received user_id: {user_id}')
-    try:
-        user = User.objects.get(id=user_id)
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=400)
-    except User.DoesNotExist:
-        logger.error(f'User with id {user_id} not found')
-        return Response({"error": "User not found"}, status=404)

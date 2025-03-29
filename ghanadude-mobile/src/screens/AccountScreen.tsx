@@ -45,6 +45,8 @@ const AccountScreen: React.FC = () => {
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     phone_number: '',
     address: '',

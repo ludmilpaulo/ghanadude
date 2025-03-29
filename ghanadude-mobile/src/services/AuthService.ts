@@ -1,10 +1,10 @@
 import axios, { AxiosError } from 'axios';
 
 
-export const API_BASE_URL = 'http://192.168.1.109:8000'
+//export const API_BASE_URL = 'http://192.168.1.109:8000'
 
 
-//export const API_BASE_URL ="https://www.ghanadude.co.za"
+export const API_BASE_URL ="https://www.ghanadude.co.za"
 
 interface AuthResponse {
   token: string;

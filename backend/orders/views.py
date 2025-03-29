@@ -82,23 +82,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
     
 
-class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    permission_classes = [AllowAny]
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    @action(detail=True, methods=['patch'], url_path='update-status')
-    def update_status(self, request, pk=None):
-        order = self.get_object()
-        status = request.data.get('status')
-        if status not in dict(Order.STATUS_CHOICES):
-            return Response({"detail": "Invalid status."}, status=status.HTTP_400_BAD_REQUEST)
-        order.status = status
-        order.save()
-        return Response(OrderSerializer(order).data)
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
