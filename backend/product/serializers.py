@@ -67,6 +67,7 @@ class DesignerSerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)  # Include full product details
     product_price = serializers.SerializerMethodField()
 
     class Meta:

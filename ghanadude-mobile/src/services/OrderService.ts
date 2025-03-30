@@ -18,14 +18,15 @@ export interface OrderItem {
   quantity: number;
   price: string;
 }
-
 export interface Order {
   id: number;
   status: string;
   total_price: string;
   created_at: string;
   items: OrderItem[];
+  invoice?: string | null; // ✅ Add this line
 }
+
 
 export const fetchUserOrders = async (
   user_id: number,

@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather, AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import { useSelector } from "react-redux";
+
 import { View, Text, SafeAreaView } from "react-native";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
 import { LinearGradient } from "expo-linear-gradient";
-import axios from "axios";
 import HomeScreen from "../screens/HomeScreen";
 import AccountScreen from "../screens/AccountScreen";
 import DealsScreen from "../screens/DealsScreen";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchWishlistCount } from "../services/WishlistService";
+import { setWishlistCount } from "../redux/slices/wishlistSlice";
+
+
 
 import { RootState } from "../redux/store";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
-import { API_BASE_URL } from "../services/AuthService";
 import { selectUser } from "../redux/slices/authSlice";
 
 
@@ -21,31 +24,21 @@ import { selectUser } from "../redux/slices/authSlice";
 const Tab = createBottomTabNavigator();
 
 const MainTabNavigator = () => {
+  const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.basket.items);
   const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
 
-  const [wishlistCount, setWishlistCount] = useState(0);
+  const wishlistCount = useSelector((state: RootState) => state.wishlist.count);
+
   const user = useSelector(selectUser);
   const userId = user?.user_id;
   
-
   useEffect(() => {
-    fetchWishlistCount();
-  }, []);
-
- 
-const fetchWishlistCount = async () => {
-  if (!userId) return;
-
-  try {
-    const response = await axios.get(`${API_BASE_URL}/product/wishlist/count/`, {
-      params: { user_id: userId },
-    });
-    setWishlistCount(response.data.count);
-  } catch (error) {
-    console.error("Failed to fetch wishlist count:", error);
-  }
-};
+    if (userId) {
+      fetchWishlistCount(userId).then((count) => dispatch(setWishlistCount(count)));
+    }
+  }, [userId]);
+  
 
 
   return (

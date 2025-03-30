@@ -22,6 +22,9 @@ import { fetchAndPrefillLocation } from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
+import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
+import axios from 'axios';
 
 
 type NavigationProp = StackNavigationProp<HomeStackParamList>;

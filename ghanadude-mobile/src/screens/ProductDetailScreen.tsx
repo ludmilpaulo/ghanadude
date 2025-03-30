@@ -15,6 +15,9 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { Product } from './types';
 import { useNavigation } from "@react-navigation/native";
+import { fetchWishlistCount } from "../services/WishlistService";
+import { setWishlistCount } from "../redux/slices/wishlistSlice";
+
 
 import { API_BASE_URL } from '../services/AuthService';
 import { getWishlist, addToWishlist, removeFromWishlist } from '../services/WishlistService';
@@ -161,7 +164,6 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         Alert.alert("Removed", `${product?.name} removed from wishlist.`);
       }
     } else {
-      // Check again before adding
       const wishlist = await getWishlist(userId);
       const alreadyExists = wishlist.some((item: any) => item.product.id === id);
       if (alreadyExists) {
@@ -176,6 +178,10 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         Alert.alert("Added", `${product?.name} added to wishlist.`);
       }
     }
+  
+    // 👇 Always update count after action
+    const newCount = await fetchWishlistCount(userId);
+    dispatch(setWishlistCount(newCount));
   };
   
 

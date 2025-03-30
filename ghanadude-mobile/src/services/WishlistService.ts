@@ -1,5 +1,6 @@
 // WishlistService.ts
 
+import axios from "axios";
 import { API_BASE_URL } from "./AuthService";
 
 export const getWishlist = async (userId: number) => {
@@ -40,3 +41,16 @@ export const removeFromWishlist = async (userId: number, productId: number) => {
     return false;
   }
 };
+
+export const fetchWishlistCount = async (userId: number): Promise<number> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/product/wishlist/count/`, {
+      params: { user_id: userId },
+    });
+    return response.data.count ?? 0;
+  } catch (error) {
+    console.error("❌ Failed to fetch wishlist count:", error);
+    return 0;
+  }
+};
+
