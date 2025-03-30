@@ -1,0 +1,38 @@
+# Ignore system files
+.DS_Store
+*.log
+
+# Ignore version control
+.git
+.gitignore
+
+# Ignore development files
+.env
+.env.*
+*.md
+README.md
+LICENSE
+
+# Ignore node_modules (EAS rebuilds this anyway)
+node_modules/
+
+# Ignore build artifacts
+build/
+dist/
+web-build/
+android/app/build/
+ios/build/
+ios/Pods/
+
+# Ignore cache
+npm-cache/
+yarn.lock
+package-lock.json
+.expo/
+.expo-shared/
+
+# Ignore local tools
+.vscode/
+.idea/
+myenv/
+*.iml

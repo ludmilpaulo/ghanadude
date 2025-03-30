@@ -3,6 +3,28 @@ from django.shortcuts import render
 from .models import AppVersion
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.http import HttpRequest, HttpResponseRedirect
+from django.shortcuts import redirect
+
+def app_redirect_view(request: HttpRequest):
+    user_agent = request.META.get('HTTP_USER_AGENT', '').lower()
+
+    # Replace these with your actual links
+    play_store_url = "https://play.google.com/store/apps/details?id=com.yourapp.package"
+    app_store_url = "https://apps.apple.com/app/idYOUR_APPLE_ID"
+    android_deep_link = "yourapp://"
+    ios_deep_link = "yourapp://"
+
+    if 'android' in user_agent:
+        # Attempt to redirect to app, then fallback to Play Store
+        return HttpResponseRedirect(f"intent://#Intent;package=com.yourapp.package;scheme=yourapp;end")
+    elif 'iphone' in user_agent or 'ipad' in user_agent:
+        # iOS: try universal link first (configure Apple App Site Association for full support)
+        return HttpResponseRedirect(ios_deep_link)  # You can fallback via meta tags or JS
+    else:
+        # Fallback to your website or a general page
+        return redirect("https://www.ghanadude.com")
+
 
 
 @api_view(['GET'])

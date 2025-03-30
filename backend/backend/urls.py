@@ -3,9 +3,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from home.views import app_redirect_view
+
 
 urlpatterns = [
-
+    path('', app_redirect_view, name='app-redirect'),
     path('admin/', admin.site.urls, name='admin'),  # Use original admin site here with unique namespace
     path('account/', include('account.urls')),
     path('product/', include('product.urls')),
