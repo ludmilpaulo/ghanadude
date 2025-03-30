@@ -1,0 +1,25 @@
+<!-- templates/changelog.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>App Version Changelog</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    h1 { color: #2c3e50; }
+    .version { margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; }
+    .version h2 { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>📱 App Version Changelog</h1>
+  {% for version in versions %}
+    <div class="version">
+      <h2>{{ version.platform|title }} - v{{ version.latest_version }}</h2>
+      <p><strong>Force Update:</strong> {{ version.force_update }}</p>
+      <p><strong>Last Updated:</strong> {{ version.updated_at }}</p>
+      <p><strong>Store URL:</strong> <a href="{{ version.store_url }}">{{ version.store_url }}</a></p>
+    </div>
+  {% endfor %}
+</body>
+</html>

@@ -20,6 +20,10 @@ SECRET_KEY = "django-insecure-*0hpsd2av%#_ug)^4ay_6gy86s3%vh_20%c1#fjnbuv(q#%&x2
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+ADMINS = [
+    ('Support Team', 'support@maindodigital.com'),
+]
+
 
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://ghanadude.vercel.app')
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'product',
     'orders',
     'revenue',
+    'home',
 ]
 
 MIDDLEWARE = [
