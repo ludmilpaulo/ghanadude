@@ -1,55 +1,63 @@
-// OrderHistory.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView, Alert,
-  Linking, ActivityIndicator,
+  View, Text, ScrollView, TouchableOpacity, Alert, Linking,
+  ActivityIndicator, RefreshControl, TextInput, Image, Modal, Pressable,
+  NativeSyntheticEvent, NativeScrollEvent,
 } from 'react-native';
-import axios from 'axios';
 import tw from 'twrnc';
 import { useSelector } from 'react-redux';
 import { API_BASE_URL } from '../services/AuthService';
 import { selectUser, selectToken } from '../redux/slices/authSlice';
+import { fetchUserOrders, Order, OrderItem } from '../services/OrderService';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { HomeStackParamList } from '../navigation/HomeNavigator';
+import axios from 'axios';
 
-interface Order {
-  id: number;
-  status: string;
-  total_price: number;
-  created_at: string;
-  invoice?: string;
-}
+const statusOptions = ['Pending', 'Processing', 'Completed', 'Cancelled'];
 
 const OrderHistory: React.FC = () => {
   const user = useSelector(selectUser);
   const token = useSelector(selectToken);
+  const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
+
   const [orders, setOrders] = useState<Order[]>([]);
+  const [statusFilter, setStatusFilter] = useState('Completed');
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [itemModalVisible, setItemModalVisible] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
 
   const ensureAuth = () => {
     if (!user || !token) {
-      Alert.alert('Error', 'You must be logged in to view orders.');
+      Alert.alert('Error', 'You must be logged in.');
       return null;
     }
     return { user, token };
   };
 
-  const loadOrders = async () => {
+  useEffect(() => {
+    const auth = ensureAuth();
+    if (auth) {
+      loadOrders(statusFilter);
+    }
+  }, [statusFilter]);
+
+  const loadOrders = async (status: string) => {
     const auth = ensureAuth();
     if (!auth) return;
 
     setLoading(true);
     try {
-      const res = await axios.get<Order[]>(
-        `${API_BASE_URL}/orders/user/${auth.user.user_id}/`,
-        {
-          headers: { Authorization: `Bearer ${auth.token}` },
-        }
-      );
-      setOrders(res.data);
-    } catch (err) {
-      console.error('❌ Failed to load orders:', err);
-      Alert.alert('Error', 'Could not load orders');
+      const res = await fetchUserOrders(auth.user.user_id, auth.token, status);
+      console.log('✅ Orders response:', res.results);
+      setOrders(res.results);
+    } catch {
+      Alert.alert('Error', 'Failed to load orders');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -61,17 +69,16 @@ const OrderHistory: React.FC = () => {
       await axios.post(
         `${API_BASE_URL}/orders/${orderId}/cancel/`,
         {},
-        {
-          headers: { Authorization: `Bearer ${auth.token}` },
-        }
+        { headers: { Authorization: `Bearer ${auth.token}` } }
       );
-      Alert.alert('Cancelled', 'Order cancelled successfully');
-      loadOrders();
-    } catch (err) {
-      console.error('❌ Failed to cancel order:', err);
-      Alert.alert('Error', 'Could not cancel order');
+      Alert.alert('Order Cancelled', 'The order has been cancelled.');
+      loadOrders(statusFilter);
+    } catch {
+      Alert.alert('Error', 'Failed to cancel order');
     }
   };
+
+  const isCancellable = (status: string) => ['Pending', 'Processing'].includes(status);
 
   const groupOrdersByMonth = (ordersList: Order[]) => {
     const grouped: Record<string, Order[]> = {};
@@ -86,58 +93,94 @@ const OrderHistory: React.FC = () => {
     return grouped;
   };
 
-  useEffect(() => {
-    loadOrders();
-  }, []);
+  const filteredOrders = orders.filter((order) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      order.id.toString().includes(q) ||
+      order.items?.some(item => item.product.name.toLowerCase().includes(q)) ||
+      order.items?.some(item => item.product?.designer?.name?.toLowerCase().includes(q))
+    );
+  });
 
-  const groupedOrders = groupOrdersByMonth(orders);
+  const groupedOrders = groupOrdersByMonth(filteredOrders);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Pending':
-        return { bg: 'bg-yellow-200', text: 'text-yellow-800' };
-      case 'Processing':
-        return { bg: 'bg-blue-200', text: 'text-blue-800' };
-      case 'Completed':
-        return { bg: 'bg-green-200', text: 'text-green-800' };
-      case 'Cancelled':
-        return { bg: 'bg-red-200', text: 'text-red-800' };
-      default:
-        return { bg: 'bg-gray-200', text: 'text-gray-800' };
+      case 'Pending': return { bg: 'bg-yellow-200', text: 'text-yellow-800' };
+      case 'Processing': return { bg: 'bg-blue-200', text: 'text-blue-800' };
+      case 'Completed': return { bg: 'bg-green-200', text: 'text-green-800' };
+      case 'Cancelled': return { bg: 'bg-red-200', text: 'text-red-800' };
+      default: return { bg: 'bg-gray-200', text: 'text-gray-800' };
     }
   };
 
-  return (
-    <ScrollView style={tw`flex-1 bg-white px-4 py-6`}>
-      <Text style={tw`text-3xl font-bold mb-6 text-blue-700 text-center`}>
-        📦 My Orders
-      </Text>
+  const openItemsModal = (items: OrderItem[]) => {
+    setSelectedItems(items);
+    setItemModalVisible(true);
+  };
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#3B82F6" />
-      ) : Object.keys(groupedOrders).length === 0 ? (
-        <Text style={tw`text-center text-gray-500 mt-20 text-lg`}>
-          No orders found 😞
+  return (
+    <View style={tw`flex-1 bg-white`}>
+      <ScrollView
+        style={tw`px-4 pt-6`}
+        contentContainerStyle={tw`pb-10`}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              loadOrders(statusFilter);
+            }}
+          />
+        }
+        onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {}}
+        scrollEventThrottle={400}
+      >
+        <Text style={tw`text-3xl font-bold text-blue-700 text-center mb-4`}>
+          📋 Order History
         </Text>
-      ) : (
-        Object.entries(groupedOrders).map(([month, monthOrders]) => (
+
+        <TextInput
+          placeholder="🔍 Search order, product, designer..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          style={tw`bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 mb-4`}
+        />
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`mb-4`}>
+          {statusOptions.map((status) => (
+            <TouchableOpacity
+              key={status}
+              onPress={() => setStatusFilter(status)}
+              style={tw`px-4 py-2 mr-2 rounded-full ${
+                statusFilter === status ? 'bg-blue-700' : 'bg-gray-300'
+              }`}
+            >
+              <Text style={tw`${statusFilter === status ? 'text-white' : 'text-black'} font-semibold`}>
+                {status}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {Object.entries(groupedOrders).map(([month, monthOrders]) => (
           <View key={month} style={tw`mb-6`}>
-            <Text style={tw`text-xl font-semibold text-gray-800 mb-4`}>
-              {month}
-            </Text>
+            <Text style={tw`text-xl font-bold mb-2 text-gray-800`}>{month}</Text>
 
             {monthOrders.map((order) => {
-              const isCancellable = ['Pending', 'Processing'].includes(order.status);
               const statusColor = getStatusColor(order.status);
+              const thumbnail = order.items?.[0]?.product.images?.[0]?.image;
+              const productId = order.items?.[0]?.product.id;
+              const total = typeof order.total_price === 'number'
+              ? order.total_price.toFixed(2)
+              : parseFloat(order.total_price || '0').toFixed(2);
+            
 
               return (
-                <View
-                  key={order.id}
-                  style={tw`mb-4 p-4 bg-gray-100 rounded-xl shadow-sm`}
-                >
+                <View key={order.id} style={tw`mb-4 p-4 bg-gray-100 rounded-xl shadow-sm`}>
                   <View style={tw`flex-row justify-between items-center mb-2`}>
                     <Text style={tw`text-lg font-bold text-gray-800`}>
-                      Order #{order.id}
+                      {order.type === 'bulk' ? '🧾 Bulk Order' : '📦 Order'} #{order.id}
                     </Text>
                     <View style={tw`px-2 py-1 rounded-full ${statusColor.bg}`}>
                       <Text style={tw`text-xs font-bold ${statusColor.text}`}>
@@ -146,43 +189,97 @@ const OrderHistory: React.FC = () => {
                     </View>
                   </View>
 
+                  {order.type === 'bulk' && order.bulk_file ? (
+                    <TouchableOpacity onPress={() => Linking.openURL(order.bulk_file!)}>
+                      <Text style={tw`text-blue-600 underline mb-2`}>
+                        📎 View Uploaded Bulk Design
+                      </Text>
+                    </TouchableOpacity>
+                  ) : thumbnail ? (
+                    <TouchableOpacity onPress={() => navigation.navigate('ProductDetail', { id: productId })}>
+                      <Image source={{ uri: thumbnail }} style={tw`w-full h-36 rounded-lg mb-2`} resizeMode="cover" />
+                    </TouchableOpacity>
+                  ) : null}
+
                   <Text style={tw`text-gray-700 mb-1`}>
-                    Total: <Text style={tw`font-bold`}>R{order.total_price.toFixed(2)}</Text>
-                  </Text>
-                  <Text style={tw`text-gray-500 mb-3`}>
-                    {new Date(order.created_at).toLocaleDateString()}
+                    Total: <Text style={tw`font-bold`}>R{total}</Text>
                   </Text>
 
-                  {order.invoice && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        Linking.openURL(`${API_BASE_URL}/orders/${order.id}/invoice/`)
-                      }
-                      style={tw`mb-2 bg-blue-600 py-2 px-4 rounded-lg`}
-                    >
-                      <Text style={tw`text-white text-center font-bold`}>
-                        📄 View Invoice
-                      </Text>
-                    </TouchableOpacity>
+                  <Text style={tw`text-gray-500 mb-1`}>
+                    Date: {new Date(order.created_at).toLocaleDateString()}
+                  </Text>
+
+                  {order.coupon_code && (
+                    <Text style={tw`text-green-700 font-semibold mb-1`}>
+                      🎟️ Coupon used: {order.coupon_code}
+                    </Text>
                   )}
 
-                  {isCancellable && (
-                    <TouchableOpacity
-                      onPress={() => cancelOrder(order.id)}
-                      style={tw`bg-red-600 py-2 px-4 rounded-lg`}
-                    >
-                      <Text style={tw`text-white text-center font-bold`}>
-                        ❌ Cancel Order
-                      </Text>
-                    </TouchableOpacity>
+                  {order.reward_points_earned !== undefined && (
+                    <Text style={tw`text-purple-700 font-semibold mb-2`}>
+                      ⭐ Reward Points Earned: {order.reward_points_earned}
+                    </Text>
                   )}
+
+                  <View style={tw`flex-row flex-wrap gap-2 mt-2`}>
+                    {order.invoice && (
+                      <TouchableOpacity
+                        onPress={() => Linking.openURL(`${API_BASE_URL}/orders/${order.id}/invoice/`)}
+                        style={tw`bg-blue-600 py-2 px-4 rounded-lg mb-2`}
+                      >
+                        <Text style={tw`text-white font-bold`}>📄 View Invoice</Text>
+                      </TouchableOpacity>
+                    )}
+
+                    <TouchableOpacity
+                      onPress={() => openItemsModal(order.items)}
+                      style={tw`bg-gray-800 py-2 px-4 rounded-lg mb-2`}
+                    >
+                      <Text style={tw`text-white font-bold`}>📦 View Items</Text>
+                    </TouchableOpacity>
+
+                    {isCancellable(order.status) && (
+                      <TouchableOpacity
+                        onPress={() => cancelOrder(order.id)}
+                        style={tw`bg-red-600 py-2 px-4 rounded-lg mb-2`}
+                      >
+                        <Text style={tw`text-white font-bold`}>❌ Cancel Order</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               );
             })}
           </View>
-        ))
-      )}
-    </ScrollView>
+        ))}
+
+        {loading && (
+          <ActivityIndicator size="large" color="#3B82F6" style={tw`mt-4`} />
+        )}
+      </ScrollView>
+
+      {/* Items Modal */}
+      <Modal visible={itemModalVisible} animationType="slide" transparent>
+        <View style={tw`flex-1 bg-white p-6`}>
+          <Text style={tw`text-xl font-bold mb-4`}>🧾 Order Items</Text>
+          <ScrollView>
+            {selectedItems.map((item) => (
+              <View key={item.id} style={tw`mb-4 border-b border-gray-300 pb-2`}>
+                <Text style={tw`font-semibold text-gray-800`}>{item.product.name}</Text>
+                <Text>Quantity: {item.quantity}</Text>
+                <Text>Price: R{item.price}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          <Pressable
+            onPress={() => setItemModalVisible(false)}
+            style={tw`mt-6 bg-red-500 py-3 rounded-lg`}
+          >
+            <Text style={tw`text-white text-center font-bold`}>Close</Text>
+          </Pressable>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
