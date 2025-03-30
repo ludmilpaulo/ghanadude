@@ -1,49 +1,51 @@
-# 💥 Massive folder that must be ignored
+# 1. Node and build-related folders
 node_modules/
+android/
+ios/
+build/
+dist/
+web-build/
+.expo/
+.expo-shared/
 
-# 🍎 Local Python virtual environment
+# 2. Virtual environments
 myenv/
 
-# 💻 IDE/editor configs
+# 3. Version control and IDEs
+.git/
 .vscode/
 .idea/
 
-# 📦 Version control
-.git/
-.gitignore
-
-# 🧪 Local Expo and build files
-.expo/
-.expo-shared/
-dist/
-web-build/
-build/
-android/
-ios/
-
-# 📜 Lockfiles (re-generated during build)
-yarn.lock
-package-lock.json
-.pnpm-lock.yaml
-
-# 🔐 Env files and sensitive keys
+# 4. Env secrets
 .env
 .env.*
 *.key
 *.pem
 
-# 📁 Binary/media assets (if using CDN or external)
+# 5. Lock files
+yarn.lock
+package-lock.json
+.pnpm-lock.yaml
+
+# 6. Logs
+*.log
+npm-debug.log*
+
+# 7. Patch packages (if unused)
+patches/
+
+# 8. Large assets (OPTIONAL: comment out what you need)
 *.mp4
 *.mov
 *.zip
 *.psd
+*.ttf
+*.otf
+*.pdf
+*.webm
+*.wav
+*.ogg
+*.flac
 
-# 🧹 Logs
-*.log
-npm-debug.log*
-
-# 🧾 Docs and markdowns (optional)
+# 9. Markdown/docs
 *.md
-
-# ⚙️ Patch folder (optional — remove if used in `patch-package`)
-patches/
