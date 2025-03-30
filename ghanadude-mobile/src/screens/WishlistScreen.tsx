@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -58,12 +59,15 @@ const WishlistScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
 
-  useEffect(() => {
-    if (userId) {
-      fetchWishlist();
-    }
-  }, [userId]);
-
+  useFocusEffect(
+    useCallback(() => {
+      if (userId) {
+        setLoading(true);
+        fetchWishlist();
+      }
+    }, [userId])
+  );
+  
   const fetchWishlist = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/product/wishlist/`, {

@@ -1,38 +1,49 @@
-# Ignore system files
-.DS_Store
-*.log
-
-# Ignore version control
-.git
-.gitignore
-
-# Ignore development files
-.env
-.env.*
-*.md
-README.md
-LICENSE
-
-# Ignore node_modules (EAS rebuilds this anyway)
+# 💥 Massive folder that must be ignored
 node_modules/
 
-# Ignore build artifacts
-build/
-dist/
-web-build/
-android/app/build/
-ios/build/
-ios/Pods/
+# 🍎 Local Python virtual environment
+myenv/
 
-# Ignore cache
-npm-cache/
-yarn.lock
-package-lock.json
-.expo/
-.expo-shared/
-
-# Ignore local tools
+# 💻 IDE/editor configs
 .vscode/
 .idea/
-myenv/
-*.iml
+
+# 📦 Version control
+.git/
+.gitignore
+
+# 🧪 Local Expo and build files
+.expo/
+.expo-shared/
+dist/
+web-build/
+build/
+android/
+ios/
+
+# 📜 Lockfiles (re-generated during build)
+yarn.lock
+package-lock.json
+.pnpm-lock.yaml
+
+# 🔐 Env files and sensitive keys
+.env
+.env.*
+*.key
+*.pem
+
+# 📁 Binary/media assets (if using CDN or external)
+*.mp4
+*.mov
+*.zip
+*.psd
+
+# 🧹 Logs
+*.log
+npm-debug.log*
+
+# 🧾 Docs and markdowns (optional)
+*.md
+
+# ⚙️ Patch folder (optional — remove if used in `patch-package`)
+patches/

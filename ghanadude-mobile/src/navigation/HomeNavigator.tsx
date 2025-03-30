@@ -31,7 +31,7 @@ export type HomeStackParamList = {
   ProductDetail: { id: number };
   MyCouponsScreen: undefined;
   InvoiceHistoryScreen: undefined;
-  OrderHistory: undefined;
+  OrderHistory:undefined;
   FullReview: { id: number };
 
   // ✅ Add this line:
