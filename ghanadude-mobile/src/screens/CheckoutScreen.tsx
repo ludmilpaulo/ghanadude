@@ -264,6 +264,7 @@ const CheckoutScreen: React.FC = () => {
       await updateUserProfile(auth.user.user_id, profileUpdate);
       dispatch(clearCart());
       dispatch(clearDesign());
+      setPayFastVisible(false);
       navigation.navigate('SuccessScreen', { order_id: orderId });
     } catch {
       Alert.alert('Error', 'Checkout confirmation failed.');
