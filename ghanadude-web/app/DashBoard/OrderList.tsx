@@ -1,19 +1,25 @@
-// app/DashBoard/OrderList.tsx
 'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Transition } from '@headlessui/react';
-import { fetchOrders, updateOrderStatus } from '@/services/adminService';
-import { Order } from './orders/types';
+import {
+  fetchBulkOrders,
+  fetchOrders,
+  updateOrderStatus,
+} from '@/services/adminService';
+import { Order, BulkOrder } from './orders/types';
 import OrderTable from './orders/OrderTable';
+import BulkOrderTable from './orders/BulkOrderTable';
 import OrderModal from './orders/OrderModal';
+import BulkOrderModal from './orders/BulkOrderModal';
 import ExportButtons from './orders/ExportButtons';
 import SearchSortBar from './orders/SearchSortBar';
 
 const OrderList: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<(Order | BulkOrder)[]>([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<string | null>(null);
-  const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
+  const [viewingOrder, setViewingOrder] = useState<Order | BulkOrder | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -26,20 +32,20 @@ const OrderList: React.FC = () => {
     const loadOrders = async () => {
       setLoading(true);
       try {
-        const data = await fetchOrders(); // <- check this returns the array correctly
-        console.log('✅ Orders fetched:', data); // Add this
+        const data =
+          activeTab === 'bulk' ? await fetchBulkOrders() : await fetchOrders();
+        console.log(`✅ ${activeTab} orders fetched:`, data);
         setOrders(data);
       } catch (err) {
-        console.error('❌ Failed to fetch orders:', err);
-        setAlert('Failed to load orders.');
+        console.error(`❌ Failed to fetch ${activeTab} orders:`, err);
+        setAlert(`Failed to load ${activeTab} orders.`);
       } finally {
         setLoading(false);
       }
     };
-  
+
     loadOrders();
-  }, []);
-  
+  }, [activeTab]);
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     const target = orders.find((o) => o.id === orderId);
@@ -52,9 +58,7 @@ const OrderList: React.FC = () => {
       setLoading(true);
       await updateOrderStatus(orderId, { status: newStatus });
       setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId ? { ...o, status: newStatus } : o
-        )
+        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
       );
       setAlert('✅ Order status updated.');
     } catch {
@@ -65,8 +69,6 @@ const OrderList: React.FC = () => {
   };
 
   const filtered = orders.filter((order) => {
-    const isMatchingType = activeTab === 'bulk' ? order.items.length === 0 : order.items.length > 0;
-
     const isStatusMatch = statusFilter ? order.status === statusFilter : true;
     const isUserMatch = userFilter
       ? order.user.toLowerCase().includes(userFilter.toLowerCase())
@@ -75,7 +77,7 @@ const OrderList: React.FC = () => {
       ? new Date(order.created_at).toLocaleDateString() ===
         new Date(dateFilter).toLocaleDateString()
       : true;
-    return isMatchingType && isStatusMatch && isUserMatch && isDateMatch;
+    return isStatusMatch && isUserMatch && isDateMatch;
   });
 
   const indexOfLast = currentPage * ordersPerPage;
@@ -118,17 +120,28 @@ const OrderList: React.FC = () => {
         setDateFilter={setDateFilter}
       />
 
-      <div className="flex justify-end gap-4 mb-4">
-        <ExportButtons orders={orders} printRef={printRef} />
-      </div>
+      {/* Export Buttons only for regular orders */}
+      {activeTab === 'regular' && (
+        <div className="flex justify-end gap-4 mb-4">
+          <ExportButtons orders={orders as Order[]} printRef={printRef} />
+        </div>
+      )}
 
       {/* Orders Table */}
       <div ref={printRef}>
-        <OrderTable
-          orders={currentOrders}
-          onStatusChange={handleStatusChange}
-          onViewOrder={setViewingOrder}
-        />
+        {activeTab === 'regular' ? (
+          <OrderTable
+            orders={currentOrders as Order[]}
+            onStatusChange={handleStatusChange}
+            onViewOrder={(o) => setViewingOrder(o)}
+          />
+        ) : (
+          <BulkOrderTable
+            orders={currentOrders as BulkOrder[]}
+            onStatusChange={handleStatusChange}
+            onViewOrder={(o) => setViewingOrder(o)}
+          />
+        )}
       </div>
 
       {/* Pagination */}
@@ -157,8 +170,17 @@ const OrderList: React.FC = () => {
       )}
 
       {/* Modal */}
-      {viewingOrder && (
-        <OrderModal order={viewingOrder} onClose={() => setViewingOrder(null)} />
+      {viewingOrder && activeTab === 'regular' && (
+        <OrderModal
+          order={viewingOrder as Order}
+          onClose={() => setViewingOrder(null)}
+        />
+      )}
+      {viewingOrder && activeTab === 'bulk' && (
+        <BulkOrderModal
+          order={viewingOrder as BulkOrder}
+          onClose={() => setViewingOrder(null)}
+        />
       )}
 
       {/* Loader */}

@@ -20,6 +20,10 @@ const ProductList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const PRODUCTS_PER_PAGE = 5;
 
   const loadProducts = async () => {
     setLoading(true);
@@ -49,19 +53,40 @@ const ProductList: React.FC = () => {
     loadProducts();
   };
 
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * PRODUCTS_PER_PAGE,
+    currentPage * PRODUCTS_PER_PAGE
+  );
+
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+
   return (
     <div className="max-w-6xl mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
         <h1 className="text-3xl font-semibold">Products</h1>
-        <button
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
-          onClick={() => {
-            setCurrentProduct(null);
-            setModalOpen(true);
-          }}
-        >
-          Add New Product
-        </button>
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name or category"
+            className="border rounded px-4 py-2 w-full sm:w-64"
+          />
+          <button
+            className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+            onClick={() => {
+              setCurrentProduct(null);
+              setModalOpen(true);
+            }}
+          >
+            Add New Product
+          </button>
+        </div>
       </div>
 
       {loading && (
@@ -87,7 +112,7 @@ const ProductList: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map(product => (
+            {paginatedProducts.map(product => (
               <tr key={product.id} className="even:bg-gray-50">
                 <td className="px-4 py-3">
                   {product.images?.[0] ? (
@@ -104,7 +129,7 @@ const ProductList: React.FC = () => {
                 </td>
                 <td className="px-4 py-3 font-medium">{product.name}</td>
                 <td className="px-4 py-3">{product.category}</td>
-                <td className="px-4 py-3">${product.price}</td>
+                <td className="px-4 py-3">R{product.price}</td>
                 <td className="px-4 py-3">{product.stock}</td>
                 <td className="px-4 py-3">
                   <input type="checkbox" checked={product.on_sale} readOnly />
@@ -135,9 +160,24 @@ const ProductList: React.FC = () => {
         </table>
       </div>
 
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center gap-2 mt-6">
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+          <button
+            key={page}
+            className={`px-3 py-1 border rounded shadow-sm text-sm font-medium transition ${
+              currentPage === page ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 hover:bg-blue-100'
+            }`}
+            onClick={() => setCurrentPage(page)}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-auto">
-          <div className="bg-white p-8 rounded shadow-md w-1/2 overflow-auto max-h-full">
+          <div className="bg-white p-8 rounded shadow-md w-11/12 sm:w-2/3 lg:w-1/2 max-h-screen overflow-y-auto">
             <button className="bg-red-500 text-white px-4 py-2 rounded mb-4" onClick={closeModal}>
               Close
             </button>

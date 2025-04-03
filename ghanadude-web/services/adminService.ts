@@ -189,3 +189,11 @@ export const fetchSizes = async (): Promise<Size[]> => {
   if (!res.ok) throw new Error("Failed to fetch sizes");
   return res.json();
 };
+
+
+
+
+export const fetchBulkOrders = async () => {
+  const res = await axios.get(`${baseAPI}/order/admin/bulk-orders/`);
+  return res.data;
+};

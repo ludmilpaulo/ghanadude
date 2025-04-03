@@ -21,8 +21,16 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class BulkOrderSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.username', read_only=True)
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    designer_name = serializers.CharField(source='designer.name', default='', read_only=True)
+    brand_logo_url = serializers.ImageField(source='brand_logo', read_only=True)
+    custom_design_url = serializers.ImageField(source='custom_design', read_only=True)
+
     class Meta:
         model = BulkOrder
-        fields = '__all__'
-        read_only_fields = ['user', 'status', 'created_at']
+        fields = [
+            'id', 'user', 'product_name', 'quantity', 'designer_name',
+            'brand_logo_url', 'custom_design_url', 'status', 'created_at'
+        ]
 

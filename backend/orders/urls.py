@@ -1,5 +1,7 @@
 from django.urls import path, include
 
+from .admin_bulk import get_bulk_orders
+
 from .order_view import OrderViewSet
 from orders.user_orders import get_order_detail, get_user_orders
 from orders.bulk_views import create_bulk_order
@@ -22,7 +24,7 @@ router.register(r'order-items', OrderItemViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('checkout/', checkout, name='checkout'),
-   # path('orders/user/', get_user_orders),
+    path('admin/bulk-orders/', get_bulk_orders),
     path('orders/<int:order_id>/', get_order_detail, name='order-detail'),
     path('notify/', payfast_notify, name='payfast_notify'),
     path('bulk-orders/create/', create_bulk_order, name='create_bulk_order'),

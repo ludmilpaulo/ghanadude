@@ -33,3 +33,15 @@ export interface Order {
   }[];
 }
 
+export interface BulkOrder {
+  id: number;
+  user: string;
+  product_name: string;
+  quantity: number;
+  status: string;
+  created_at: string;
+  designer_name: string;
+  brand_logo_url?: string;
+  custom_design_url?: string;
+}
+
