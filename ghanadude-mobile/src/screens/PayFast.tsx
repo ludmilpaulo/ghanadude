@@ -1,7 +1,5 @@
-// PayFast.tsx (simplified)
-
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, SafeAreaView, View, Button, Text } from 'react-native';
+import { ActivityIndicator, Modal, SafeAreaView, View, Button } from 'react-native';
 import { WebView, WebViewNavigation } from 'react-native-webview';
 
 import { PayFastMerchantDetails, PayFastTransactionDetails } from './types';

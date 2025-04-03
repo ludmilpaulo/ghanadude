@@ -1,6 +1,6 @@
-import { fetchCategories, fetchSizes, updateProduct, createProduct } from "@/services/adminService";
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { fetchCategories, fetchSizes, updateProduct, createProduct } from '@/services/adminService';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface Size {
   id: number;
@@ -15,8 +15,9 @@ interface Product {
   price: number;
   stock: number;
   season?: string;
-  images?: FileList | { id: number; image: string }[];
+  images?: { id: number; image: string }[];
   on_sale?: boolean;
+  bulk_sale?: boolean;
   discount_percentage?: number;
   sizes?: string[];
 }
@@ -27,9 +28,9 @@ interface Category {
 }
 
 const SEASON_CHOICES = [
-  { value: "summer", label: "Summer" },
-  { value: "winter", label: "Winter" },
-  { value: "all_seasons", label: "All Seasons" },
+  { value: 'summer', label: 'Summer' },
+  { value: 'winter', label: 'Winter' },
+  { value: 'all_seasons', label: 'All Seasons' },
 ];
 
 interface ProductFormProps {
@@ -40,15 +41,17 @@ interface ProductFormProps {
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProducts }) => {
   const { register, handleSubmit, watch, reset } = useForm<Product>();
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [sizes, setSizes] = useState<Size[]>([]);
-  const [newCategory, setNewCategory] = useState("");
-  const [newSize, setNewSize] = useState("");
+  const [existingImages, setExistingImages] = useState<Product['images']>([]);
+  const [newImages, setNewImages] = useState<FileList | null>(null);
+  const [newCategory, setNewCategory] = useState('');
+  const [newSize, setNewSize] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
-      const [fetchedCategories, fetchedSizes]: [Category[], Size[]] = await Promise.all([
+      const [fetchedCategories, fetchedSizes] = await Promise.all([
         fetchCategories(),
         fetchSizes(),
       ]);
@@ -61,108 +64,121 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
   useEffect(() => {
     if (product) {
       reset(product);
+      setExistingImages(product.images || []);
     }
   }, [product, reset]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewImages(e.target.files);
+  };
+
   const onSubmit = async (data: Product) => {
     const formData = new FormData();
-    formData.append("name", data.name.trim());
-    formData.append("category", newCategory || data.category.trim());
-    formData.append("description", data.description?.trim() || "");
-    formData.append("price", data.price.toString());
-    formData.append("stock", data.stock.toString());
-    formData.append("season", data.season || "");
 
-    if (data.images instanceof FileList) {
-      Array.from(data.images).forEach((file) => formData.append("images", file));
-    }
+    formData.append('name', data.name.trim());
+    formData.append('category', newCategory.trim() || data.category.trim());
+    formData.append('description', data.description?.trim() || '');
+    formData.append('price', data.price.toString());
+    formData.append('stock', data.stock.toString());
+    formData.append('season', data.season || '');
+    formData.append('on_sale', data.on_sale ? 'true' : 'false');
+    formData.append('bulk_sale', data.bulk_sale ? 'true' : 'false');
 
-    formData.append("on_sale", data.on_sale ? "true" : "false");
     if (data.on_sale) {
-      formData.append("discount_percentage", data.discount_percentage?.toString() || "0");
+      formData.append('discount_percentage', data.discount_percentage?.toString() || '0');
     }
 
-    const allSizes = newSize ? [...(data.sizes || []), newSize] : data.sizes;
-    allSizes?.forEach((size) => formData.append("sizes", size));
+    const combinedSizes = data.sizes || [];
+    if (newSize.trim()) combinedSizes.push(newSize.trim());
+    combinedSizes.forEach(size => formData.append('sizes', size));
+
+    existingImages?.forEach(img => formData.append('existing_images', img.id.toString()));
+
+    if (newImages) {
+      Array.from(newImages).forEach(file => formData.append('images', file));
+    }
 
     try {
-      if (data.id) {
-        await updateProduct(data.id, formData);
+      if (product?.id) {
+        await updateProduct(product.id, formData);
       } else {
         await createProduct(formData);
       }
-      alert("Product successfully saved.");
+      alert('Product successfully saved.');
       onClose();
       loadProducts();
     } catch (error) {
       console.error(error);
-      alert("Failed to save product. Please try again.");
+      alert('Failed to save product. Please try again.');
     }
   };
 
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-6">
       <h2 className="text-2xl font-semibold mb-4">
-        {product ? "Update Product" : "Add New Product"}
+        {product ? 'Update Product' : 'Add New Product'}
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <input {...register("name", { required: true })} className="w-full border border-gray-300 rounded p-2" placeholder="Product Name" />
+        <input {...register('name', { required: true })} className="w-full border rounded p-2" placeholder="Product Name" />
 
-        <select {...register("category")} className="w-full border border-gray-300 rounded p-2" defaultValue="">
+        <select {...register('category')} className="w-full border rounded p-2">
           <option value="">Select a category</option>
-          {categories.map((cat: Category) => (
-            <option key={cat.id} value={cat.name}>
-              {cat.name}
-            </option>
+          {categories.map(cat => (
+            <option key={cat.id} value={cat.name}>{cat.name}</option>
           ))}
         </select>
 
-        <input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Or add new category" className="w-full border border-gray-300 rounded p-2" />
+        <input
+          value={newCategory}
+          onChange={(e) => setNewCategory(e.target.value)}
+          className="w-full border rounded p-2"
+          placeholder="Or enter new category name"
+        />
 
-        <textarea {...register("description")} className="w-full border border-gray-300 rounded p-2" placeholder="Product Description" rows={4} />
-
-        <input type="number" {...register("price", { required: true })} className="w-full border border-gray-300 rounded p-2" placeholder="Price" />
-        <input type="number" {...register("stock", { required: true })} className="w-full border border-gray-300 rounded p-2" placeholder="Stock" />
-
-        <select {...register("season")} className="w-full border border-gray-300 rounded p-2">
+        <select {...register('season')} className="w-full border rounded p-2">
           <option value="">Select Season</option>
           {SEASON_CHOICES.map(season => (
             <option key={season.value} value={season.value}>{season.label}</option>
           ))}
         </select>
 
-        <input type="file" multiple {...register("images")} className="w-full border border-gray-300 rounded p-2" />
+        <textarea {...register('description')} className="w-full border rounded p-2" placeholder="Description" rows={4} />
 
-        <label className="flex items-center gap-2">
-          <input type="checkbox" {...register("on_sale")} />
-          On Sale
-        </label>
+        <input type="number" {...register('price', { required: true })} className="w-full border rounded p-2" placeholder="Price" />
+        <input type="number" {...register('stock', { required: true })} className="w-full border rounded p-2" placeholder="Stock" />
 
-        {watch("on_sale") && (
-          <input {...register("discount_percentage", { min: 1, max: 100 })} type="number" className="w-full border border-gray-300 rounded p-2" placeholder="Discount Percentage" />
+        <div className="flex items-center gap-4">
+          <label><input type="checkbox" {...register('on_sale')} /> On Sale</label>
+          <label><input type="checkbox" {...register('bulk_sale')} /> Bulk Sale</label>
+        </div>
+
+        {watch('on_sale') && (
+          <input type="number" {...register('discount_percentage')} className="w-full border rounded p-2" placeholder="Discount %" />
         )}
 
         <div>
           <p className="font-medium">Select Sizes:</p>
           <div className="flex gap-4 flex-wrap">
-            {sizes.map((size: Size) => (
+            {sizes.map(size => (
               <label key={size.id} className="flex gap-1 items-center">
-                <input type="checkbox" value={size.name} {...register("sizes")} />
+                <input type="checkbox" value={size.name} {...register('sizes')} />
                 {size.name}
               </label>
             ))}
           </div>
-
           <input
-            placeholder="Or add new size"
+            type="text"
             value={newSize}
             onChange={(e) => setNewSize(e.target.value)}
-            className="w-full border border-gray-300 rounded p-2 mt-2"
+            className="w-full border rounded p-2 mt-2"
+            placeholder="Or enter new size name"
           />
         </div>
 
-        <button className="w-full bg-blue-500 text-white p-2 rounded font-semibold hover:bg-blue-600 transition duration-200" type="submit">
-          {product ? "Update Product" : "Add Product"}
+        <input type="file" multiple onChange={handleImageChange} className="w-full border rounded p-2" />
+
+        <button className="w-full bg-blue-500 text-white p-2 rounded font-semibold hover:bg-blue-600">
+          {product ? 'Update' : 'Create'}
         </button>
       </form>
     </div>

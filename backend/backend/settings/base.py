@@ -1,34 +1,27 @@
-
+import environ
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 import pymysql
 
 pymysql.install_as_MySQLdb()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*0hpsd2av%#_ug)^4ay_6gy86s3%vh_20%c1#fjnbuv(q#%&x2"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
-ADMINS = [
-    ('Support Team', 'support@maindodigital.com'),
-]
 
 
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'https://ghanadude.vercel.app')
+SECRET_KEY = env('DJANGO_SECRET_KEY')  # Required in .env
+DEBUG = env.bool('DJANGO_DEBUG', default=True)
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
 
+print("✔ .env loaded from:", os.path.join(BASE_DIR, ".env"))
+print("✔ DJANGO_SECRET_KEY =", env('DJANGO_SECRET_KEY'))
 
-# Application definition
+ADMINS = [('Support Team', 'support@maindodigital.com')]
+
+FRONTEND_URL = env('FRONTEND_URL', default='https://ghanadude.vercel.app')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -49,7 +42,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-   # 'django.middleware.csrf.CsrfViewMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     'corsheaders.middleware.CorsMiddleware',
@@ -61,10 +53,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "backend.urls"
+
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny'],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
@@ -77,36 +68,17 @@ REST_FRAMEWORK = {
     ],
 }
 
-# CORS settings
 CORS_ORIGIN_ALLOW_ALL = True
-
 CORS_ALLOWED_ORIGINS = [
-   'http://*',
-    'https://*',  # Frontend URL for development
-    FRONTEND_URL,  # Frontend URL for production
+    'http://*',
+    'https://*',
+    FRONTEND_URL,
 ]
 
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
+CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
 CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+    'accept', 'authorization', 'content-type', 'x-csrftoken', 'x-requested-with',
 ]
-
 CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
@@ -127,71 +99,29 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
-
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "statics"),
-]
-
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "statics")]
 STATIC_ROOT = os.path.join(BASE_DIR, "static_cdn", "static_root")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "static_cdn", "media_root")
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-
 SITE_ID = 1
 
+# CKEditor and color configs can remain unchanged
 customColorPalette = [
     {
         'color': 'hsl(4, 90%, 58%)',
@@ -279,25 +209,21 @@ CKEDITOR_5_CONFIGS = {
 }
 
 
-# PayFast Configuration
-PAYFAST_MERCHANT_ID = '10037687'  # Your Merchant ID
-PAYFAST_MERCHANT_KEY = 't9k4qun47sejo'  # Your Merchant Key
-PAYFAST_PASSPHRASE = ''  # If you have set one, otherwise leave empty
-PAYFAST_RETURN_URL = 'https://www.payfast.co.za/return/success'
-PAYFAST_CANCEL_URL = 'https://www.payfast.co.za/return/cancel'
-PAYFAST_NOTIFY_URL = 'https://your-real-domain-or-ngrok-url/order/payfast/payment-notify/'
+# PayFast
+PAYFAST_MERCHANT_ID = env('PAYFAST_MERCHANT_ID', default='10037687')
+PAYFAST_MERCHANT_KEY = env('PAYFAST_MERCHANT_KEY', default='t9k4qun47sejo')
+PAYFAST_PASSPHRASE = env('PAYFAST_PASSPHRASE', default='')
+PAYFAST_RETURN_URL = env('PAYFAST_RETURN_URL', default='https://www.payfast.co.za/return/success')
+PAYFAST_CANCEL_URL = env('PAYFAST_CANCEL_URL', default='https://www.payfast.co.za/return/cancel')
+PAYFAST_NOTIFY_URL = env('PAYFAST_NOTIFY_URL', default='https://your-real-domain-or-ngrok-url/order/payfast/payment-notify/')
 
-
-
-
-
-SERVER_EMAIL = 'support@maindodigital.com' # this is for to send 500 mail to admins
-
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtpout.secureserver.net'
-EMAIL_HOST_USER='support@maindodigital.com'
-EMAIL_HOST_PASSWORD='Maitland@2024'
-DEFAULT_FROM_EMAIL = 'support@maindodigital.com'
-EMAIL_PORT=465
-EMAIL_USE_SSL=True
-EMAIL_USE_TLS=False
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env.int('EMAIL_PORT')
+EMAIL_USE_SSL = env.bool('EMAIL_USE_SSL')
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = env('SERVER_EMAIL')

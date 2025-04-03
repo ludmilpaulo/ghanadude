@@ -69,6 +69,7 @@ def create_product(request):
             category=category,
             brand=brand,
             on_sale=data.get('on_sale', 'false').lower() in ['true', '1'],
+            bulk_sale=data.get('bulk_sale', 'false').lower() in ['true', '1'],
             discount_percentage=int(data.get('discount_percentage', 0)),
         )
 

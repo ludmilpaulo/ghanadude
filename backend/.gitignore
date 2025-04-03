@@ -1,0 +1,53 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django DB and settings
+*.sqlite3
+.env
+*.env
+
+# macOS
+.DS_Store
+
+# VSCode and JetBrains IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Static and media files (collected/generated)
+static_cdn/
+staticfiles/
+media/
+statics/
+
+# Migrations (optional – if you don’t want to track them until stable)
+*/migrations/*.py
+*/migrations/__pycache__/
+
+# Virtual environments
+venv/
+myenv/
+.env/
+.envrc
+
+# Coverage reports
+htmlcov/
+.coverage
+
+# Pytest cache
+.pytest_cache/
+
+# Compiled translations
+*.mo
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter notebooks (if used)
+.ipynb_checkpoints/

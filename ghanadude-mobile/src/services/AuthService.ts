@@ -1,10 +1,17 @@
 import axios, { AxiosError } from 'axios';
 
+//import { BASE_API_DEV, BASE_API_PROD, APP_ENV } from '@env'
 
-//export const API_BASE_URL = 'http://192.168.1.109:8000'
+//export const API_BASE_URL = APP_ENV === 'prod' ? BASE_API_PROD : BASE_API_DEV
+
+const devAPI = 'http://192.168.1.109:8000';
+const prodAPI = 'https://www.ghanadude.co.za';
+
+const isProd = !__DEV__;
+
+export const API_BASE_URL = isProd ? prodAPI : devAPI;
 
 
-export const API_BASE_URL ="https://www.ghanadude.co.za"
 
 interface AuthResponse {
   token: string;
