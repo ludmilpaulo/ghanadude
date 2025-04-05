@@ -5,7 +5,8 @@ import os
 FTP_HOST = "ftp.ghanadude.com"
 FTP_USER = "media@ghanadude.com"
 FTP_PASS = "Maitland@2025"
-REMOTE_ROOT = "/public_html/media"  # ✅ directly in the public folder
+REMOTE_ROOT = "/public_html/media"
+
 
 def upload_file_to_cpanel(local_file_path: str, remote_file_path: str):
     """
