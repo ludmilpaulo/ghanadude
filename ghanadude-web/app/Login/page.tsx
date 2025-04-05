@@ -37,7 +37,7 @@ const Login = () => {
         alert("Login Successful..");
         if (data.is_staff) {
           console.log("Redirecting to /dashboard");
-          router.push("/Dashboard");
+          router.push("/DashBoard");
         } else {
           console.log("Redirecting to /");
           router.push("/");
