@@ -23,7 +23,7 @@ class Designer(models.Model):
     def __str__(self):
         return self.name
 class Image(models.Model):
-    image = models.ImageField(max_length=3000, default=None, blank=True, upload_to='drug_images/')
+    image = models.ImageField(max_length=3000, default=None, blank=True, upload_to='product_images/')
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         verbose_name = 'Product Image'

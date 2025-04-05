@@ -18,6 +18,5 @@ DATABASES = {
     }
 }
 
-# ✅ Use media URL from cPanel
 MEDIA_URL = 'https://ghanadude.com/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "static_cdn", "media_root")  # still needed locally before FTP sync
+MEDIA_ROOT = os.path.join(BASE_DIR, "static_cdn", "media_root")

@@ -21,7 +21,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "developer.apple.com",
+        hostname: "ghanadude.com",
         pathname: "/**",
       },
     ],
