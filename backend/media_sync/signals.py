@@ -7,23 +7,31 @@ from .ftp_upload import upload_file_to_cpanel
 
 @receiver(post_save)
 def sync_media_files_on_save(sender, instance, **kwargs):
-    """
-    Automatically uploads any FileField/ImageField to cPanel via FTP.
-    Only runs in production environment.
-    """
-    if os.environ.get("DJANGO_ENV") != "prod":
+    print("📦 Signal received for:", sender.__name__)
+    
+    env = os.environ.get("DJANGO_ENV")
+    print("⚙️ DJANGO_ENV =", env)
+
+    if env != "prod":
+        print("⛔ Not production, skipping upload.")
         return
 
     if not hasattr(instance, '_meta') or sender.__module__.startswith("django."):
+        print("🛑 Skipping internal Django model:", sender)
         return
 
     for field in instance._meta.fields:
         if isinstance(field, (FileField, ImageField)):
             file = getattr(instance, field.name)
-            if file and default_storage.exists(file.name):
+            if file:
+                print(f"📁 Field found: {field.name} → {file.name}")
                 try:
                     local_path = file.path
-                    remote_path = file.name  # e.g., drug_images/pic.jpg
+                    remote_path = file.name
+                    print(f"⬆️ Uploading: {local_path} → {remote_path}")
                     upload_file_to_cpanel(local_path, remote_path)
                 except Exception as e:
-                    print(f"❌ Error uploading {field.name}: {e}")
+                    print(f"❌ Upload failed for {field.name}: {e}")
+                    print(f"📎 Tried path: {getattr(file, 'path', 'unknown')} → {getattr(file, 'name', 'unknown')}")
+            else:
+                print(f"⚠️ FileField {field.name} is empty.")
