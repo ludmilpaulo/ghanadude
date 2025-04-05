@@ -1,6 +1,7 @@
 import { fetchCategories, fetchSizes, updateProduct, createProduct } from '@/services/adminService';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { Transition } from '@headlessui/react';
 
 interface Size {
   id: number;
@@ -48,15 +49,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
   const [newImages, setNewImages] = useState<FileList | null>(null);
   const [newCategory, setNewCategory] = useState('');
   const [newSize, setNewSize] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      const [fetchedCategories, fetchedSizes] = await Promise.all([
-        fetchCategories(),
-        fetchSizes(),
-      ]);
-      setCategories(fetchedCategories);
-      setSizes(fetchedSizes);
+      setLoading(true);
+      try {
+        const [fetchedCategories, fetchedSizes] = await Promise.all([
+          fetchCategories(),
+          fetchSizes(),
+        ]);
+        setCategories(fetchedCategories);
+        setSizes(fetchedSizes);
+      } catch (error) {
+        console.error('Error loading categories or sizes:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -74,42 +83,46 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
 
   const onSubmit = async (data: Product) => {
     const formData = new FormData();
-
-    formData.append('name', data.name.trim());
-    formData.append('category', newCategory.trim() || data.category.trim());
-    formData.append('description', data.description?.trim() || '');
-    formData.append('price', data.price.toString());
-    formData.append('stock', data.stock.toString());
-    formData.append('season', data.season || '');
-    formData.append('on_sale', data.on_sale ? 'true' : 'false');
-    formData.append('bulk_sale', data.bulk_sale ? 'true' : 'false');
-
-    if (data.on_sale) {
-      formData.append('discount_percentage', data.discount_percentage?.toString() || '0');
-    }
-
-    const combinedSizes = data.sizes || [];
-    if (newSize.trim()) combinedSizes.push(newSize.trim());
-    combinedSizes.forEach(size => formData.append('sizes', size));
-
-    existingImages?.forEach(img => formData.append('existing_images', img.id.toString()));
-
-    if (newImages) {
-      Array.from(newImages).forEach(file => formData.append('images', file));
-    }
+    setLoading(true);
 
     try {
+      formData.append('name', data.name.trim());
+      formData.append('category', newCategory.trim() || data.category.trim());
+      formData.append('description', data.description?.trim() || '');
+      formData.append('price', data.price.toString());
+      formData.append('stock', data.stock.toString());
+      formData.append('season', data.season || '');
+      formData.append('on_sale', data.on_sale ? 'true' : 'false');
+      formData.append('bulk_sale', data.bulk_sale ? 'true' : 'false');
+
+      if (data.on_sale) {
+        formData.append('discount_percentage', data.discount_percentage?.toString() || '0');
+      }
+
+      const combinedSizes = data.sizes || [];
+      if (newSize.trim()) combinedSizes.push(newSize.trim());
+      combinedSizes.forEach(size => formData.append('sizes', size));
+
+      existingImages?.forEach(img => formData.append('existing_images', img.id.toString()));
+
+      if (newImages) {
+        Array.from(newImages).forEach(file => formData.append('images', file));
+      }
+
       if (product?.id) {
         await updateProduct(product.id, formData);
       } else {
         await createProduct(formData);
       }
+
       alert('Product successfully saved.');
       onClose();
       loadProducts();
     } catch (error) {
       console.error(error);
       alert('Failed to save product. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -177,10 +190,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
 
         <input type="file" multiple onChange={handleImageChange} className="w-full border rounded p-2" />
 
-        <button className="w-full bg-blue-500 text-white p-2 rounded font-semibold hover:bg-blue-600">
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-500 text-white p-2 rounded font-semibold hover:bg-blue-600 disabled:opacity-50"
+        >
           {product ? 'Update' : 'Create'}
         </button>
       </form>
+
+      <Transition
+        show={loading}
+        enter="transition-opacity duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-300"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
+          <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin" />
+        </div>
+      </Transition>
     </div>
   );
 };
