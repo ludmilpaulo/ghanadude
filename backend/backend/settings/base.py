@@ -73,6 +73,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
     'http://*',
     'https://*',
+    'https://ghanadude.vercel.app',
+    'https://www.ghanadude.com',
+    'https://ghanadude.com',
     FRONTEND_URL,
 ]
 
