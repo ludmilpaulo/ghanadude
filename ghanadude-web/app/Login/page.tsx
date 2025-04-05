@@ -36,10 +36,13 @@ const Login = () => {
         dispatch(loginUser(data));
         alert("Login Successful..");
         if (data.is_staff) {
-          router.push("/DashBoard");
+          console.log("Redirecting to /dashboard");
+          router.push("/Dashboard");
         } else {
+          console.log("Redirecting to /");
           router.push("/");
         }
+        
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data?.error) {
