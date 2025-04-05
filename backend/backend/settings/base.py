@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'orders',
     'revenue',
     'home',
+    'media_sync',
 ]
 
 MIDDLEWARE = [

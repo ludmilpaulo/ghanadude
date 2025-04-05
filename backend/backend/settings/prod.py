@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*', 'www.ghanadude.co.za'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['*'])
 
 DATABASES = {
     'default': {
@@ -18,20 +18,6 @@ DATABASES = {
     }
 }
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
+# ✅ Use media URL from cPanel
+MEDIA_URL = 'https://ghanadude.com/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "static_cdn", "media_root")  # still needed locally before FTP sync

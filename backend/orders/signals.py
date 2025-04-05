@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-import uuid
+
+import os
 from django.conf import settings
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -7,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.utils import timezone  # ✅ this is the correct timezone module
 from decimal import Decimal
+
 from revenue.models import Coupon
 from orders.pdf import generate_order_pdf
 from .models import Order
@@ -87,5 +89,6 @@ def accumulate_cashback(sender, instance, **kwargs):
                 recipient_list=[instance.user.email],
                 fail_silently=True,
             )
+
 
 
