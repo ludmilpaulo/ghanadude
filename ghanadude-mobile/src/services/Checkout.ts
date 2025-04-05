@@ -17,6 +17,7 @@ export interface CheckoutData {
   country: string;
   payment_method: string;
   status: string;
+  reward_applied: number; // ✅ Add this
   items: CheckoutItem[];
   coupon_code?: string;
 }

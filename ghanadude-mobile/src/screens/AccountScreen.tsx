@@ -1,4 +1,3 @@
-// ✅ Updated AccountScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -18,7 +17,6 @@ import {
   fetchRewards,
   fetchUserProfile,
   updateUserProfile,
-  redeemRewards,
   ProfileForm,
 } from '../services/UserService';
 import { fetchAndPrefillLocation } from '../services/LocationService';
@@ -35,9 +33,7 @@ const AccountScreen: React.FC = () => {
   const token = useSelector(selectToken);
 
   interface Rewards {
-    total_points: number;
-    redeemable: boolean;
-    coupon_code?: string;
+    reward_balance: string;
   }
 
   const [rewards, setRewards] = useState<Rewards | null>(null);
@@ -78,24 +74,6 @@ const AccountScreen: React.FC = () => {
       setRewards(res);
     } catch {
       Alert.alert('Error', 'Failed to load rewards');
-    }
-  };
-
-  const handleRedeem = async () => {
-    const auth = ensureAuth();
-    if (!auth) return;
-
-    try {
-      const res = await redeemRewards(auth.user.user_id);
-      Alert.alert('Success 🎉', `Coupon generated: ${res.coupon_code}`);
-      setRewards({
-        ...rewards,
-        redeemable: false,
-        coupon_code: res.coupon_code,
-        total_points: 0,
-      });
-    } catch {
-      Alert.alert('Error', 'Failed to redeem rewards');
     }
   };
 
@@ -152,16 +130,15 @@ const AccountScreen: React.FC = () => {
         <Text style={tw`text-lg font-bold text-gray-800 mb-2`}>🎁 Rewards</Text>
         {rewards ? (
           <>
-            <Text>Total Points: <Text style={tw`font-bold`}>{rewards.total_points}</Text></Text>
-            <Text>Redeemable: {rewards.redeemable ? '✅ Yes' : '❌ Not yet (min: 5 pts)'}</Text>
-            {rewards.coupon_code && (
-              <Text style={tw`text-green-700 font-semibold mt-2`}>🎟️ Coupon: {rewards.coupon_code}</Text>
-            )}
-            {rewards.redeemable && (
-              <TouchableOpacity onPress={handleRedeem} style={tw`mt-3 bg-green-600 py-2 px-4 rounded-lg`}>
-                <Text style={tw`text-white text-center font-bold`}>Redeem Now</Text>
-              </TouchableOpacity>
-            )}
+            <Text>
+              Available Reward Balance:{' '}
+              <Text style={tw`font-bold text-green-700`}>
+                R{parseFloat(rewards.reward_balance).toFixed(2)}
+              </Text>
+            </Text>
+            <Text style={tw`text-sm text-gray-500 mt-1`}>
+              Your reward balance will be automatically applied at checkout.
+            </Text>
           </>
         ) : (
           <ActivityIndicator size="small" color="#4A5568" />

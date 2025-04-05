@@ -8,7 +8,6 @@ import ProductDetailScreen from "../screens/ProductDetailScreen";
 import CartScreen from "../screens/CartScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 import SuccessScreen from "../screens/SuccessScreen";
-import PaymentCancelled from "../screens/PaymentCancelled";
 import MyCouponsScreen from "../screens/MyCouponsScreen";
 import OrderHistory from "../screens/OrderHistory";
 import InvoiceHistoryScreen from "../screens/InvoiceHistoryScreen";
@@ -27,7 +26,7 @@ export type HomeStackParamList = {
   DealsScreen: undefined;
   CheckoutScreen: undefined;
   SuccessScreen: { order_id: number };
-  PaymentCancelled: undefined;
+  
   ProductDetail: { id: number };
   MyCouponsScreen: undefined;
   InvoiceHistoryScreen: undefined;
@@ -51,7 +50,6 @@ export default function HomeNavigator() {
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} />
       <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
-      <Stack.Screen name="PaymentCancelled" component={PaymentCancelled} />
       <Stack.Screen name="MyCouponsScreen" component={MyCouponsScreen} />
       <Stack.Screen name="OrderHistory" component={OrderHistory} />
       <Stack.Screen name="InvoiceHistoryScreen" component={InvoiceHistoryScreen} />

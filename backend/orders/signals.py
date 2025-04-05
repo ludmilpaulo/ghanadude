@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 import uuid
+from django.conf import settings
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.utils import timezone  # ✅ this is the correct timezone module
-
+from decimal import Decimal
 from revenue.models import Coupon
 from orders.pdf import generate_order_pdf
 from .models import Order
@@ -17,6 +18,13 @@ def track_order_status_change(sender, instance, **kwargs):
     if instance.pk:
         previous = Order.objects.get(pk=instance.pk)
         instance._previous_status = previous.status
+        instance._status_changed_to_completed = (
+            previous.status != 'Completed' and instance.status == 'Completed'
+        )
+    else:
+        # It's a new order
+        instance._status_changed_to_completed = instance.status == 'Completed'
+
 
 @receiver(post_save, sender=Order)
 def order_status_changed(sender, instance, **kwargs):
@@ -55,33 +63,29 @@ def update_order_invoice(sender, instance, **kwargs):
             instance.invoice.save(pdf_path, ContentFile(pdf_content), save=False)
             instance.save(update_fields=['invoice'])
             
-            
-            
 @receiver(post_save, sender=Order)
-def update_user_rewards_on_complete(sender, instance, **kwargs):
-    if instance.status == 'Completed':
+def accumulate_cashback(sender, instance, **kwargs):
+    if instance.status == 'Completed' and not instance.reward_granted:
         profile = instance.user.profile
-        points = instance.earned_points
-        if points:
-            profile.points += int(points)
-            profile.save()
-            
-@receiver(post_save, sender=Order)
-def assign_coupon_and_notify(sender, instance, **kwargs):
-    if instance.status == 'Completed':
-        # Create reward coupon
-        coupon = Coupon.objects.create(
-            user=instance.user,
-            code=str(uuid.uuid4())[:8].upper(),
-            value=30.00,  # reward value
-            expires_at=timezone.now() + timedelta(days=14)
-        )
+        reward_amount = Decimal((instance.total_price // 100) * 5)
 
-        # Email notification
-        send_mail(
-            subject="🎉 You've received a reward coupon!",
-            message=f"Thank you for your order! Use coupon code {coupon.code} to get R30 off your next order.",
-            from_email="noreply@ghanadude.com",
-            recipient_list=[instance.user.email],
-            fail_silently=True,
-        )
+        if reward_amount > 0:
+            profile.reward_balance += reward_amount
+            profile.save()
+
+            instance.reward_granted = True
+            instance.save(update_fields=["reward_granted"])
+
+            send_mail(
+                subject=f"🎉 You've earned R{reward_amount:.2f} in cashback!",
+                message=(
+                    f"Thanks for your order of R{instance.total_price:.2f}!\n"
+                    f"You’ve earned R{reward_amount:.2f} in rewards.\n"
+                    f"Your current reward balance is R{profile.reward_balance:.2f}."
+                ),
+                from_email=f"support@{settings.EMAIL_HOST}",
+                recipient_list=[instance.user.email],
+                fail_silently=True,
+            )
+
+

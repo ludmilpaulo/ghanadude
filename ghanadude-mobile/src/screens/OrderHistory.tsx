@@ -12,6 +12,7 @@ import { fetchUserOrders, Order, OrderItem } from '../services/OrderService';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
+import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
 
 const statusOptions = ['Pending', 'Processing', 'Completed', 'Cancelled'];
@@ -121,6 +122,9 @@ const OrderHistory: React.FC = () => {
 
   return (
     <View style={tw`flex-1 bg-white`}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={tw`p-2 bg-gray-200 rounded-full`}>
+                  <AntDesign name="arrowleft" size={24} />
+                </TouchableOpacity>
       <ScrollView
         style={tw`px-4 pt-6`}
         contentContainerStyle={tw`pb-10`}

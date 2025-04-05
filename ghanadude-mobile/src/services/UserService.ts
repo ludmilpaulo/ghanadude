@@ -43,12 +43,12 @@ export const updateUserProfile = async (user_id: number, profileData: ProfileFor
 
 
 
+// services/UserService.ts
 export const fetchRewards = async (user_id: number) => {
-  const res = await axios.get(`${API_BASE_URL}/reward/status/`, {
+  const res = await axios.get(`${API_BASE_URL}/reward/rewards/`, {
     params: { user_id },
-  
   });
-  return res.data;
+  return res.data; // { reward_balance: "50.00" }
 };
 
 

@@ -83,3 +83,20 @@ def get_user_coupons(request):
     coupons = Coupon.objects.filter(user=user)
     serializer = CouponSerializer(coupons, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_user_rewards(request):
+    user_id = request.query_params.get('user_id') or request.data.get('user_id')
+    if not user_id:
+        return Response({'detail': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    reward_balance = user.profile.reward_balance
+    return Response({
+        'reward_balance': str(reward_balance)
+    })

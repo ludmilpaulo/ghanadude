@@ -31,16 +31,14 @@ class Order(DirtyFieldsMixin, models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    reward_applied = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    reward_granted = models.BooleanField(default=False)
     products = models.ManyToManyField(Product, through='OrderItem', related_name='orders')
     invoice = models.FileField(upload_to='invoices/', blank=True, null=True)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
-    
-    @property
-    def earned_points(self):
-        return int(self.total_price // 100)  # 1 point per R100
-
+ 
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
@@ -54,10 +52,9 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in order {self.order.id}"
-    
-  
-    
-    
+
+
+
 class BulkOrder(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),

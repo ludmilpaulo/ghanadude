@@ -17,7 +17,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'user__email', 'address', 'city', 'country')
     inlines = [OrderItemInline]
     date_hierarchy = 'created_at'
-    readonly_fields = ('created_at', 'updated_at', 'earned_points')
+    readonly_fields = ('created_at', 'updated_at', 'reward_applied')
     autocomplete_fields = ('user', 'coupon')
     list_select_related = ('user', 'coupon')
 

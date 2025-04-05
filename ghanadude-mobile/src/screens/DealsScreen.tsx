@@ -77,17 +77,24 @@ const DealsScreen = () => {
       allowsEditing: true,
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
+      base64: false, // You can also set this to true if backend accepts base64
     });
-
+  
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
+      const asset = result.assets[0];
+      const uri = asset.uri;
+  
       if (pngOnly && !uri.toLowerCase().endsWith('.png')) {
         Alert.alert('Invalid Image', 'Brand logo must be PNG.');
         return;
       }
-      setter(uri);
+  
+      // Save full asset object to Redux instead of just URI
+      setter(uri); // keep this if you just want URI
+      // Alternatively, you can save the full asset object if you want to use it in FormData
     }
   };
+  
 
   const handleQuantityChange = (id: number, increase: boolean) => {
     setBulkQuantities((prev) => ({
@@ -129,10 +136,11 @@ const DealsScreen = () => {
         originalPrice: Number(product.price),
         stock: 100,
         isBulk: true,
-        brandLogo,
-        customDesign,
+        brandLogo, // still just a string URI
+        customDesign, // still just a string URI
       }),
     );
+    
 
     Alert.alert('Success', 'Product added to cart.');
   };
