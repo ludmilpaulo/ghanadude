@@ -25,55 +25,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 
 
-class DrugViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        images_data = data.pop('images', [])
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        product = serializer.save()
-        
-        for image_data in images_data:
-            image_serializer = ImageSerializer(data={'image': image_data})
-            image_serializer.is_valid(raise_exception=True)
-            image = image_serializer.save()
-            product.images.add(image)
-
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        data = request.data
-        images_data = data.pop('images', [])
-        serializer = self.get_serializer(instance, data=data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        product = serializer.save()
-
-        if images_data:
-            product.images.clear()
-            for image_data in images_data:
-                image_serializer = ImageSerializer(data={'image': image_data})
-                image_serializer.is_valid(raise_exception=True)
-                image = image_serializer.save()
-                product.images.add(image)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            instance._prefetched_objects_cache = {}
-
-        return Response(serializer.data)
-
-
-class ConsultationCategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
 
 
 class ImageViewSet(viewsets.ModelViewSet):

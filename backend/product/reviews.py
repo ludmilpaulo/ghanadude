@@ -43,23 +43,37 @@ def react_review(request, review_id):
     except (User.DoesNotExist, Review.DoesNotExist):
         return Response({"error": "Invalid user or review"}, status=404)
     
-    
 @api_view(["POST"])
 def create_review(request, product_id):
     user_id = request.data.get("user_id")
     rating = request.data.get("rating")
     comment = request.data.get("comment")
 
+    # 🔒 Validate input
     if not all([user_id, rating, comment]):
         return Response({"error": "Missing fields"}, status=400)
 
     try:
         user = User.objects.get(id=user_id)
-        product = Product.objects.get(id=product_id)
-        Review.objects.create(user=user, product=product, rating=rating, comment=comment)
-        return Response({"message": "Review created"}, status=201)
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
+
+    try:
+        product = Product.objects.get(id=product_id)
     except Product.DoesNotExist:
         return Response({"error": "Product not found"}, status=404)
 
+    # 🧠 Optional: prevent duplicate reviews per product per user
+    existing = Review.objects.filter(user=user, product=product).first()
+    if existing:
+        return Response({"error": "You already reviewed this product."}, status=400)
+
+    # ✅ Save the review
+    Review.objects.create(
+        user=user,
+        product=product,
+        rating=int(rating),
+        comment=comment.strip()
+    )
+
+    return Response({"message": "Review created successfully"}, status=201)

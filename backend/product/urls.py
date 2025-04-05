@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .reviews import get_product_reviews, react_review
+from .reviews import create_review, get_product_reviews, react_review
 
 from .wishlist import add_to_wishlist, get_wishlist, remove_from_wishlist, wishlist_count
 
@@ -26,6 +26,7 @@ urlpatterns = [
     path("wishlist/remove/<int:product_id>/", remove_from_wishlist),
     path("products/related/<int:product_id>/", related_products),
     path('products/<int:product_id>/reviews/', get_product_reviews, name='get_product_reviews'),
+    path('products/<int:product_id>/review/', create_review, name='create_review'),
     path("reviews/<int:review_id>/react/", react_review),
 
 ]

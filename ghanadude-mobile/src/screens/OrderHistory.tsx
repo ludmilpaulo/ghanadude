@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Alert, Linking,
-  ActivityIndicator, RefreshControl, TextInput, Image, Modal, Pressable,
-  NativeSyntheticEvent, NativeScrollEvent,
+  ActivityIndicator, RefreshControl, TextInput, Image, Modal, Pressable
 } from 'react-native';
 import tw from 'twrnc';
 import { useSelector } from 'react-redux';
@@ -12,8 +11,9 @@ import { fetchUserOrders, Order, OrderItem } from '../services/OrderService';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
-import { AntDesign } from '@expo/vector-icons';
 import axios from 'axios';
+import ReviewForm from '../components/ReviewForm'; // ✅ Create this component for submitting reviews
+import { AntDesign } from '@expo/vector-icons';
 
 const statusOptions = ['Pending', 'Processing', 'Completed', 'Cancelled'];
 
@@ -29,6 +29,7 @@ const OrderHistory: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [itemModalVisible, setItemModalVisible] = useState(false);
   const [selectedItems, setSelectedItems] = useState<OrderItem[]>([]);
+  const [reviewProductId, setReviewProductId] = useState<number | null>(null);
 
   const ensureAuth = () => {
     if (!user || !token) {
@@ -52,7 +53,6 @@ const OrderHistory: React.FC = () => {
     setLoading(true);
     try {
       const res = await fetchUserOrders(auth.user.user_id, auth.token, status);
-      console.log('✅ Orders response:', res.results);
       setOrders(res.results);
     } catch {
       Alert.alert('Error', 'Failed to load orders');
@@ -122,9 +122,6 @@ const OrderHistory: React.FC = () => {
 
   return (
     <View style={tw`flex-1 bg-white`}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={tw`p-2 bg-gray-200 rounded-full`}>
-                  <AntDesign name="arrowleft" size={24} />
-                </TouchableOpacity>
       <ScrollView
         style={tw`px-4 pt-6`}
         contentContainerStyle={tw`pb-10`}
@@ -137,8 +134,6 @@ const OrderHistory: React.FC = () => {
             }}
           />
         }
-        onScroll={(e: NativeSyntheticEvent<NativeScrollEvent>) => {}}
-        scrollEventThrottle={400}
       >
         <Text style={tw`text-3xl font-bold text-blue-700 text-center mb-4`}>
           📋 Order History
@@ -176,12 +171,11 @@ const OrderHistory: React.FC = () => {
               const thumbnail = order.items?.[0]?.product.images?.[0]?.image;
               const productId = order.items?.[0]?.product.id;
               const total = typeof order.total_price === 'number'
-              ? order.total_price.toFixed(2)
-              : parseFloat(order.total_price || '0').toFixed(2);
-            
+                ? order.total_price.toFixed(2)
+                : parseFloat(order.total_price || '0').toFixed(2);
 
               return (
-                <View key={order.id} style={tw`mb-4 p-4 bg-gray-100 rounded-xl shadow-sm`}>
+                <View key={order.id} style={tw`mb-4 p-4 bg-white rounded-xl shadow-md`}>
                   <View style={tw`flex-row justify-between items-center mb-2`}>
                     <Text style={tw`text-lg font-bold text-gray-800`}>
                       {order.type === 'bulk' ? '🧾 Bulk Order' : '📦 Order'} #{order.id}
@@ -213,28 +207,19 @@ const OrderHistory: React.FC = () => {
                     Date: {new Date(order.created_at).toLocaleDateString()}
                   </Text>
 
-                  {order.coupon_code && (
-                    <Text style={tw`text-green-700 font-semibold mb-1`}>
-                      🎟️ Coupon used: {order.coupon_code}
+                  {order.reward_applied > 0 && (
+                    <Text style={tw`text-purple-600 font-semibold mb-1`}>
+                      🎁 Rewards Used: R{order.reward_applied.toFixed(2)}
                     </Text>
                   )}
 
-                  {order.reward_points_earned !== undefined && (
-                    <Text style={tw`text-purple-700 font-semibold mb-2`}>
-                      ⭐ Reward Points Earned: {order.reward_points_earned}
+                  {order.reward_granted && (
+                    <Text style={tw`text-green-700 font-semibold mb-1`}>
+                      ⭐ Rewards Earned: R{Math.floor(parseFloat(order.total_price.toString()) * 0.05)}
                     </Text>
                   )}
 
                   <View style={tw`flex-row flex-wrap gap-2 mt-2`}>
-                    {order.invoice && (
-                      <TouchableOpacity
-                        onPress={() => Linking.openURL(`${API_BASE_URL}/orders/${order.id}/invoice/`)}
-                        style={tw`bg-blue-600 py-2 px-4 rounded-lg mb-2`}
-                      >
-                        <Text style={tw`text-white font-bold`}>📄 View Invoice</Text>
-                      </TouchableOpacity>
-                    )}
-
                     <TouchableOpacity
                       onPress={() => openItemsModal(order.items)}
                       style={tw`bg-gray-800 py-2 px-4 rounded-lg mb-2`}
@@ -250,6 +235,15 @@ const OrderHistory: React.FC = () => {
                         <Text style={tw`text-white font-bold`}>❌ Cancel Order</Text>
                       </TouchableOpacity>
                     )}
+
+                    {order.status === 'Completed' && order.items?.length > 0 && (
+                      <TouchableOpacity
+                        onPress={() => setReviewProductId(order.items[0].product.id)}
+                        style={tw`bg-yellow-500 py-2 px-4 rounded-lg mb-2`}
+                      >
+                        <Text style={tw`text-white font-bold`}>📝 Leave Review</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               );
@@ -262,7 +256,7 @@ const OrderHistory: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* Items Modal */}
+      {/* Order Items Modal */}
       <Modal visible={itemModalVisible} animationType="slide" transparent>
         <View style={tw`flex-1 bg-white p-6`}>
           <Text style={tw`text-xl font-bold mb-4`}>🧾 Order Items</Text>
@@ -283,6 +277,15 @@ const OrderHistory: React.FC = () => {
           </Pressable>
         </View>
       </Modal>
+
+      {/* Review Modal */}
+      {reviewProductId && (
+        <ReviewForm
+          productId={reviewProductId}
+          userId={user?.user_id}
+          onClose={() => setReviewProductId(null)}
+        />
+      )}
     </View>
   );
 };
