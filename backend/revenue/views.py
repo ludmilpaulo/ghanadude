@@ -42,11 +42,41 @@ def user_statistics(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
+@api_view(["GET"])
 def location_statistics(request):
-    try:
-        location_stats = Order.objects.values('country').annotate(total_sales=Sum('total_price')).order_by('-total_sales')
+    region = request.query_params.get("region", "country")
+    key = region if region in ["city", "country"] else "country"
+    stats = (
+        Order.objects.values(key)
+        .annotate(total_sales=Sum("total_price"))
+        .order_by("-total_sales")
+    )
+    return Response(stats)
 
-        return Response(location_stats, status=status.HTTP_200_OK)
+
+
+    
+@api_view(['GET'])
+def sales_range(request):
+    try:
+        start = request.query_params.get('start')
+        end = request.query_params.get('end')
+        status = request.query_params.get('status')
+        product_id = request.query_params.get('product_id')
+
+        if not start or not end:
+            return Response({"error": "Start and end dates required"}, status=400)
+
+        qs = Order.objects.filter(created_at__range=(start, end))
+        if status:
+            qs = qs.filter(status=status)
+
+        if product_id:
+            qs = qs.filter(items__product_id=product_id).distinct()
+
+        total_sales = qs.aggregate(total_sales=Sum('total_price'))['total_sales'] or 0
+
+        return Response({"total_sales": total_sales}, status=200)
+
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': str(e)}, status=400)

@@ -160,14 +160,21 @@ export const fetchUserStatistics = async () => {
   }
 };
 
-export const fetchLocationStatistics = async () => {
+export const fetchLocationStatistics = async (
+  region: 'country' | 'city' = 'country'
+): Promise<{ country: string; total_sales: number }[]> => {
   try {
-    const response = await axios.get(`${baseAPI}/order/location-statistics/`);
+    const response = await axios.get(`${baseAPI}/order/location-statistics/`, {
+      params: { region },
+    });
     return response.data;
   } catch (error) {
-    handleError(error);
+    console.error('Error fetching location statistics:', error);
+    return [];
   }
 };
+
+
 
 export const fetchUsers = async () => {
   try {
@@ -197,3 +204,48 @@ export const fetchBulkOrders = async () => {
   const res = await axios.get(`${baseAPI}/order/admin/bulk-orders/`);
   return res.data;
 };
+
+export const fetchSalesInRange = async (start: Date, end: Date) => {
+  const res = await axios.get(`${baseAPI}/reward/sales_range`, {
+    params: {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    },
+  });
+  return res.data;
+};
+
+
+export const fetchTopProductsPerMonth = async (
+  start: Date,
+  end: Date,
+  status: string = "All",
+  category?: string
+) => {
+  const res = await axios.get(`${baseAPI}/reward/top_products_by_month/`, {
+    params: {
+      start: start.toISOString(),
+      end: end.toISOString(),
+      ...(status !== "All" && { status }),
+      ...(category && { category }),
+    },
+  });
+  return res.data;
+};
+
+
+export const fetchTopUsers = async () => {
+  const res = await axios.get(`${baseAPI}/reward/user/top-spenders/`);
+  return res.data;
+};
+
+
+export const fetchCitySalesByProduct = async (productId: number) => {
+  const res = await axios.get(`${baseAPI}/reward/city-sales-by-product/`, {
+    params: { product: productId },
+  });
+  return res.data;
+};
+
+
+

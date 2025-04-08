@@ -60,6 +60,13 @@ def create_product(request):
     brand, _ = Brand.objects.get_or_create(name=data.get('brand', 'ghanadue').strip())
 
     try:
+        bulk_sale = data.get('bulk_sale', 'false').lower() in ['true', '1']
+        on_sale = data.get('on_sale', 'false').lower() in ['true', '1']
+        discount_percentage = int(data.get('discount_percentage', 0))
+
+        # Apply dynamic percentage logic
+        percentage = 3 if bulk_sale else 4
+
         product = Product.objects.create(
             name=data['name'],
             description=data['description'],
@@ -68,9 +75,10 @@ def create_product(request):
             season=data.get('season', 'all_seasons'),
             category=category,
             brand=brand,
-            on_sale=data.get('on_sale', 'false').lower() in ['true', '1'],
-            bulk_sale=data.get('bulk_sale', 'false').lower() in ['true', '1'],
-            discount_percentage=int(data.get('discount_percentage', 0)),
+            on_sale=on_sale,
+            bulk_sale=bulk_sale,
+            discount_percentage=discount_percentage,
+            percentage=percentage,
         )
 
         sizes_list = data.getlist('sizes', [])

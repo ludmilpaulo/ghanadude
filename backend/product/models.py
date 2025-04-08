@@ -53,12 +53,20 @@ class Product(models.Model):
     sizes = models.ManyToManyField(Size, blank=True)
     stock = models.PositiveIntegerField(default=0)
     on_sale = models.BooleanField(default=False)
+    percentage = models.DecimalField(
+        max_digits=5, decimal_places=1, default=3
+    )  # % markup
     bulk_sale = models.BooleanField(default=False)
     discount_percentage = models.PositiveIntegerField(default=0)
     season = models.CharField(max_length=20, choices=SEASON_CHOICES, default='all_seasons')
 
     def __str__(self):
         return self.name
+    
+    @property
+    def price_with_markup(self):
+        return self.price * (1 + self.percentage / 100)
+
 
     def reduce_stock(self, quantity):
         if self.stock >= quantity:

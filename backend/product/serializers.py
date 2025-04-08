@@ -36,6 +36,11 @@ class ProductSerializer(serializers.ModelSerializer):
     def get_sizes(self, obj):
         return [size.name for size in obj.sizes.all()]
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["price"] = instance.price_with_markup
+        return representation
+
     def create(self, validated_data):
         uploaded_images = validated_data.pop("uploaded_images", [])
         product = Product.objects.create(**validated_data)
