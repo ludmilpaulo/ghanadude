@@ -162,15 +162,18 @@ export const fetchUserStatistics = async () => {
 
 export const fetchLocationStatistics = async (
   region: 'country' | 'city' = 'country'
-): Promise<{ country: string; total_sales: number }[]> => {
+): Promise<{
+  points: { name: string; lat: number; lng: number; total_sales: number }[];
+  thresholds: { min: number; max: number; color: string }[];
+}> => {
   try {
     const response = await axios.get(`${baseAPI}/order/location-statistics/`, {
       params: { region },
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching location statistics:', error);
-    return [];
+    console.error("Error fetching location statistics:", error);
+    return { points: [], thresholds: [] };
   }
 };
 

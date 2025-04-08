@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Sum
-from orders.models import OrderItem
+from orders.models import Order, OrderItem
 from datetime import datetime
 from collections import defaultdict
 from django.utils.timezone import make_aware
@@ -125,3 +125,25 @@ def city_sales_by_product(request):
         .order_by("-total_sales")
     )
     return Response(stats)
+
+@api_view(["GET"])
+def city_products(request):
+    city = request.query_params.get("city")
+    if not city:
+        return Response({"error": "City required"}, status=400)
+
+    top_items = (
+        Order.objects.filter(city__iexact=city)
+        .values("products__name", "products__images__image")
+        .annotate(total_sales=Sum("total_price"))
+        .order_by("-total_sales")[:5]
+    )
+
+    return Response([
+        {
+            "name": item["products__name"],
+            "image": item["products__images__image"],
+            "sales": float(item["total_sales"]),
+        }
+        for item in top_items if item["products__name"]
+    ])

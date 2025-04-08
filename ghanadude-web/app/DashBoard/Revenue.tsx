@@ -9,7 +9,6 @@ import {
   fetchCategories,
   fetchTopProductsPerMonth,
 } from '@/services/adminService';
-//import WorldHeatmap from '@/components/WorldHeatmap';
 import CityHeatmapByProduct from './revenue/CityHeatmapByProduct';
 import GoalEditor from './revenue/GoalEditor';
 import Heatmap from './revenue/Heatmap';
@@ -17,10 +16,13 @@ import RevenueChart from './revenue/RevenueChart';
 import RevenueFilters from './revenue/RevenueFilters';
 import TopProductGrid from './revenue/TopProductGrid';
 import UserStats from './revenue/UserStats';
-import dynamic from "next/dynamic";
 
-// Use dynamic import to disable SSR
-const WorldHeatmap = dynamic(() => import('@/components/WorldHeatmap'), { ssr: false });
+import dynamic from 'next/dynamic';
+
+const WorldLeafletMap = dynamic(() => import('@/components/WorldLeafletMap'), {
+  ssr: false,
+});
+
 
 
 
@@ -141,7 +143,7 @@ const Revenue: React.FC = () => {
           </Tab.Panel>
           <Tab.Panel><Heatmap /></Tab.Panel>
           <Tab.Panel><UserStats /></Tab.Panel>
-          <Tab.Panel><WorldHeatmap /></Tab.Panel>
+          <Tab.Panel><WorldLeafletMap /></Tab.Panel>
           <Tab.Panel><CityHeatmapByProduct /></Tab.Panel>
           <Tab.Panel><GoalEditor goals={goals} setGoals={setGoals} /></Tab.Panel>
         </Tab.Panels>

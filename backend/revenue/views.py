@@ -5,6 +5,10 @@ from orders.models import Order
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
+
+import time
 
 # Existing imports...
 
@@ -44,14 +48,53 @@ def user_statistics(request):
 
 @api_view(["GET"])
 def location_statistics(request):
-    region = request.query_params.get("region", "country")
+    region = request.query_params.get("region", "country").lower()
     key = region if region in ["city", "country"] else "country"
-    stats = (
+
+    raw_stats = (
         Order.objects.values(key)
         .annotate(total_sales=Sum("total_price"))
         .order_by("-total_sales")
     )
-    return Response(stats)
+
+    geolocator = Nominatim(user_agent="ghanadude-map")
+    points = []
+
+    def safe_geocode(name):
+        try:
+            return geolocator.geocode(name, timeout=10)
+        except:
+            time.sleep(1)
+            return safe_geocode(name)
+
+    for row in raw_stats:
+        name = row.get(key)
+        if not name:
+            continue
+        loc = safe_geocode(name)
+        if loc:
+            points.append({
+                "name": name,
+                "lat": loc.latitude,
+                "lng": loc.longitude,
+                "total_sales": float(row["total_sales"] or 0)
+            })
+
+    # Dynamically calculate thresholds
+    max_val = max([p["total_sales"] for p in points], default=1)
+    bins = 4
+    step = max_val / bins
+    colors = ["#c6dbef", "#6baed6", "#2171b5", "#08306b"]
+    thresholds = [{
+        "min": round(i * step, 2),
+        "max": round((i + 1) * step, 2),
+        "color": colors[i]
+    } for i in range(bins)]
+
+    return Response({
+        "points": points,
+        "thresholds": thresholds,
+    })
 
 
 
