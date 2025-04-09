@@ -16,3 +16,4 @@ class Coupon(models.Model):
 @property
 def earned_points(self):
     return (self.total_price // 100) * 1  # 1% for every R100
+

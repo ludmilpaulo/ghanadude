@@ -1,6 +1,13 @@
 "use client";
 import React from "react";
-import { FiUsers, FiShoppingBag, FiBox, FiDollarSign, FiBarChart, FiMapPin } from "react-icons/fi";
+import {
+  FiUsers,
+  FiShoppingBag,
+  FiBox,
+  FiDollarSign,
+  FiMail,
+  FiSettings,
+} from "react-icons/fi";
 
 interface SidebarProps {
   setActiveComponent: (component: string) => void;
@@ -13,8 +20,8 @@ const Sidebar: React.FC<SidebarProps> = ({ setActiveComponent, activeComponent }
     { id: "orders", label: "Orders", icon: <FiShoppingBag /> },
     { id: "products", label: "Products", icon: <FiBox /> },
     { id: "revenue", label: "Revenue", icon: <FiDollarSign /> },
-    { id: "user_statistics", label: "User Statistics", icon: <FiBarChart /> },
-    { id: "location_statistics", label: "Location Statistics", icon: <FiMapPin /> },
+    { id: "emails", label: "Emails", icon: <FiMail /> },
+    { id: "management", label: "Management", icon: <FiSettings /> },
   ];
 
   return (

@@ -52,6 +52,11 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in order {self.order.id}"
+    
+    @property
+    def dev_earnings(self):
+        return round(self.price * self.quantity * (self.product.percentage / 100), 2)
+
 
 
 
@@ -74,4 +79,9 @@ class BulkOrder(models.Model):
 
     def __str__(self):
         return f"Bulk Order #{self.id} by {self.user.username}"
+    
+    @property
+    def dev_earnings(self):
+        return round(self.product.price * self.quantity * (self.product.percentage / 100), 2)
+
 

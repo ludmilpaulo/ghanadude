@@ -13,8 +13,8 @@ const UserList = dynamic(() => import("./UserList"), { ssr: false });
 const OrderList = dynamic(() => import("./OrderList"), { ssr: false });
 const ProductList = dynamic(() => import("./ProductList"), { ssr: false });
 const Revenue = dynamic(() => import("./Revenue"), { ssr: false });
-const UserStatistics = dynamic(() => import("./UserStatistics"), { ssr: false });
-const LocationStatistics = dynamic(() => import("./LocationStatistics"), { ssr: false });
+const Emails = dynamic(() => import("./Emails"), { ssr: false });
+const Management = dynamic(() => import("./Management"), { ssr: false });
 
 const DashBoard: React.FC = () => {
   const router = useRouter();
@@ -58,11 +58,11 @@ const DashBoard: React.FC = () => {
     case "revenue":
       componentToRender = <Revenue />;
       break;
-    case "user_statistics":
-      componentToRender = <UserStatistics />;
+    case "emails":
+      componentToRender = <Emails />;
       break;
-    case "location_statistics":
-      componentToRender = <LocationStatistics />;
+    case "management":
+      componentToRender = <Management />;
       break;
     default:
       componentToRender = <UserList />;

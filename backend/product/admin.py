@@ -25,7 +25,7 @@ class DesignerInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'category', 'brand', 'price_display', 'stock',
-        'on_sale', 'discount_percentage', 'season', 'image_display', 'bulk_sale'
+        'on_sale', 'discount_percentage', 'season', 'image_display', 'bulk_sale', 'percentage'
     )
     list_filter = ('category', 'brand', 'on_sale', 'season', 'bulk_sale')
     search_fields = ('name', 'description')
@@ -39,7 +39,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'description', 'category', 'brand', 'sizes')
         }),
         ('Pricing & Stock', {
-            'fields': ('price', 'stock', 'on_sale', 'discount_percentage', 'season', 'bulk_sale')
+            'fields': ('price', 'stock', 'on_sale', 'discount_percentage', 'season', 'bulk_sale', 'percentage')
         }),
         ('Images', {
             'fields': ('image_preview',)
