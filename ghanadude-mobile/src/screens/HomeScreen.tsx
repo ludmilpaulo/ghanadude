@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState,  useCallback } from "react";
 import {
   View,
   Text,
@@ -17,11 +17,10 @@ import ProductCard from "../components/ProductCard";
 import { Product, Category } from "./types";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp, FadeInRight } from "react-native-reanimated";
-import { NavigationProp } from "@react-navigation/native";
+import { NavigationProp, useFocusEffect } from "@react-navigation/native";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 
 const { width } = Dimensions.get("window");
-
 
 const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -32,66 +31,70 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
 
-  useEffect(() => {
-    if (allProducts.length > 0) {
-      filterProducts(selectedCategory, searchQuery);
-    }
-  }, [searchQuery, selectedCategory, allProducts]);
+      const fetchData = async () => {
+        try {
+          const [productsRes, categoriesRes] = await Promise.all([
+            ProductService.getProducts(),
+            ProductService.getCategories(),
+          ]);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const res = await ProductService.getProducts();
-      setAllProducts(res);
-      setFilteredProducts(res);
-      setNotFound(res.length === 0);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+          if (isActive) {
+            setAllProducts(productsRes);
+            setCategories([{ id: "all", name: "All" }, ...categoriesRes]);
 
-  const fetchCategories = async () => {
-    try {
-      const data = await ProductService.getCategories();
-      setCategories([{ id: "all", name: "All" }, ...data]);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
+            const updated = filterProducts(selectedCategory, searchQuery, productsRes);
+            setFilteredProducts(updated);
+            setNotFound(updated.length === 0);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-  const filterProducts = (category = selectedCategory, query = searchQuery) => {
-    let updatedProducts = [...allProducts];
+      fetchData();
+      const interval = setInterval(fetchData, 5000);
+
+      return () => {
+        isActive = false;
+        clearInterval(interval);
+      };
+    }, [selectedCategory, searchQuery])
+  );
+
+  const filterProducts = (
+    category = selectedCategory,
+    query = searchQuery,
+    products = allProducts
+  ) => {
+    let updated = [...products];
 
     if (category.toLowerCase() !== "all") {
-      updatedProducts = updatedProducts.filter(
+      updated = updated.filter(
         (product) => product.category.toLowerCase() === category.toLowerCase()
       );
     }
 
     if (query) {
-      updatedProducts = updatedProducts.filter((product) =>
+      updated = updated.filter((product) =>
         product.name.toLowerCase().includes(query.toLowerCase())
       );
     }
 
-    setFilteredProducts(updatedProducts);
-    setNotFound(updatedProducts.length === 0);
+    return updated;
   };
 
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setSearchQuery("");
-    if (category.toLowerCase() === "all") {
-      setFilteredProducts(allProducts);
-      setNotFound(allProducts.length === 0);
-    }
+    const updated = filterProducts(category, "", allProducts);
+    setFilteredProducts(updated);
+    setNotFound(updated.length === 0);
   };
 
   const onSaleProducts = filteredProducts.filter((product) => product.on_sale);

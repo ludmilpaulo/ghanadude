@@ -1,4 +1,3 @@
-// ✅ Imports (same as yours, no changes needed)
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
@@ -19,6 +18,9 @@ import { API_BASE_URL } from '../services/AuthService';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
 import InfoTooltip from '../components/InfoTooltip';
 
+const BRAND_LOGO_PRICE = 50;
+const CUSTOM_DESIGN_PRICE = 100;
+
 type NavigationProp = StackNavigationProp<HomeStackParamList, 'CheckoutScreen'>;
 
 interface FormFields {
@@ -37,7 +39,12 @@ const CheckoutScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const user = useSelector(selectUser);
   const cartItems = useSelector(selectCartItems);
-  const design = useSelector(selectDesign);
+  const {
+    brandLogo,
+    customDesign,
+    brandLogoQty = 1,
+    customDesignQty = 1,
+  } = useSelector(selectDesign);
 
   const [form, setForm] = useState<FormFields>({
     first_name: '',
@@ -69,7 +76,12 @@ const CheckoutScreen: React.FC = () => {
 
   const rewardAlertAnim = useRef(new Animated.Value(0)).current;
 
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.quantity * Number(item.price), 0);
+  // Price Calculations
+  const productTotal = cartItems.reduce((sum, item) => sum + item.quantity * Number(item.price), 0);
+  const logoTotal = brandLogo ? BRAND_LOGO_PRICE * brandLogoQty : 0;
+  const designTotal = customDesign ? CUSTOM_DESIGN_PRICE * customDesignQty : 0;
+  const totalPrice = productTotal + logoTotal + designTotal;
+
   const discountedPrice = totalPrice >= 1000 ? totalPrice - Math.min(rewardBalance, totalPrice) : totalPrice;
   const finalPrice = parseFloat(discountedPrice.toFixed(2));
 
@@ -168,7 +180,7 @@ const CheckoutScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      const res = await checkoutOrder({
+      const payload = {
         user_id: auth.user.user_id,
         total_price: finalPrice,
         reward_applied: rewardApplied,
@@ -183,8 +195,43 @@ const CheckoutScreen: React.FC = () => {
           quantity: item.quantity,
           is_bulk: item.isBulk || false,
         })),
-      });
+      };
 
+      const hasDesignUpload = brandLogo || customDesign;
+      let dataToSend = payload;
+
+      if (hasDesignUpload) {
+        const formData = new FormData();
+        for (const key in payload) {
+          if (key === 'items') {
+            formData.append('items', JSON.stringify(payload.items));
+          } else {
+            formData.append(key, String((payload as any)[key]));
+          }
+        }
+
+        if (brandLogo) {
+          formData.append('brand_logo', {
+            uri: brandLogo,
+            name: 'brand_logo.png',
+            type: 'image/png',
+          } as any);
+          formData.append('brand_logo_qty', String(brandLogoQty));
+        }
+
+        if (customDesign) {
+          formData.append('custom_design', {
+            uri: customDesign,
+            name: 'custom_design.jpg',
+            type: 'image/jpeg',
+          } as any);
+          formData.append('custom_design_qty', String(customDesignQty));
+        }
+
+        dataToSend = formData;
+      }
+
+      const res = await checkoutOrder(dataToSend);
       setOrderId(res.order_id);
       setPayFastVisible(true);
     } catch (err: any) {
@@ -204,8 +251,7 @@ const CheckoutScreen: React.FC = () => {
           ]
         );
       } else {
-        const errorMsg = error?.error || 'Checkout initiation failed.';
-        Alert.alert('Error', errorMsg);
+        Alert.alert('Error', error?.error || 'Checkout failed.');
       }
     } finally {
       setLoading(false);
@@ -290,13 +336,19 @@ const CheckoutScreen: React.FC = () => {
       )}
 
       <View style={tw`bg-gray-50 p-4 rounded-lg mt-4`}>
-        <Text style={tw`text-base`}>Subtotal: R{totalPrice.toFixed(2)}</Text>
+        <Text style={tw`text-base`}>🛍️ Products: R{productTotal.toFixed(2)}</Text>
+        {brandLogo && (
+          <Text style={tw`text-base`}>🎨 Brand Logo: R{BRAND_LOGO_PRICE} × {brandLogoQty} = R{(BRAND_LOGO_PRICE * brandLogoQty).toFixed(2)}</Text>
+        )}
+        {customDesign && (
+          <Text style={tw`text-base`}>🧵 Custom Design: R{CUSTOM_DESIGN_PRICE} × {customDesignQty} = R{(CUSTOM_DESIGN_PRICE * customDesignQty).toFixed(2)}</Text>
+        )}
         {rewardApplied > 0 && (
-          <Text style={tw`text-base text-green-700`}>
-            Reward Applied: -R{rewardApplied.toFixed(2)}
+          <Text style={tw`text-green-700 mt-2`}>
+            🎁 Reward Discount: -R{rewardApplied.toFixed(2)}
           </Text>
         )}
-        <View style={tw`mt-2 border-t border-gray-200 pt-2`}>
+        <View style={tw`mt-2 border-t border-gray-300 pt-2`}>
           <Text style={tw`text-lg font-bold`}>
             Final Total: R{finalPrice.toFixed(2)}
           </Text>

@@ -69,7 +69,7 @@ class BulkOrder(models.Model):
     ]
 
     user = models.ForeignKey(User, related_name='bulk_orders', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, related_name='bulk_orders', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='bulk_orders', on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.PositiveIntegerField()
     brand_logo = models.ImageField(upload_to='bulk_order_logos/', null=True, blank=True)
     custom_design = models.ImageField(upload_to='bulk_order_designs/', null=True, blank=True)

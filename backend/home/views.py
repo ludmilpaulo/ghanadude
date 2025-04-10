@@ -2,7 +2,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import AppVersion
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from .serializers import SiteSettingSerializer
+
+from .models import AppVersion, SiteSetting
 
 
 def app_redirect_view(request: HttpRequest):
@@ -42,3 +48,19 @@ def get_app_version(request):
 def version_changelog(request):
     versions = AppVersion.objects.all().order_by('-updated_at')
     return render(request, 'changelog.html', {'versions': versions})
+
+
+class SiteSettingView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        setting, _ = SiteSetting.objects.get_or_create(id=1)
+        serializer = SiteSettingSerializer(setting)
+        return Response(serializer.data)
+
+    def post(self, request):
+        setting, _ = SiteSetting.objects.get_or_create(id=1)
+        serializer = SiteSettingSerializer(setting, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

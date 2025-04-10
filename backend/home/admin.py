@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AppVersion, DevPayment
+from .models import AppVersion, DevPayment, SiteSetting
 
 @admin.register(AppVersion)
 class AppVersionAdmin(admin.ModelAdmin):
@@ -13,3 +13,8 @@ class AppVersionAdmin(admin.ModelAdmin):
 @admin.register(DevPayment)
 class DevPaymentAdmin(admin.ModelAdmin):
     list_display = ('amount', 'created_at', 'invoice')
+    
+    
+@admin.register(SiteSetting)
+class SiteSettingAdmin(admin.ModelAdmin):
+    list_display = ("delivery_fee", "vat_percentage", "country")

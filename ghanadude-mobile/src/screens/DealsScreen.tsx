@@ -8,24 +8,22 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
 import tw from 'twrnc';
 import { FontAwesome } from '@expo/vector-icons';
-import ProductService from '../services/ProductService';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
-import {
-  updateBasket,
-  selectCartItems,
-} from '../redux/slices/basketSlice';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+import ProductService from '../services/ProductService';
+import { updateBasket, selectCartItems } from '../redux/slices/basketSlice';
 import {
   setBrandLogo,
   setCustomDesign,
   selectDesign,
 } from '../redux/slices/designSlice';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
+import ImageUploadButton from '../components/ImageUploadButton';
 
 interface ProductImage {
   id: number;
@@ -69,33 +67,6 @@ const DealsScreen = () => {
     }
   };
 
-  const pickImage = async (
-    setter: (uri: string) => void,
-    pngOnly = false,
-  ) => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-      base64: false, // You can also set this to true if backend accepts base64
-    });
-  
-    if (!result.canceled) {
-      const asset = result.assets[0];
-      const uri = asset.uri;
-  
-      if (pngOnly && !uri.toLowerCase().endsWith('.png')) {
-        Alert.alert('Invalid Image', 'Brand logo must be PNG.');
-        return;
-      }
-  
-      // Save full asset object to Redux instead of just URI
-      setter(uri); // keep this if you just want URI
-      // Alternatively, you can save the full asset object if you want to use it in FormData
-    }
-  };
-  
-
   const handleQuantityChange = (id: number, increase: boolean) => {
     setBulkQuantities((prev) => ({
       ...prev,
@@ -136,11 +107,10 @@ const DealsScreen = () => {
         originalPrice: Number(product.price),
         stock: 100,
         isBulk: true,
-        brandLogo, // still just a string URI
-        customDesign, // still just a string URI
+        brandLogo,
+        customDesign,
       }),
     );
-    
 
     Alert.alert('Success', 'Product added to cart.');
   };
@@ -149,23 +119,21 @@ const DealsScreen = () => {
     <View style={tw`flex-1 bg-white p-5`}>
       <Text style={tw`text-2xl font-bold mb-4`}>Exclusive Bulk Deals</Text>
 
-      <TouchableOpacity
-        onPress={() => pickImage((uri) => dispatch(setBrandLogo(uri)), true)}
-        style={tw`bg-blue-500 py-2 rounded-lg mb-2`}
-      >
-        <Text style={tw`text-white text-center`}>
-          {brandLogo ? '✅ Brand Logo Uploaded' : 'Upload Brand Logo (PNG)'}
-        </Text>
-      </TouchableOpacity>
+      {/* Reusable Upload Buttons */}
+      <ImageUploadButton
+        label="Brand Logo (PNG)"
+        currentUri={brandLogo}
+        onImageSelected={(uri) => dispatch(setBrandLogo(uri))}
+        pngOnly
+        color="blue-500"
+      />
 
-      <TouchableOpacity
-        onPress={() => pickImage((uri) => dispatch(setCustomDesign(uri)))}
-        style={tw`bg-purple-500 py-2 rounded-lg mb-4`}
-      >
-        <Text style={tw`text-white text-center`}>
-          {customDesign ? '✅ Custom Design Uploaded' : 'Upload Custom Design'}
-        </Text>
-      </TouchableOpacity>
+      <ImageUploadButton
+        label="Custom Design"
+        currentUri={customDesign}
+        onImageSelected={(uri) => dispatch(setCustomDesign(uri))}
+        color="purple-500"
+      />
 
       <ScrollView>
         {products.map(product => (
