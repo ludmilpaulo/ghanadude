@@ -12,7 +12,7 @@ export const useAppVersionCheck = () => {
   useEffect(() => {
     const checkVersion = async () => {
       try {
-        const current = Constants.manifest?.version ?? '1.0.0';
+        const current = Constants.expoConfig?.version ?? '1.0.0'; // ✅ safer access
         const res = await axios.get(`${API_BASE_URL}/api/version/`);
         const latest = res.data.latest_version;
         const storeUrl = Platform.OS === 'ios' ? res.data.app_store_url : res.data.play_store_url;

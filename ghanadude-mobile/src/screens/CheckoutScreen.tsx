@@ -1,50 +1,48 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity,
-  ActivityIndicator, Alert, ScrollView, Animated, Easing,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  View,
+  Modal,
+  Animated,
 } from 'react-native';
-import * as Location from 'expo-location';
 import tw from 'twrnc';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import * as Location from 'expo-location';
+
 import { checkoutOrder } from '../services/Checkout';
 import { fetchUserProfile, fetchRewards, updateUserProfile } from '../services/UserService';
-import { selectCartItems, clearCart, removeFromBasket } from '../redux/slices/basketSlice';
+import { fetchSiteSettings } from '../services/SiteSettingService';
+import { getLatLngFromAddress, haversineDistance } from '../utils/geoUtils';
+
 import { selectUser } from '../redux/slices/authSlice';
+import { selectCartItems, clearCart } from '../redux/slices/basketSlice';
 import { selectDesign, clearDesign } from '../redux/slices/designSlice';
-import PayFast from './PayFast';
+
 import { API_BASE_URL } from '../services/AuthService';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
+import PayFast from './PayFast';
+
+import CheckoutForm, { FormFields } from '../components/checkout/CheckoutForm';
+import CheckoutSummary from '../components/checkout/CheckoutSummary';
+import DeliverySelector from '../components/checkout/DeliverySelector';
 import InfoTooltip from '../components/InfoTooltip';
 
-const BRAND_LOGO_PRICE = 50;
-const CUSTOM_DESIGN_PRICE = 100;
-
 type NavigationProp = StackNavigationProp<HomeStackParamList, 'CheckoutScreen'>;
-
-interface FormFields {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  address: string;
-  city: string;
-  postal_code: string;
-  country: string;
-}
 
 const CheckoutScreen: React.FC = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp>();
   const user = useSelector(selectUser);
   const cartItems = useSelector(selectCartItems);
-  const {
-    brandLogo,
-    customDesign,
-    brandLogoQty = 1,
-    customDesignQty = 1,
-  } = useSelector(selectDesign);
+  const design = useSelector(selectDesign);
 
   const [form, setForm] = useState<FormFields>({
     first_name: '',
@@ -57,35 +55,24 @@ const CheckoutScreen: React.FC = () => {
     country: '',
   });
 
-  const [editableFields, setEditableFields] = useState<Record<keyof FormFields, boolean>>({
-    first_name: true,
-    last_name: true,
-    email: true,
-    phone_number: true,
-    address: true,
-    city: true,
-    postal_code: true,
-    country: true,
-  });
-
-  const [payFastVisible, setPayFastVisible] = useState(false);
+  const [orderType, setOrderType] = useState<'delivery' | 'collection'>('delivery');
   const [loading, setLoading] = useState(false);
-  const [orderId, setOrderId] = useState<number | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
   const [rewardBalance, setRewardBalance] = useState(0);
   const [rewardApplied, setRewardApplied] = useState(0);
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [payFastVisible, setPayFastVisible] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const rewardAlertAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0)).current;
 
-  // Price Calculations
-  const productTotal = cartItems.reduce((sum, item) => sum + item.quantity * Number(item.price), 0);
-  const logoTotal = brandLogo ? BRAND_LOGO_PRICE * brandLogoQty : 0;
-  const designTotal = customDesign ? CUSTOM_DESIGN_PRICE * customDesignQty : 0;
-  const totalPrice = productTotal + logoTotal + designTotal;
-
-  const discountedPrice = totalPrice >= 1000 ? totalPrice - Math.min(rewardBalance, totalPrice) : totalPrice;
-  const finalPrice = parseFloat(discountedPrice.toFixed(2));
-
-  const itemNames = cartItems.map(item => `${item.quantity}x ${item.name}`).join(', ');
+  const [siteSettings, setSiteSettings] = useState<{
+    delivery_fee: number;
+    vat_percentage: number;
+    address: string;
+    country: string;
+  } | null>(null);
 
   const ensureAuth = () => {
     if (!user) {
@@ -95,40 +82,16 @@ const CheckoutScreen: React.FC = () => {
     return { user };
   };
 
-  const handleChange = (field: keyof FormFields, value: string) =>
-    setForm(prev => ({ ...prev, [field]: value }));
-
-  const useCurrentLocation = async () => {
-    setLoading(true);
+  const getDistanceKm = async () => {
+    if (!form.address || !form.city || !siteSettings) return 0;
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Location access is needed.');
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-      const [geo] = await Location.reverseGeocodeAsync(location.coords);
-      if (geo) {
-        setForm(prev => ({
-          ...prev,
-          address: `${geo.streetNumber || ''} ${geo.street || ''}`.trim(),
-          city: geo.city || '',
-          postal_code: geo.postalCode || '',
-          country: geo.country || '',
-        }));
-        setEditableFields(prev => ({
-          ...prev,
-          address: false,
-          city: false,
-          postal_code: false,
-          country: false,
-        }));
-      }
+      const userFullAddress = `${form.address}, ${form.city}, ${form.country}`;
+      const storeCoords = await getLatLngFromAddress(siteSettings.address);
+      const userCoords = await getLatLngFromAddress(userFullAddress);
+      if (!storeCoords || !userCoords) return 0;
+      return haversineDistance(storeCoords, userCoords);
     } catch {
-      Alert.alert('Error', 'Failed to fetch location.');
-    } finally {
-      setLoading(false);
+      return 0;
     }
   };
 
@@ -136,132 +99,163 @@ const CheckoutScreen: React.FC = () => {
     const auth = ensureAuth();
     if (!auth) return;
 
-    const loadData = async () => {
+    const load = async () => {
       try {
-        const profile = await fetchUserProfile(auth.user.user_id);
-        const rewardRes = await fetchRewards(auth.user.user_id);
+        const [profile, rewards, settings] = await Promise.all([
+          fetchUserProfile(auth.user.user_id),
+          fetchRewards(auth.user.user_id),
+          fetchSiteSettings(),
+        ]);
 
+        setSiteSettings(settings);
         setForm({
-          first_name: profile.first_name || '',
-          last_name: profile.last_name || '',
-          email: profile.email || '',
-          phone_number: profile.profile?.phone_number || '',
-          address: profile.profile?.address || '',
-          city: profile.profile?.city || '',
-          postal_code: profile.profile?.postal_code || '',
-          country: profile.profile?.country || '',
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          email: profile.email,
+          phone_number: profile.profile.phone_number || '',
+          address: profile.profile.address || '',
+          city: profile.profile.city || '',
+          postal_code: profile.profile.postal_code || '',
+          country: profile.profile.country || '',
         });
 
-        const balance = parseFloat(rewardRes.reward_balance || '0');
+        const balance = parseFloat(rewards.reward_balance || '0');
         setRewardBalance(balance);
 
-        if (totalPrice >= 1000 && balance > 0) {
-          const applied = Math.min(balance, totalPrice);
+        const subtotal = calculateSubtotal();
+        if (subtotal >= 1000 && balance > 0) {
+          const applied = Math.min(balance, subtotal);
           setRewardApplied(applied);
-
-          Animated.timing(rewardAlertAnim, {
-            toValue: 1,
-            duration: 400,
-            easing: Easing.out(Easing.ease),
-            useNativeDriver: true,
-          }).start();
         }
       } catch {
-        Alert.alert('Error', 'Failed to load profile or rewards.');
+        Alert.alert('Error', 'Failed to load profile or site settings');
       }
     };
 
-    loadData();
+    load();
   }, []);
 
-  const initiatePayment = async () => {
-    const auth = ensureAuth();
-    if (!auth) return;
+  useEffect(() => {
+    // ✅ FIX: Only navigate if orderId is a number
+    if (showSuccess && orderId !== null) {
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        friction: 5,
+      }).start(() => {
+        setTimeout(() => {
+          navigation.navigate('SuccessScreen', { order_id: orderId });
+        }, 1500);
+      });
+    }
+  }, [showSuccess]);
 
+  const calculateSubtotal = () => {
+    return cartItems.reduce(
+      (sum, item) => sum + item.quantity * parseFloat(String(item.price)),
+      0
+    );
+  };
+
+  const calculateVAT = (amount: number) => {
+    return siteSettings ? parseFloat(((amount * siteSettings.vat_percentage) / 100).toFixed(2)) : 0;
+  };
+
+  const calculateDeliveryFee = async () => {
+    if (orderType === 'collection' || !siteSettings) return 0;
+    const distanceKm = await getDistanceKm();
+    const estimatedWeight = cartItems.length >= 10 ? 5 : 2;
+    const fee = distanceKm * siteSettings.delivery_fee + (estimatedWeight >= 5 ? 50 : 30);
+    return parseFloat(fee.toFixed(2));
+  };
+
+  const validateForm = (): boolean => {
+    if (orderType === 'collection') return true;
+    const requiredFields: (keyof FormFields)[] = [
+      'first_name', 'last_name', 'email', 'phone_number',
+      'address', 'city', 'postal_code', 'country',
+    ];
+    for (const field of requiredFields) {
+      if (!form[field] || form[field].trim() === '') {
+        Alert.alert('Missing Field', `Please enter your ${field.replace('_', ' ')}.`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const initiatePayment = async () => {
+    if (!validateForm()) return;
+    setConfirmVisible(true);
+  };
+
+  const confirmPayment = async () => {
+    const auth = ensureAuth();
+    if (!auth || !siteSettings) return;
+    setConfirmVisible(false);
     setLoading(true);
     try {
-      const payload = {
-        user_id: auth.user.user_id,
-        total_price: finalPrice,
-        reward_applied: rewardApplied,
-        address: form.address,
-        city: form.city,
-        postal_code: form.postal_code,
-        country: form.country,
-        payment_method: 'payfast',
-        status: 'pending',
-        items: cartItems.map(item => ({
-          id: item.id,
-          quantity: item.quantity,
-          is_bulk: item.isBulk || false,
-        })),
-      };
+      const subtotal = calculateSubtotal();
+      const vat = calculateVAT(subtotal);
+      const delivery = await calculateDeliveryFee();
+      const final = subtotal + vat + delivery - rewardApplied;
 
-      const hasDesignUpload = brandLogo || customDesign;
-      let dataToSend = payload;
+      const formData = new FormData();
+      formData.append('user_id', String(auth.user.user_id));
+      formData.append('total_price', String(final));
+      formData.append('reward_applied', String(rewardApplied));
+      formData.append('address', form.address);
+      formData.append('city', form.city);
+      formData.append('postal_code', form.postal_code);
+      formData.append('country', form.country);
+      formData.append('payment_method', 'payfast');
+      formData.append('status', 'pending');
+      formData.append('order_type', orderType);
+      formData.append('vat_amount', String(vat));
+      formData.append('delivery_fee', String(delivery));
+      formData.append(
+        'items',
+        JSON.stringify(
+          cartItems.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+            is_bulk: item.isBulk || false,
+          }))
+        )
+      );
 
-      if (hasDesignUpload) {
-        const formData = new FormData();
-        for (const key in payload) {
-          if (key === 'items') {
-            formData.append('items', JSON.stringify(payload.items));
-          } else {
-            formData.append(key, String((payload as any)[key]));
-          }
-        }
-
-        if (brandLogo) {
-          formData.append('brand_logo', {
-            uri: brandLogo,
-            name: 'brand_logo.png',
-            type: 'image/png',
-          } as any);
-          formData.append('brand_logo_qty', String(brandLogoQty));
-        }
-
-        if (customDesign) {
-          formData.append('custom_design', {
-            uri: customDesign,
-            name: 'custom_design.jpg',
-            type: 'image/jpeg',
-          } as any);
-          formData.append('custom_design_qty', String(customDesignQty));
-        }
-
-        dataToSend = formData;
+      if (design.brandLogo) {
+        formData.append('brand_logo', {
+          uri: design.brandLogo,
+          name: 'brand_logo.png',
+          type: 'image/png',
+        } as any);
+        formData.append('brand_logo_qty', String(design.brandLogoQty || 1));
       }
 
-      const res = await checkoutOrder(dataToSend);
+      if (design.customDesign) {
+        formData.append('custom_design', {
+          uri: design.customDesign,
+          name: 'custom_design.png',
+          type: 'image/png',
+        } as any);
+        formData.append('custom_design_qty', String(design.customDesignQty || 1));
+      }
+
+      const res = await checkoutOrder(formData);
       setOrderId(res.order_id);
       setPayFastVisible(true);
-    } catch (err: any) {
-      const error = err?.response?.data;
-      if (error?.product_id && error?.product_name) {
-        Alert.alert(
-          'Insufficient Stock',
-          `🚫 Sorry, ${error.product_name} is out of stock and needs to be removed from your cart.`,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                dispatch(removeFromBasket({ id: error.product_id, selectedSize: '', isBulk: false }));
-                navigation.navigate('Cart');
-              },
-            },
-          ]
-        );
-      } else {
-        Alert.alert('Error', error?.error || 'Checkout failed.');
-      }
+    } catch (err: unknown) {
+      // ✅ FIX: Safe casting for unknown errors
+      const error = err as { response?: { data?: { error?: string } } };
+      Alert.alert('Error', error?.response?.data?.error || 'Checkout failed');
     } finally {
       setLoading(false);
     }
   };
 
   const handlePaymentClose = async (reference?: string) => {
-    const auth = ensureAuth();
-    if (!auth || !orderId || !reference) return;
-
+    if (!orderId || !reference || !user) return;
     try {
       await fetch(`${API_BASE_URL}/order/orders/${orderId}/update-status/`, {
         method: 'PATCH',
@@ -269,103 +263,97 @@ const CheckoutScreen: React.FC = () => {
         body: JSON.stringify({ status: 'Processing' }),
       });
 
-      await updateUserProfile(auth.user.user_id, {
-        name: `${form.first_name} ${form.last_name}`,
-        ...form,
-      });
+      const fullName = `${form.first_name} ${form.last_name}`.trim();
+      await updateUserProfile(user.user_id, { name: fullName, ...form });
 
       dispatch(clearCart());
       dispatch(clearDesign());
       setPayFastVisible(false);
-      navigation.navigate('SuccessScreen', { order_id: orderId });
+      setShowSuccess(true);
     } catch {
       Alert.alert('Error', 'Failed to finalize payment.');
     }
   };
 
+  const autofillFromCurrentLocation = async () => {
+    setLocationLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location access is required.');
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const geocode = await Location.reverseGeocodeAsync(location.coords);
+      const first = geocode[0];
+      if (first) {
+        setForm((prev) => ({
+          ...prev,
+          address: `${first.streetNumber || first.name || ''} ${first.street || ''}`.trim(),
+          city: first.city || '',
+          postal_code: first.postalCode || '',
+          country: first.country || '',
+        }));
+      }
+    } catch {
+      Alert.alert('Error', 'Failed to get your location.');
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
   return (
-    <ScrollView style={tw`flex-1 bg-white p-4`}>
-      <Text style={tw`text-2xl font-bold text-center mb-4`}>Checkout 🛒</Text>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={tw`flex-1`}>
+      <ScrollView contentContainerStyle={tw`p-4 pb-28`}>
+        <Text style={tw`text-2xl font-bold text-center mb-4`}>Checkout 🛒</Text>
 
-      {(Object.keys(form) as (keyof FormFields)[]).map((field) => (
-        <TextInput
-          key={field}
-          placeholder={field.replace('_', ' ').toUpperCase()}
-          value={form[field]}
-          editable={editableFields[field]}
-          onChangeText={(text) => handleChange(field, text)}
-          style={[
-            tw`border p-3 rounded-lg mb-3 text-base`,
-            editableFields[field] ? tw`bg-white` : tw`bg-gray-200`,
-          ]}
-        />
-      ))}
+        <DeliverySelector selected={orderType} onChange={setOrderType} />
 
-      {rewardApplied > 0 && (
-        <Animated.View
-          style={[
-            tw`bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded-lg mt-4`,
-            {
-              opacity: rewardAlertAnim,
-              transform: [
-                {
-                  translateY: rewardAlertAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-10, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <View style={tw`flex-row justify-between items-start`}>
-            <View style={tw`flex-1`}>
-              <Text style={tw`text-yellow-800 font-semibold`}>
-                🎉 R{rewardApplied.toFixed(2)} from your reward balance has been applied!
-              </Text>
-              <Text style={tw`text-yellow-700 mt-1`}>
-                You're paying R{finalPrice.toFixed(2)} after reward deduction.
-              </Text>
-              <Text style={tw`text-yellow-700 mt-1 text-sm`}>
-                Remaining Reward Balance: R{(rewardBalance - rewardApplied).toFixed(2)}
-              </Text>
-            </View>
-            <InfoTooltip text="Rewards only apply to orders of R1000 or more." />
+        {orderType === 'delivery' ? (
+          <CheckoutForm
+            form={form}
+            setForm={(fields) => setForm((prev) => ({ ...prev, ...fields }))}
+            editableFields={{
+              first_name: true,
+              last_name: true,
+              email: true,
+              phone_number: true,
+              address: true,
+              city: true,
+              postal_code: true,
+              country: true,
+            }}
+            onUseCurrentLocation={autofillFromCurrentLocation}
+          />
+        ) : (
+          <View style={tw`bg-yellow-100 p-4 rounded-lg my-4`}>
+            <Text style={tw`text-yellow-800 font-semibold`}>
+              🏬 You&apos;ll collect this order from our store. No need to enter shipping info.
+            </Text>
           </View>
-        </Animated.View>
-      )}
-
-      <View style={tw`bg-gray-50 p-4 rounded-lg mt-4`}>
-        <Text style={tw`text-base`}>🛍️ Products: R{productTotal.toFixed(2)}</Text>
-        {brandLogo && (
-          <Text style={tw`text-base`}>🎨 Brand Logo: R{BRAND_LOGO_PRICE} × {brandLogoQty} = R{(BRAND_LOGO_PRICE * brandLogoQty).toFixed(2)}</Text>
         )}
-        {customDesign && (
-          <Text style={tw`text-base`}>🧵 Custom Design: R{CUSTOM_DESIGN_PRICE} × {customDesignQty} = R{(CUSTOM_DESIGN_PRICE * customDesignQty).toFixed(2)}</Text>
-        )}
-        {rewardApplied > 0 && (
-          <Text style={tw`text-green-700 mt-2`}>
-            🎁 Reward Discount: -R{rewardApplied.toFixed(2)}
-          </Text>
-        )}
-        <View style={tw`mt-2 border-t border-gray-300 pt-2`}>
-          <Text style={tw`text-lg font-bold`}>
-            Final Total: R{finalPrice.toFixed(2)}
-          </Text>
-        </View>
-      </View>
 
-      <TouchableOpacity onPress={useCurrentLocation} style={tw`bg-blue-600 py-3 mt-4 rounded-lg`}>
-        {loading
-          ? <ActivityIndicator color="#fff" />
-          : <Text style={tw`text-white text-center font-bold`}>📍 Use Current Location</Text>}
-      </TouchableOpacity>
+        <CheckoutSummary
+          cartItems={cartItems}
+          rewardApplied={rewardApplied}
+          rewardBalance={rewardBalance}
+          siteSettings={siteSettings}
+          orderType={orderType}
+        />
 
-      <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 py-3 mt-3 rounded-lg`}>
-        <Text style={tw`text-white text-center font-bold`}>
-          💳 Pay R{finalPrice.toFixed(2)}
-        </Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 mt-6 p-4 rounded-lg`}>
+          {loading || locationLoading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={tw`text-white text-center font-bold text-lg`}>
+              💳 Pay Now
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <InfoTooltip text="Rewards apply to orders of R1000+. Delivery fee is distance-based." />
+      </ScrollView>
 
       {payFastVisible && orderId && (
         <PayFast
@@ -379,15 +367,47 @@ const CheckoutScreen: React.FC = () => {
             customerEmailAddress: form.email,
             customerPhoneNumber: form.phone_number,
             reference: `ORDER_${orderId}`,
-            amount: finalPrice,
-            itemName: itemNames,
+            amount:
+              calculateSubtotal() +
+              calculateVAT(calculateSubtotal()) -
+              rewardApplied,
+            itemName: cartItems.map(item => `${item.quantity}x ${item.name}`).join(', '),
             itemDescription: 'Checkout Payment',
           }}
           isVisible={payFastVisible}
           onClose={handlePaymentClose}
         />
       )}
-    </ScrollView>
+
+      <Modal visible={confirmVisible} animationType="slide" transparent>
+        <View style={tw`flex-1 justify-end bg-black bg-opacity-30`}>
+          <View style={tw`bg-white p-6 rounded-t-3xl`}>
+            <Text style={tw`text-lg font-bold mb-2`}>Confirm Your Order</Text>
+            <Text>Total: R{(calculateSubtotal() + calculateVAT(calculateSubtotal()) - rewardApplied).toFixed(2)}</Text>
+            <View style={tw`mt-4 flex-row justify-between`}>
+              <TouchableOpacity onPress={() => setConfirmVisible(false)} style={tw`bg-gray-300 px-4 py-2 rounded-lg`}>
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={confirmPayment} style={tw`bg-green-600 px-4 py-2 rounded-lg`}>
+                <Text style={tw`text-white`}>Proceed</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {showSuccess && (
+        <Animated.View
+          style={[
+            tw`absolute inset-0 bg-white items-center justify-center`,
+            { transform: [{ scale: scaleAnim }] },
+          ]}
+        >
+          <Text style={tw`text-5xl text-green-600 mb-4`}>✅</Text>
+          <Text style={tw`text-lg font-bold`}>Payment Successful!</Text>
+        </Animated.View>
+      )}
+    </KeyboardAvoidingView>
   );
 };
 

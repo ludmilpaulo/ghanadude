@@ -12,31 +12,10 @@ export interface Product {
   images: ProductImage[];
 }
 
-export interface Order {
-  id: number;
-  created_at: string;
-  status: string;
-  total_price: number;
-  type: 'regular' | 'bulk';
-  items: OrderItem[];
-  coupon_code?: string;
-  reward_points_earned?: number;
-  bulk_file?: string;
-  invoice?: string;
-  is_bulk?: boolean; // optional since you use `type`
-}
-export interface Order {
-  id: number;
-  created_at: string;
-  status: string;
-  total_price: number;
-  type: 'regular' | 'bulk';
-  items: OrderItem[];
-  coupon_code?: string;
-  reward_points_earned?: number;
-  bulk_file?: string;
-  invoice?: string;
-}
+
+
+
+
 
 export interface OrderItem {
   id: number;
@@ -49,6 +28,22 @@ export interface OrderItem {
   quantity: number;
   price: string;
 }
+
+export interface Order {
+  id: number;
+  created_at: string;
+  status: string;
+  total_price: number;
+  type: 'regular' | 'bulk';
+  items: OrderItem[];
+  reward_applied?: number; // ✅ optional to prevent TS error if missing
+  reward_granted?: boolean;
+  reward_points_earned?: number;
+  coupon_code?: string;
+  bulk_file?: string;
+  invoice?: string;
+}
+
 
 export interface PaginatedOrderResponse {
   count: number;

@@ -1,19 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, Alert, Linking,
-  ActivityIndicator, RefreshControl, TextInput, Image, Modal, Pressable
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Linking,
+  ActivityIndicator,
+  RefreshControl,
+  TextInput,
+  Image,
+  Modal,
+  Pressable,
 } from 'react-native';
 import tw from 'twrnc';
+import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
 import { API_BASE_URL } from '../services/AuthService';
 import { selectUser, selectToken } from '../redux/slices/authSlice';
 import { fetchUserOrders, Order, OrderItem } from '../services/OrderService';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
-import axios from 'axios';
-import ReviewForm from '../components/ReviewForm'; // ✅ Create this component for submitting reviews
-import { AntDesign } from '@expo/vector-icons';
+import ReviewForm from '../components/ReviewForm';
 
 const statusOptions = ['Pending', 'Processing', 'Completed', 'Cancelled'];
 
@@ -207,13 +217,13 @@ const OrderHistory: React.FC = () => {
                     Date: {new Date(order.created_at).toLocaleDateString()}
                   </Text>
 
-                  {order.reward_applied > 0 && (
+                  {'reward_applied' in order && order.reward_applied && order.reward_applied > 0 && (
                     <Text style={tw`text-purple-600 font-semibold mb-1`}>
                       🎁 Rewards Used: R{order.reward_applied.toFixed(2)}
                     </Text>
                   )}
 
-                  {order.reward_granted && (
+                  {'reward_granted' in order && order.reward_granted && (
                     <Text style={tw`text-green-700 font-semibold mb-1`}>
                       ⭐ Rewards Earned: R{Math.floor(parseFloat(order.total_price.toString()) * 0.05)}
                     </Text>
@@ -256,7 +266,7 @@ const OrderHistory: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* Order Items Modal */}
+      {/* Items Modal */}
       <Modal visible={itemModalVisible} animationType="slide" transparent>
         <View style={tw`flex-1 bg-white p-6`}>
           <Text style={tw`text-xl font-bold mb-4`}>🧾 Order Items</Text>
@@ -279,13 +289,17 @@ const OrderHistory: React.FC = () => {
       </Modal>
 
       {/* Review Modal */}
-      {reviewProductId && (
-        <ReviewForm
-          productId={reviewProductId}
-          userId={user?.user_id}
-          onClose={() => setReviewProductId(null)}
-        />
-      )}
+      <Modal visible={!!reviewProductId} animationType="slide">
+        <View style={tw`flex-1 bg-white`}>
+          {reviewProductId && user?.user_id && (
+            <ReviewForm
+              productId={reviewProductId}
+              userId={user.user_id}
+              onClose={() => setReviewProductId(null)}
+            />
+          )}
+        </View>
+      </Modal>
     </View>
   );
 };

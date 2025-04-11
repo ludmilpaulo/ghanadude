@@ -15,49 +15,58 @@ def checkout(request):
     print("✅ Received checkout request")
     data = request.data.copy()
     files = request.FILES
-    print(data)
 
-    # 🔍 Validate required fields
-    required_fields = ['address', 'city', 'postal_code', 'country']
-    missing = [field for field in required_fields if not data.get(field)]
+    # 🧾 Check if order_type is 'delivery' or 'collection'
+    order_type = data.get('order_type', 'delivery')
+    print(f"📦 Order type: {order_type}")
+
+    required_fields = [] if order_type == 'collection' else ['address', 'city', 'postal_code', 'country']
+    missing = [f for f in required_fields if not data.get(f)]
     if missing:
+        print(f"❌ Missing fields: {missing}")
         return Response({'error': f'Missing fields: {", ".join(missing)}'}, status=400)
 
-    # 🔐 Validate user
     try:
         user = User.objects.get(pk=data.get('user_id'))
+        print(f"👤 User found: {user.username}")
     except User.DoesNotExist:
+        print("❌ User not found")
         return Response({'error': 'User not found'}, status=404)
 
     total_price = Decimal(data.get('total_price', '0'))
     reward_applied = Decimal(data.get('reward_applied', '0'))
 
-    # 💰 Apply reward
+    # 🏆 Deduct reward if used
     if reward_applied > 0:
         profile = user.profile
+        print(f"💸 Deducting reward: {reward_applied}")
         profile.reward_balance = max(Decimal('0.00'), profile.reward_balance - reward_applied)
         profile.save()
-        print(f"✅ Deducted R{reward_applied} from reward balance.")
 
     # 🧾 Create Order
     order = Order.objects.create(
         user=user,
         total_price=total_price,
         reward_applied=reward_applied,
-        address=data['address'],
-        city=data['city'],
-        postal_code=data['postal_code'],
-        country=data['country'],
+        address=data.get('address', ''),
+        city=data.get('city', ''),
+        postal_code=data.get('postal_code', ''),
+        country=data.get('country', ''),
         payment_method=data.get('payment_method', 'payfast'),
         status=data.get('status', 'pending'),
+        delivery_fee=Decimal(data.get('delivery_fee', '0.00')),
+        vat_amount=Decimal(data.get('vat_amount', '0.00')),
+        order_type=order_type,  # ✅ Save order_type
     )
-    print(f"✅ Created Order {order.id}")
+    print(f"✅ Order created: #{order.id}")
 
-    # 🛍️ Process products
+    # 🛒 Process items
     try:
         items = json.loads(data.get('items', '[]'))
-    except Exception as e:
-        return Response({'error': 'Invalid items format'}, status=400)
+        print(f"🧾 Items received: {len(items)}")
+    except json.JSONDecodeError:
+        print("❌ Invalid items JSON")
+        return Response({'error': 'Invalid items JSON format'}, status=400)
 
     for item in items:
         try:
@@ -65,61 +74,71 @@ def checkout(request):
             product.reduce_stock(item['quantity'])
 
             if item.get('is_bulk'):
+                print(f"📦 Creating BulkOrder for {product.name} x{item['quantity']}")
                 BulkOrder.objects.create(
                     user=user,
                     product=product,
                     quantity=item['quantity'],
-                    brand_logo=None,
-                    custom_design=None,
-                    status='Pending'
+                    status='Pending',
+                    delivery_fee=Decimal(data.get('delivery_fee', '0.00')),
+                    vat_amount=Decimal(data.get('vat_amount', '0.00')),
+                    order_type=order_type
                 )
             else:
+                print(f"🛍️ Creating OrderItem for {product.name} x{item['quantity']}")
                 OrderItem.objects.create(
                     order=order,
                     product=product,
                     quantity=item['quantity'],
-                    price=product.price
+                    price=product.price,
                 )
         except Product.DoesNotExist:
+            print(f"❌ Product not found: {item['id']}")
             return Response({'error': f"Product ID {item['id']} not found"}, status=404)
         except ValueError as e:
+            print(f"❌ Error with product {item['id']}: {str(e)}")
             return Response({
                 'error': str(e),
                 'product_id': item['id'],
                 'product_name': product.name,
             }, status=400)
 
-    # 🎨 Process brand logo + custom design if uploaded
+    # 🖼️ Handle brand logo and custom design uploads
     brand_logo = files.get('brand_logo')
     custom_design = files.get('custom_design')
-
     brand_logo_qty = int(data.get('brand_logo_qty', 0))
     custom_design_qty = int(data.get('custom_design_qty', 0))
 
     if brand_logo and brand_logo_qty > 0:
+        print(f"🎨 Brand logo uploaded x{brand_logo_qty}")
         BulkOrder.objects.create(
             user=user,
-            product=Product.objects.filter(bulk_sale=True).first(),  # you can customize this fallback logic
+            product=None,
             quantity=brand_logo_qty,
             brand_logo=brand_logo,
-            custom_design=None,
-            status='Pending'
+            status='Pending',
+            delivery_fee=Decimal(data.get('delivery_fee', '0.00')),
+            order_type=order_type,
+            vat_amount=Decimal(data.get('vat_amount', '0.00'))
         )
-        print(f"✅ Created BulkOrder with brand logo and quantity {brand_logo_qty}")
 
     if custom_design and custom_design_qty > 0:
+        print(f"🧵 Custom design uploaded x{custom_design_qty}")
         BulkOrder.objects.create(
             user=user,
-            product=Product.objects.filter(bulk_sale=True).first(),  # customize this as needed
+            product=None,
             quantity=custom_design_qty,
-            brand_logo=None,
             custom_design=custom_design,
-            status='Pending'
+            status='Pending',
+            delivery_fee=Decimal(data.get('delivery_fee', '0.00')),
+            order_type=order_type,
+            vat_amount=Decimal(data.get('vat_amount', '0.00'))
         )
-        print(f"✅ Created BulkOrder with custom design and quantity {custom_design_qty}")
 
     print("✅ Checkout complete")
     return Response({'order_id': order.id}, status=201)
+
+
 
 
 

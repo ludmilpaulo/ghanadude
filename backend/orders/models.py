@@ -6,6 +6,10 @@ from product.models import Designer, Product
 from dirtyfields import DirtyFieldsMixin
 
 class Order(DirtyFieldsMixin, models.Model):
+    ORDER_TYPE_CHOICES = [
+        ('delivery', 'Delivery'),
+        ('collection', 'Collect from Store'),
+    ]
     PAYMENT_METHOD_CHOICES = [
         ('card', 'Credit Card'),
         ('delivery', 'On Delivery'),
@@ -29,11 +33,18 @@ class Order(DirtyFieldsMixin, models.Model):
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    order_type = models.CharField(
+        max_length=20,
+        choices=ORDER_TYPE_CHOICES,
+        default='delivery'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     reward_applied = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     reward_granted = models.BooleanField(default=False)
     products = models.ManyToManyField(Product, through='OrderItem', related_name='orders')
+    delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     invoice = models.FileField(upload_to='invoices/', blank=True, null=True)
 
     def __str__(self):
@@ -61,6 +72,10 @@ class OrderItem(models.Model):
 
 
 class BulkOrder(models.Model):
+    ORDER_TYPE_CHOICES = [
+        ('delivery', 'Delivery'),
+        ('collection', 'Collect from Store'),
+    ]
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Processing', 'Processing'),
@@ -74,6 +89,13 @@ class BulkOrder(models.Model):
     brand_logo = models.ImageField(upload_to='bulk_order_logos/', null=True, blank=True)
     custom_design = models.ImageField(upload_to='bulk_order_designs/', null=True, blank=True)
     designer = models.ForeignKey(Designer, related_name='bulk_orders', null=True, blank=True, on_delete=models.SET_NULL)
+    delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    order_type = models.CharField(
+        max_length=20,
+        choices=ORDER_TYPE_CHOICES,
+        default='delivery'
+    )
+    vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
