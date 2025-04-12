@@ -6,11 +6,14 @@ from .models import Wishlist
 from product.models import Product
 from .serializers import WishlistSerializer
 
+
 @api_view(["GET"])
 def wishlist_count(request):
     user_id = request.query_params.get("user_id")
     if not user_id:
-        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(id=user_id)
@@ -24,7 +27,9 @@ def wishlist_count(request):
 def get_wishlist(request):
     user_id = request.query_params.get("user_id")
     if not user_id:
-        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(id=user_id)
@@ -34,32 +39,47 @@ def get_wishlist(request):
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 @api_view(["POST"])
 def add_to_wishlist(request):
     user_id = request.data.get("user_id")
     product_id = request.data.get("product_id")
 
     if not user_id or not product_id:
-        return Response({"error": "User ID and Product ID are required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "User ID and Product ID are required"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     try:
         user = User.objects.get(id=user_id)
         product = Product.objects.get(id=product_id)
-        wishlist_item, created = Wishlist.objects.get_or_create(user=user, product=product)
+        wishlist_item, created = Wishlist.objects.get_or_create(
+            user=user, product=product
+        )
 
         if created:
-            return Response({"message": "Added to wishlist"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Added to wishlist"}, status=status.HTTP_201_CREATED
+            )
         else:
-            return Response({"message": "Already in wishlist"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Already in wishlist"}, status=status.HTTP_200_OK
+            )
     except (User.DoesNotExist, Product.DoesNotExist):
-        return Response({"error": "User or Product not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "User or Product not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
 
 @api_view(["DELETE"])
 def remove_from_wishlist(request, product_id):
     user_id = request.query_params.get("user_id")
 
     if not user_id:
-        return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(id=user_id)
@@ -67,4 +87,7 @@ def remove_from_wishlist(request, product_id):
         wishlist_item.delete()
         return Response({"message": "Removed from wishlist"}, status=status.HTTP_200_OK)
     except (User.DoesNotExist, Wishlist.DoesNotExist):
-        return Response({"error": "User or Wishlist item not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "User or Wishlist item not found"},
+            status=status.HTTP_404_NOT_FOUND,
+        )

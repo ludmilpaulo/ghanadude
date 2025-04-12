@@ -57,7 +57,12 @@ const MainTabNavigator = () => {
         }}
         tabBar={(props) => (
           <View>
-            <LinearGradient colors={["#FCD34D", "#3B82F6"]} style={{ height: 75 }}>
+            <LinearGradient
+            colors={["#e60000", "#ffcc00", "#008000"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ height: 75 }}
+          >
               <BottomTabBar {...props} />
             </LinearGradient>
           </View>

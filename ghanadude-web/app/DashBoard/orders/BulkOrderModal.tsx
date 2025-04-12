@@ -43,6 +43,10 @@ const BulkOrderModal: React.FC<Props> = ({ order, onClose }) => {
                 <p><strong>Quantity:</strong> {order.quantity}</p>
                 <p><strong>Status:</strong> {order.status}</p>
                 <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
+                <p><strong>Shipping Address:</strong> {order.address}, {order.city}, {order.postal_code}, {order.country}</p>
+                <p><strong>PIN Code:</strong> {order.pin_code || 'N/A'}</p>
+                <p><strong>Dispatched:</strong> {order.is_dispatched ? 'Yes' : 'No'}</p>
+
 
                 <div className="flex gap-4 mt-4">
                   {order.brand_logo_url && (

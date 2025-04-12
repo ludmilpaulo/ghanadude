@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+from django.urls import reverse
 import os
 from django.conf import settings
 from django.db.models.signals import post_save, pre_save
@@ -9,7 +9,9 @@ from django.core.mail import send_mail
 from django.utils import timezone  # ✅ this is the correct timezone module
 from decimal import Decimal
 
-from revenue.models import Coupon
+from django.template.loader import render_to_string
+from django.templatetags.static import static
+
 from orders.pdf import generate_order_pdf
 from .models import Order
 from .utils import send_order_email
@@ -21,53 +23,61 @@ def track_order_status_change(sender, instance, **kwargs):
         previous = Order.objects.get(pk=instance.pk)
         instance._previous_status = previous.status
         instance._status_changed_to_completed = (
-            previous.status != 'Completed' and instance.status == 'Completed'
+            previous.status != "Completed" and instance.status == "Completed"
         )
     else:
         # It's a new order
-        instance._status_changed_to_completed = instance.status == 'Completed'
+        instance._status_changed_to_completed = instance.status == "Completed"
 
 
 @receiver(post_save, sender=Order)
 def order_status_changed(sender, instance, **kwargs):
-    if hasattr(instance, '_previous_status') and instance._previous_status != instance.status:
-        message = f"""
-        <html>
-        <body>
-            <p>Dear {instance.user.username},</p>
-            <p>We would like to inform you that the status of your order (Order ID: <strong>{instance.id}</strong>) has been updated to <strong>{instance.status}</strong>.</p>
-            <p><strong>Order Details:</strong></p>
-            <ul>
-                <li>Total Price: <strong>R{instance.total_price}</strong></li>
-                <li>Current Status: <strong>{instance.status}</strong></li>
-            </ul>
-            <p>If you have any questions or need further assistance, please do not hesitate to contact us.</p>
-            <p>Thank you for shopping with us.</p>
-            <p>Best regards,</p>
-            <p><strong>Ghana Dude </strong></p>
-            <p>{datetime.now().year}</p>
-        </body>
-        </html>
-        """
+    if (
+        hasattr(instance, "_previous_status")
+        and instance._previous_status != instance.status
+    ):
+        logo_url = static("logo.png")
+        order_url = (
+            f"https://yourdomain.com{reverse('order-detail', args=[instance.id])}"
+        )
+
+        html_message = render_to_string(
+            "emails/order_status_update.html",
+            {
+                "username": instance.user.username,
+                "order_id": instance.id,
+                "total_price": instance.total_price,
+                "status": instance.status,
+                "year": datetime.now().year,
+                "logo_url": logo_url,
+                "order_url": order_url,
+            },
+        )
 
         send_order_email(
-            subject='Order Status Update',
-            message=message,
-            recipient_list=[instance.user.email]
+            subject="Order Status Update",
+            message="",
+            recipient_list=[instance.user.email],
+            html_message=html_message,
         )
+
 
 @receiver(post_save, sender=Order)
 def update_order_invoice(sender, instance, **kwargs):
-    if hasattr(instance, '_previous_status') and instance._previous_status != instance.status:
+    if (
+        hasattr(instance, "_previous_status")
+        and instance._previous_status != instance.status
+    ):
         pdf_content = generate_order_pdf(instance)  # Call without request
         if pdf_content:
-            pdf_path = f'invoices/order_{instance.id}.pdf'
+            pdf_path = f"invoices/order_{instance.id}.pdf"
             instance.invoice.save(pdf_path, ContentFile(pdf_content), save=False)
-            instance.save(update_fields=['invoice'])
-            
+            instance.save(update_fields=["invoice"])
+
+
 @receiver(post_save, sender=Order)
 def accumulate_cashback(sender, instance, **kwargs):
-    if instance.status == 'Completed' and not instance.reward_granted:
+    if instance.status == "Completed" and not instance.reward_granted:
         profile = instance.user.profile
         reward_amount = Decimal((instance.total_price // 100) * 5)
 
@@ -78,17 +88,24 @@ def accumulate_cashback(sender, instance, **kwargs):
             instance.reward_granted = True
             instance.save(update_fields=["reward_granted"])
 
-            send_mail(
-                subject=f"🎉 You've earned R{reward_amount:.2f} in cashback!",
-                message=(
-                    f"Thanks for your order of R{instance.total_price:.2f}!\n"
-                    f"You’ve earned R{reward_amount:.2f} in rewards.\n"
-                    f"Your current reward balance is R{profile.reward_balance:.2f}."
-                ),
-                from_email=f"support@{settings.EMAIL_HOST}",
-                recipient_list=[instance.user.email],
-                fail_silently=True,
+            logo_url = static("logo.png")
+            html_message = render_to_string(
+                "emails/cashback_reward.html",
+                {
+                    "username": instance.user.username,
+                    "total_price": f"{instance.total_price:.2f}",
+                    "reward_amount": f"{reward_amount:.2f}",
+                    "reward_balance": f"{profile.reward_balance:.2f}",
+                    "year": datetime.now().year,
+                    "logo_url": logo_url,
+                },
             )
 
-
-
+            send_mail(
+                subject=f"🎉 You've earned R{reward_amount:.2f} in cashback!",
+                message="",  # Fallback plain text if needed
+                from_email=f"support@{settings.EMAIL_HOST}",
+                recipient_list=[instance.user.email],
+                html_message=html_message,
+                fail_silently=True,
+            )

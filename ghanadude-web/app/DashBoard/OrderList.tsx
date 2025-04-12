@@ -5,6 +5,7 @@ import { Transition } from '@headlessui/react';
 import {
   fetchBulkOrders,
   fetchOrders,
+  updateBulkOrderStatus,
   updateOrderStatus,
 } from '@/services/adminService';
 import { Order, BulkOrder } from './orders/types';
@@ -16,7 +17,8 @@ import ExportButtons from './orders/ExportButtons';
 import SearchSortBar from './orders/SearchSortBar';
 
 const OrderList: React.FC = () => {
-  const [orders, setOrders] = useState<(Order | BulkOrder)[]>([]);
+  const [regularOrders, setRegularOrders] = useState<Order[]>([]);
+  const [bulkOrders, setBulkOrders] = useState<BulkOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<string | null>(null);
   const [viewingOrder, setViewingOrder] = useState<Order | BulkOrder | null>(null);
@@ -32,10 +34,14 @@ const OrderList: React.FC = () => {
     const loadOrders = async () => {
       setLoading(true);
       try {
-        const data =
-          activeTab === 'bulk' ? await fetchBulkOrders() : await fetchOrders();
-        console.log(`✅ ${activeTab} orders fetched:`, data);
-        setOrders(data);
+        if (activeTab === 'regular') {
+          const data = await fetchOrders();
+          setRegularOrders(data);
+        } else {
+          const data = await fetchBulkOrders();
+          console.log("bulk order", data)
+          setBulkOrders(data);
+        }
       } catch (err) {
         console.error(`❌ Failed to fetch ${activeTab} orders:`, err);
         setAlert(`Failed to load ${activeTab} orders.`);
@@ -48,18 +54,33 @@ const OrderList: React.FC = () => {
   }, [activeTab]);
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
+    const isRegular = activeTab === 'regular';
+    const orders = isRegular ? regularOrders : bulkOrders;
     const target = orders.find((o) => o.id === orderId);
+  
     if (!target || ['Completed', 'Cancelled'].includes(target.status)) {
       setAlert('Cannot update status. Order already completed or cancelled.');
       return;
     }
-
+  
     try {
       setLoading(true);
-      await updateOrderStatus(orderId, { status: newStatus });
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-      );
+      if (isRegular) {
+        await updateOrderStatus(orderId, { status: newStatus });
+        setRegularOrders((prev: Order[]) =>
+          prev.map((o: Order) =>
+            o.id === orderId ? { ...o, status: newStatus as Order['status'] } : o
+          )
+        );
+      } else {
+        await updateBulkOrderStatus(orderId, { status: newStatus });
+        setBulkOrders((prev: BulkOrder[]) =>
+          prev.map((o: BulkOrder) =>
+            o.id === orderId ? { ...o, status: newStatus as BulkOrder['status'] } : o
+          )
+        );
+      }
+  
       setAlert('✅ Order status updated.');
     } catch {
       setAlert('❌ Failed to update order.');
@@ -67,8 +88,10 @@ const OrderList: React.FC = () => {
       setLoading(false);
     }
   };
+  
+  
 
-  const filtered = orders.filter((order) => {
+  const filtered = (activeTab === 'regular' ? regularOrders : bulkOrders).filter((order) => {
     const isStatusMatch = statusFilter ? order.status === statusFilter : true;
     const isUserMatch = userFilter
       ? order.user.toLowerCase().includes(userFilter.toLowerCase())
@@ -120,14 +143,13 @@ const OrderList: React.FC = () => {
         setDateFilter={setDateFilter}
       />
 
-      {/* Export Buttons only for regular orders */}
       {activeTab === 'regular' && (
         <div className="flex justify-end gap-4 mb-4">
-          <ExportButtons orders={orders as Order[]} printRef={printRef} />
+          <ExportButtons orders={regularOrders} printRef={printRef} />
         </div>
       )}
 
-      {/* Orders Table */}
+      {/* Table */}
       <div ref={printRef}>
         {activeTab === 'regular' ? (
           <OrderTable

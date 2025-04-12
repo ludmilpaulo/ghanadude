@@ -5,10 +5,11 @@ from django.db.models import FileField, ImageField
 from django.core.files.storage import default_storage
 from .ftp_upload import upload_file_to_cpanel
 
+
 @receiver(post_save)
 def sync_media_files_on_save(sender, instance, **kwargs):
     print("📦 Signal received for:", sender.__name__)
-    
+
     env = os.environ.get("DJANGO_ENV")
     print("⚙️ DJANGO_ENV =", env)
 
@@ -16,7 +17,7 @@ def sync_media_files_on_save(sender, instance, **kwargs):
         print("⛔ Not production, skipping upload.")
         return
 
-    if not hasattr(instance, '_meta') or sender.__module__.startswith("django."):
+    if not hasattr(instance, "_meta") or sender.__module__.startswith("django."):
         print("🛑 Skipping internal Django model:", sender)
         return
 
@@ -32,6 +33,8 @@ def sync_media_files_on_save(sender, instance, **kwargs):
                     upload_file_to_cpanel(local_path, remote_path)
                 except Exception as e:
                     print(f"❌ Upload failed for {field.name}: {e}")
-                    print(f"📎 Tried path: {getattr(file, 'path', 'unknown')} → {getattr(file, 'name', 'unknown')}")
+                    print(
+                        f"📎 Tried path: {getattr(file, 'path', 'unknown')} → {getattr(file, 'name', 'unknown')}"
+                    )
             else:
                 print(f"⚠️ FileField {field.name} is empty.")

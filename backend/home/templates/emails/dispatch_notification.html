@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;">
+    <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #10b981; padding: 20px; color: white;">
+        <h2 style="margin: 0;">🚚 Order Dispatched</h2>
+      </div>
+      <div style="padding: 20px;">
+        <p>Hi {{ user.username }},</p>
+        <p>Your order has been dispatched and will be delivered today to:</p>
+        <p><strong>{{ address }}</strong></p>
+
+        <p>🕒 Please be available to receive it. To verify delivery, you will need to provide the following PIN code:</p>
+
+        <h2 style="text-align: center; color: #10b981; font-size: 32px;">{{ pin_code }}</h2>
+
+        <p>Keep this PIN confidential and only share it with our delivery agent.</p>
+
+        <p>Thank you for shopping with us!</p>
+        <p style="margin-top: 20px;">Best regards,<br />The Ghana Dude Team</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -11,17 +11,14 @@ from django.contrib.auth.models import User
 from dateutil.parser import parse as parse_datetime
 
 
-
-
-
-@api_view(['GET'])
+@api_view(["GET"])
 def top_products_by_month(request):
     try:
         # Step 1: Get and log incoming query params
-        start = request.query_params.get('start')
-        end = request.query_params.get('end')
-        status_filter = request.query_params.get('status')
-        category = request.query_params.get('category')
+        start = request.query_params.get("start")
+        end = request.query_params.get("end")
+        status_filter = request.query_params.get("status")
+        category = request.query_params.get("category")
 
         print("🔎 Incoming Params:", start, end, status_filter, category)
 
@@ -34,8 +31,11 @@ def top_products_by_month(request):
         print("📅 Parsed Dates:", start_date, end_date)
 
         # Step 3: Fetch and filter OrderItems
-        qs = OrderItem.objects.select_related('product', 'order').prefetch_related('product__images') \
+        qs = (
+            OrderItem.objects.select_related("product", "order")
+            .prefetch_related("product__images")
             .filter(order__created_at__range=(start_date, end_date))
+        )
 
         if status_filter and status_filter != "All":
             qs = qs.filter(order__status=status_filter)
@@ -46,39 +46,43 @@ def top_products_by_month(request):
         print("✅ Filtered OrderItems count:", qs.count())
 
         # Step 4: Group by month and accumulate sales
-        monthly_sales = defaultdict(lambda: defaultdict(lambda: {'total': 0, 'product': None}))
+        monthly_sales = defaultdict(
+            lambda: defaultdict(lambda: {"total": 0, "product": None})
+        )
 
         for item in qs:
             created = item.order.created_at
             key = f"{created.strftime('%b')}-{created.year}"  # e.g. "Jan-2024"
             pid = item.product.id
-            monthly_sales[key][pid]['total'] += item.price
-            monthly_sales[key][pid]['product'] = item.product
+            monthly_sales[key][pid]["total"] += item.price
+            monthly_sales[key][pid]["product"] = item.product
 
         # Step 5: Determine top-selling product per month
         result = []
         for month_key, products in monthly_sales.items():
             if not products:
                 continue
-            top = max(products.items(), key=lambda x: x[1]['total'])
-            product_obj = top[1]['product']
+            top = max(products.items(), key=lambda x: x[1]["total"])
+            product_obj = top[1]["product"]
             image_url = None
             if product_obj.images.exists():
                 image = product_obj.images.first()
                 if image and image.image:
                     image_url = request.build_absolute_uri(image.image.url)
 
-            result.append({
-                "month": month_key,
-                "product_id": product_obj.id,
-                "product_name": product_obj.name,
-                "product_image": image_url,
-                "total_sales": top[1]['total'],
-            })
+            result.append(
+                {
+                    "month": month_key,
+                    "product_id": product_obj.id,
+                    "product_name": product_obj.name,
+                    "product_image": image_url,
+                    "total_sales": top[1]["total"],
+                }
+            )
 
         # Step 6: Sort by month and print result
         def sort_key(item):
-            month_abbr, year = item['month'].split('-')
+            month_abbr, year = item["month"].split("-")
             month_num = list(calendar.month_abbr).index(month_abbr)
             return (int(year), month_num)
 
@@ -89,16 +93,16 @@ def top_products_by_month(request):
 
     except Exception as e:
         print("❌ ERROR in top_products_by_month:", str(e))
-        return Response({'error': str(e)}, status=500)
-
-
+        return Response({"error": str(e)}, status=500)
 
 
 @api_view(["GET"])
 def top_users_by_spending(request):
-    top_users = User.objects.annotate(
-        total_spent=Sum("orders__total_price")
-    ).filter(total_spent__gt=0).order_by("-total_spent")[:10]
+    top_users = (
+        User.objects.annotate(total_spent=Sum("orders__total_price"))
+        .filter(total_spent__gt=0)
+        .order_by("-total_spent")[:10]
+    )
 
     data = [
         {
@@ -126,6 +130,7 @@ def city_sales_by_product(request):
     )
     return Response(stats)
 
+
 @api_view(["GET"])
 def city_products(request):
     city = request.query_params.get("city")
@@ -139,11 +144,14 @@ def city_products(request):
         .order_by("-total_sales")[:5]
     )
 
-    return Response([
-        {
-            "name": item["products__name"],
-            "image": item["products__images__image"],
-            "sales": float(item["total_sales"]),
-        }
-        for item in top_items if item["products__name"]
-    ])
+    return Response(
+        [
+            {
+                "name": item["products__name"],
+                "image": item["products__images__image"],
+                "sales": float(item["total_sales"]),
+            }
+            for item in top_items
+            if item["products__name"]
+        ]
+    )

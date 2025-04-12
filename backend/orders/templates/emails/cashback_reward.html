@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #e60000, #ffcc00, #008000);
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .header img {
+            max-width: 150px;
+        }
+        .content {
+            padding: 30px;
+            color: #333;
+        }
+        .content h2 {
+            color: #e60000;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .highlight {
+            color: #008000;
+            font-weight: bold;
+        }
+        .note-box {
+            background-color: #fffbe6;
+            border-left: 5px solid #ffcc00;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 15px;
+            color: #555;
+        }
+        .footer {
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 15px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ logo_url }}" alt="Ghana Dude Logo">
+        </div>
+        <div class="content">
+            <h2>🎉 You've Earned Cashback!</h2>
+            <p>Hi {{ username }},</p>
+            <p>Thank you for your recent order of <strong>R{{ total_price }}</strong>.</p>
+            <p>You’ve earned <span class="highlight">R{{ reward_amount }}</span> in cashback rewards!</p>
+            <p>Your current reward balance is <span class="highlight">R{{ reward_balance }}</span>.</p>
+
+            <div class="note-box">
+                💡 <strong>Note:</strong> Your cashback will be automatically applied to your next order over <strong>R1000</strong> at checkout — no need to do anything!
+            </div>
+
+            <p>Keep shopping and earning — it's our way of saying thank you!</p>
+            <p>Best regards,<br><strong>Ghana Dude Team</strong></p>
+        </div>
+        <div class="footer">
+            &copy; {{ year }} Ghana Dude. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

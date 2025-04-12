@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #e60000, #ffcc00, #008000);
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        .header img {
+            max-width: 150px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .content p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .content ul {
+            padding-left: 20px;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: #e60000;
+            color: #fff !important;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .social-icons {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .social-icons a {
+            margin: 0 10px;
+            display: inline-block;
+        }
+        .social-icons img {
+            width: 24px;
+            height: 24px;
+        }
+        .footer {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 15px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Mobile Responsive */
+        @media only screen and (max-width: 600px) {
+            .content {
+                padding: 20px;
+            }
+            .button {
+                width: 100%;
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ logo_url }}" alt="Ghana Dude Logo">
+        </div>
+        <div class="content">
+            <p>Dear {{ username }},</p>
+            <p>Your order (Order ID: <strong>{{ order_id }}</strong>) has been updated to <strong>{{ status }}</strong>.</p>
+
+            <p><strong>Order Details:</strong></p>
+            <ul>
+                <li>Total Price: <strong>R{{ total_price }}</strong></li>
+                <li>Current Status: <strong>{{ status }}</strong></li>
+            </ul>
+
+            <a href="{{ order_url }}" class="button">View Your Order</a>
+
+            <p>If you have any questions or need help, feel free to reach out.</p>
+            <p>Thanks for shopping with us!</p>
+
+            <p>Best regards,</p>
+            <p><strong>Ghana Dude</strong></p>
+
+            <div class="social-icons">
+                <a href="https://facebook.com/" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+                </a>
+                <a href="https://twitter.com/" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter">
+                </a>
+                <a href="https://instagram.com/" target="_blank">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+                </a>
+            </div>
+        </div>
+        <div class="footer">
+            &copy; {{ year }} Ghana Dude. All rights reserved.
+        </div>
+    </div>
+</body>
+</html>

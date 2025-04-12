@@ -12,27 +12,39 @@ from .serializers import CouponSerializer
 from orders.models import Order
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def redeem_rewards(request):
-    user_id = request.data.get('user_id')
+    user_id = request.data.get("user_id")
     if not user_id:
-        return Response({'detail': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    completed_orders = Order.objects.filter(user=user, status='Completed')
-    total_points = sum([getattr(order, 'earned_points', 0) for order in completed_orders])
+    completed_orders = Order.objects.filter(user=user, status="Completed")
+    total_points = sum(
+        [getattr(order, "earned_points", 0) for order in completed_orders]
+    )
 
     if total_points < 5:
-        return Response({'detail': 'Not enough points to redeem.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Not enough points to redeem."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     existing = Coupon.objects.filter(user=user, is_redeemed=False).first()
     if existing:
-        return Response({'coupon_code': existing.code, 'detail': 'You already have a coupon to use.'})
+        return Response(
+            {
+                "coupon_code": existing.code,
+                "detail": "You already have a coupon to use.",
+            }
+        )
 
     random_part = get_random_string(6).upper()
     coupon_code = f"REWARD-{random_part}"
@@ -41,62 +53,67 @@ def redeem_rewards(request):
         user=user,
         code=coupon_code,
         value=50.00,
-        expires_at=timezone.now() + timedelta(days=30)
+        expires_at=timezone.now() + timedelta(days=30),
     )
 
-    return Response({'coupon_code': coupon.code, 'value': str(coupon.value)})
+    return Response({"coupon_code": coupon.code, "value": str(coupon.value)})
 
-@api_view(['GET', 'POST'])
+
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def get_user_rewards(request):
-    user_id = request.data.get('user_id') or request.query_params.get('user_id')
+    user_id = request.data.get("user_id") or request.query_params.get("user_id")
     if not user_id:
-        return Response({'detail': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    completed_orders = Order.objects.filter(user=user, status='Completed')
-    total_points = sum([getattr(order, 'earned_points', 0) for order in completed_orders])
+    completed_orders = Order.objects.filter(user=user, status="Completed")
+    total_points = sum(
+        [getattr(order, "earned_points", 0) for order in completed_orders]
+    )
     redeemable = total_points >= 5
 
-    return Response({
-        'total_points': total_points,
-        'redeemable': redeemable
-    })
+    return Response({"total_points": total_points, "redeemable": redeemable})
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def get_user_coupons(request):
-    user_id = request.data.get('user_id')
+    user_id = request.data.get("user_id")
     if not user_id:
-        return Response({'detail': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
     coupons = Coupon.objects.filter(user=user)
     serializer = CouponSerializer(coupons, many=True)
     return Response(serializer.data)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def get_user_rewards(request):
-    user_id = request.query_params.get('user_id') or request.data.get('user_id')
+    user_id = request.query_params.get("user_id") or request.data.get("user_id")
     if not user_id:
-        return Response({'detail': 'user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     try:
         user = User.objects.get(pk=user_id)
     except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
     reward_balance = user.profile.reward_balance
-    return Response({
-        'reward_balance': str(reward_balance)
-    })
+    return Response({"reward_balance": str(reward_balance)})

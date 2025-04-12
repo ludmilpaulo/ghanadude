@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .serializers import ReviewSerializer  # Make sure you have this serializer
 
+
 @api_view(["GET"])
 def get_product_reviews(request, product_id):
     user_id = request.GET.get("user_id")  # get from query string
@@ -12,12 +13,12 @@ def get_product_reviews(request, product_id):
         product = Product.objects.get(id=product_id)
         reviews = Review.objects.filter(product=product).order_by("-created_at")
         user = User.objects.filter(id=user_id).first() if user_id else None
-        serializer = ReviewSerializer(reviews, many=True, context={"request_user": user})
+        serializer = ReviewSerializer(
+            reviews, many=True, context={"request_user": user}
+        )
         return Response(serializer.data, status=200)
     except Product.DoesNotExist:
         return Response({"error": "Product not found"}, status=404)
-
-
 
 
 @api_view(["POST"])
@@ -36,13 +37,14 @@ def react_review(request, review_id):
             review.likes.remove(user)
             review.dislikes.add(user)
 
-        return Response({
-            "likes": review.like_count(),
-            "dislikes": review.dislike_count()
-        }, status=200)
+        return Response(
+            {"likes": review.like_count(), "dislikes": review.dislike_count()},
+            status=200,
+        )
     except (User.DoesNotExist, Review.DoesNotExist):
         return Response({"error": "Invalid user or review"}, status=404)
-    
+
+
 @api_view(["POST"])
 def create_review(request, product_id):
     user_id = request.data.get("user_id")
@@ -70,10 +72,7 @@ def create_review(request, product_id):
 
     # ✅ Save the review
     Review.objects.create(
-        user=user,
-        product=product,
-        rating=int(rating),
-        comment=comment.strip()
+        user=user, product=product, rating=int(rating), comment=comment.strip()
     )
 
     return Response({"message": "Review created successfully"}, status=201)

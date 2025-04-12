@@ -17,6 +17,11 @@ const OrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) =>
           <th className="px-4 py-2 text-left">ID</th>
           <th className="px-4 py-2 text-left">User</th>
           <th className="px-4 py-2 text-left">Total</th>
+          <th className="px-4 py-2 text-left">Discount</th>
+          <th className="px-4 py-2 text-left">Delivery Fee</th>
+          <th className="px-4 py-2 text-left">VAT</th>
+          <th className="px-4 py-2 text-left">Order Type</th>
+          <th className="px-4 py-2 text-left">Payment</th>
           <th className="px-4 py-2 text-left">Status</th>
           <th className="px-4 py-2 text-left">Date</th>
           <th className="px-4 py-2 text-left">Actions</th>
@@ -28,6 +33,11 @@ const OrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) =>
             <td className="px-4 py-2">{order.id}</td>
             <td className="px-4 py-2">{order.user}</td>
             <td className="px-4 py-2">R{order.total_price}</td>
+            <td className="px-4 py-2">R{order.discount_amount}</td>
+            <td className="px-4 py-2">R{order.delivery_fee}</td>
+            <td className="px-4 py-2">R{order.vat_amount}</td>
+            <td className="px-4 py-2 capitalize">{order.order_type}</td>
+            <td className="px-4 py-2 capitalize">{order.payment_method}</td>
             <td className="px-4 py-2">
               <select
                 className={`px-2 py-1 text-xs rounded-full border ${

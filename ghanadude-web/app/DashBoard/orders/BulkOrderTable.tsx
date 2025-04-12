@@ -15,6 +15,7 @@ interface Props {
 }
 
 const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) => {
+  
   return (
     <table className="min-w-full bg-white divide-y divide-gray-200 shadow rounded">
       <thead className="bg-gray-100 text-sm font-semibold text-gray-600">
@@ -26,6 +27,7 @@ const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }
           <th className="px-4 py-2 text-left">Quantity</th>
           <th className="px-4 py-2 text-left">Logo</th>
           <th className="px-4 py-2 text-left">Design</th>
+          <th className="px-4 py-2 text-left">Order Type</th>
           <th className="px-4 py-2 text-left">Status</th>
           <th className="px-4 py-2 text-left">Date</th>
           <th className="px-4 py-2 text-left">Actions</th>
@@ -67,6 +69,7 @@ const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }
                 <span className="text-gray-400">N/A</span>
               )}
             </td>
+            <td className="px-4 py-2 capitalize">{order.order_type}</td>
             <td className="px-4 py-2">
               <select
                 className={`px-2 py-1 text-xs rounded-full border ${

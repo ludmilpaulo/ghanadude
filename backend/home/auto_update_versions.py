@@ -12,19 +12,22 @@ def auto_update_store_versions():
     ios_app_id = "YOUR_APP_ID"  # Replace this!
     ios_lookup_url = f"https://itunes.apple.com/lookup?id={ios_app_id}"
     ios_response = requests.get(ios_lookup_url).json()
-    if ios_response.get('resultCount') > 0:
-        ios_data = ios_response['results'][0]
-        ios_version = ios_data.get('version')
-        ios_url = ios_data.get('trackViewUrl')
-        result['ios'] = {'latest_version': ios_version, 'store_url': ios_url}
+    if ios_response.get("resultCount") > 0:
+        ios_data = ios_response["results"][0]
+        ios_version = ios_data.get("version")
+        ios_url = ios_data.get("trackViewUrl")
+        result["ios"] = {"latest_version": ios_version, "store_url": ios_url}
 
     # 🔹 Android (Google Play)
     android_pkg = "com.ludmil.ghanadudemobile"
     try:
         android = play_scraper.details(android_pkg)
-        android_version = android.get('current_version')
-        android_url = android.get('url')
-        result['android'] = {'latest_version': android_version, 'store_url': android_url}
+        android_version = android.get("current_version")
+        android_url = android.get("url")
+        result["android"] = {
+            "latest_version": android_version,
+            "store_url": android_url,
+        }
     except Exception as e:
         print("Failed to fetch Android version:", e)
 
@@ -33,9 +36,9 @@ def auto_update_store_versions():
         AppVersion.objects.update_or_create(
             platform=platform,
             defaults={
-                'latest_version': data['latest_version'],
-                'store_url': data['store_url'],
-            }
+                "latest_version": data["latest_version"],
+                "store_url": data["store_url"],
+            },
         )
 
     # ✉️ Email admins if versions changed

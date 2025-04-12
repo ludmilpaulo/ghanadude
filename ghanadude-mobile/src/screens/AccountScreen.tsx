@@ -71,6 +71,7 @@ const AccountScreen: React.FC = () => {
 
     try {
       const res = await fetchRewards(auth.user.user_id);
+
       setRewards(res);
     } catch {
       Alert.alert('Error', 'Failed to load rewards');
@@ -83,6 +84,7 @@ const AccountScreen: React.FC = () => {
 
     try {
       const res = await fetchUserProfile(auth.user.user_id);
+      console.log("user profile", res)
       setProfileForm(res);
 
       const location = await fetchAndPrefillLocation();

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Product Promotion</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .product-image {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .price {
+      font-size: 20px;
+      color: #28a745;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .cta-buttons {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .cta-buttons a {
+      text-decoration: none;
+      background-color: #007bff;
+      color: white;
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 8px;
+      display: inline-block;
+      font-weight: bold;
+    }
+    .cta-buttons a:hover {
+      background-color: #0056b3;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #888;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p>Hi {{ username }},</p>
+
+    <p>Check out this amazing product we picked just for you!</p>
+
+    {% if product.images.all %}
+      <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="product-image" />
+    {% endif %}
+
+    <h2>{{ product.name }}</h2>
+    <p>{{ product.description|safe }}</p>
+    <p class="price">Only R{{ product.price_with_markup }}!</p>
+
+    <div class="cta-buttons">
+      {% if android_url %}
+        <a href="{{ android_url }}">📱 Open in Android App</a>
+      {% endif %}
+      {% if ios_url %}
+        <a href="{{ ios_url }}">🍎 Open in iOS App</a>
+      {% endif %}
+    </div>
+
+    <div class="footer">
+      ❤️ The Ghana Dude Team
+    </div>
+  </div>
+</body>
+</html>

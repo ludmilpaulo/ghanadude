@@ -141,6 +141,22 @@ export const updateOrderStatus = async (
   }
 };
 
+export const updateBulkOrderStatus = async (
+  orderId: number,
+  data: { status: string },
+) => {
+  try {
+    await axios.patch(
+      `${baseAPI}/order/bulk-orders/${orderId}/update-status/`,
+      data,
+    );
+  } catch (error) {
+    console.error("Error updating bulk order status:", error);
+    throw error;
+  }
+};
+
+
 export const fetchSalesSummary = async () => {
   try {
     const response = await axios.get(`${baseAPI}/order/sales-summary/`);

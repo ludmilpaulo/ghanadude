@@ -23,16 +23,16 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
-
 class UserListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
         print("📢 Fetching all users with profiles...")
-        users = User.objects.select_related('profile').all()
+        users = User.objects.select_related("profile").all()
         serializer = UserWithProfileSerializer(users, many=True)
         print(f"✅ Found {len(users)} users.")
         return Response(serializer.data)
+
 
 @permission_classes([AllowAny])
 class UserSignupView(APIView):
@@ -119,53 +119,74 @@ class UserLoginView(APIView):
 
 class PasswordResetView(APIView):
     def post(self, request):
-        email = request.data.get('email')
+        email = request.data.get("email")
         try:
             user = User.objects.get(email=email)
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            reset_url = f'{settings.FRONTEND_URL}/ResetPassword?uid={uid}&token={token}'
-            subject = 'Password Reset Request'
-            message = render_to_string('emails/password_reset_email.html', {
-                'username': user.username,
-                'reset_url': reset_url
-            })
+            reset_url = f"{settings.FRONTEND_URL}/ResetPassword?uid={uid}&token={token}"
+            subject = "Password Reset Request"
+            message = render_to_string(
+                "emails/password_reset_email.html",
+                {"username": user.username, "reset_url": reset_url},
+            )
 
-            send_mail(subject, '', settings.DEFAULT_FROM_EMAIL, [user.email], html_message=message)
-            return Response({'detail': 'Password reset email sent.'}, status=status.HTTP_200_OK)
+            send_mail(
+                subject,
+                "",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+                html_message=message,
+            )
+            return Response(
+                {"detail": "Password reset email sent."}, status=status.HTTP_200_OK
+            )
         except User.DoesNotExist:
-            return Response({'error': 'User with this email does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "User with this email does not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 @permission_classes([AllowAny])
 class PasswordResetConfirmView(APIView):
     def post(self, request):
-        uid = request.data.get('uid')
-        token = request.data.get('token')
-        new_password = request.data.get('newPassword')
+        uid = request.data.get("uid")
+        token = request.data.get("token")
+        new_password = request.data.get("newPassword")
         try:
             uid = force_str(urlsafe_base64_decode(uid))
             user = User.objects.get(pk=uid)
             if default_token_generator.check_token(user, token):
                 user.set_password(new_password)
                 user.save()
-                return Response({'detail': 'Password has been reset.'}, status=status.HTTP_200_OK)
-            return Response({'error': 'Invalid token.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"detail": "Password has been reset."}, status=status.HTTP_200_OK
+                )
+            return Response(
+                {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
+            )
         except (User.DoesNotExist, ValueError):
-            return Response({'error': 'Invalid user.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid user."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 class UserProfileView(APIView):
-   # permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
+
 logger = logging.getLogger(__name__)
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def get_user_profile(request, user_id):
-    logger.debug(f'Received user_id: {user_id}')
+    logger.debug(f"Received user_id: {user_id}")
     try:
         user = User.objects.get(id=user_id)
         serializer = UserWithProfileSerializer(user)
@@ -174,7 +195,5 @@ def get_user_profile(request, user_id):
         return Response(serializer.data)
 
     except User.DoesNotExist:
-        logger.error(f'User with id {user_id} not found')
+        logger.error(f"User with id {user_id} not found")
         return Response({"error": "User not found"}, status=404)
-
-

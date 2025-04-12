@@ -3,12 +3,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import UserProfile
-from .serializers import UserSerializer, UserProfileSerializer, UserWithProfileSerializer
+from .serializers import (
+    UserSerializer,
+    UserProfileSerializer,
+    UserWithProfileSerializer,
+)
 import logging
 
 logger = logging.getLogger(__name__)
 
-@api_view(['PUT'])
+
+@api_view(["PUT"])
 @permission_classes([AllowAny])
 def update_user_profile(request, user_id):
     print("📥 Received PUT /account/update/ request for user_id:", user_id)
@@ -33,16 +38,16 @@ def update_user_profile(request, user_id):
 
     # Prepare data
     user_data = {
-        'first_name': request.data.get('first_name'),
-        'last_name': request.data.get('last_name'),
-        'email': request.data.get('email'),
+        "first_name": request.data.get("first_name"),
+        "last_name": request.data.get("last_name"),
+        "email": request.data.get("email"),
     }
     profile_data = {
-        'phone_number': request.data.get('phone_number'),
-        'address': request.data.get('address'),
-        'city': request.data.get('city'),
-        'postal_code': request.data.get('postal_code'),
-        'country': request.data.get('country'),
+        "phone_number": request.data.get("phone_number"),
+        "address": request.data.get("address"),
+        "city": request.data.get("city"),
+        "postal_code": request.data.get("postal_code"),
+        "country": request.data.get("country"),
     }
 
     print("🧾 Parsed user_data:", user_data)
@@ -70,7 +75,10 @@ def update_user_profile(request, user_id):
         return Response(full_serializer.data)
 
     print("❌ Returning combined errors.")
-    return Response({
-        "user_errors": user_serializer.errors if not user_valid else {},
-        "profile_errors": profile_serializer.errors if not profile_valid else {},
-    }, status=400)
+    return Response(
+        {
+            "user_errors": user_serializer.errors if not user_valid else {},
+            "profile_errors": profile_serializer.errors if not profile_valid else {},
+        },
+        status=400,
+    )

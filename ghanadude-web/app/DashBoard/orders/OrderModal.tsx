@@ -43,6 +43,10 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
                   <strong>Shipping:</strong> {order.address}, {order.city}, {order.country},{' '}
                   {order.postal_code}
                 </p>
+               
+                <p><strong>PIN Code:</strong> {order.pin_code || 'N/A'}</p>
+                <p><strong>Dispatched:</strong> {order.is_dispatched ? 'Yes' : 'No'}</p>
+
                 {order.invoice && (
                   <a
                     href={order.invoice}

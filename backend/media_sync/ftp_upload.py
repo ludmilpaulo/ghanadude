@@ -6,6 +6,7 @@ FTP_HOST = "ftp.ghanadude.com"
 FTP_USER = "media_public@ghanadude.com"
 FTP_PASS = "Maitland@2025"  # ✅ this works manually
 
+
 def upload_file_to_cpanel(local_file_path: str, remote_file_path: str):
     try:
         with FTP(FTP_HOST) as ftp:
@@ -14,7 +15,7 @@ def upload_file_to_cpanel(local_file_path: str, remote_file_path: str):
             print("📍 Current directory:", ftp.pwd())
 
             # create folder chain
-            folders = os.path.dirname(remote_file_path).split('/')
+            folders = os.path.dirname(remote_file_path).split("/")
             for folder in folders:
                 if folder:
                     try:
