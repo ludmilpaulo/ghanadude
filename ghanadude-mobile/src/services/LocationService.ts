@@ -29,7 +29,7 @@ export const fetchAndPrefillLocation = async (): Promise<LocationDetails | null>
       console.log('🌍 Reverse geocoded:', geo);
 
       return {
-        address: geo.street || '',
+        address: `${geo.streetNumber || geo.name || ''} ${geo.street || ''}`.trim(),
         city: geo.city || '',
         postal_code: geo.postalCode || '',
         country: geo.country || '',

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
+  Alert,
 } from "react-native";
 import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -19,10 +20,24 @@ import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp, FadeInRight } from "react-native-reanimated";
 import { NavigationProp, useFocusEffect } from "@react-navigation/native";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import CreateProfileModal from "../components/CreateProfileModal";
+import { selectUser } from "../redux/slices/authSlice";
+
+import { fetchUserProfile, updateUserProfile } from "../services/UserService";
+ interface ProfileData {
+    name: string;
+    email: string;
+    phone?: string;
+    [key: string]: string | number | undefined; // Add additional fields if necessary
+  }
+
 
 const { width } = Dimensions.get("window");
 
 const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
+  const user = useSelector(selectUser);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -31,15 +46,78 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+   const ensureAuth = () => {
+        if (!user) {
+          Alert.alert('Error', 'User not found.');
+          return null;
+        }
+        return { user };
+      };
+      const auth = ensureAuth();
+      if (!auth) return;
+    const [showModal, setShowModal] = useState(false);
+    const user_id = auth.user.user_id;
+
+    const getProfile = async () => {
+      try {
+        const profileData = await fetchUserProfile(user_id);
+        console.log("Fetched profile data:", profileData);
+  
+        // Check if profile is null or None
+        if (!profileData.profile || Object.keys(profileData.profile).length === 0) {
+          console.log("User has no profile. Showing modal.");
+          setShowModal(true); // Show modal if profile is None
+        } else {
+          console.log("User profile found:", profileData);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 500) {
+          console.log("User has no profile. Showing modal.");
+          setShowModal(true);
+        } else {
+          console.log("Error fetching profile", error);
+        }
+      }
+    };
+    
+    const handleSaveProfile = async (form: ProfileData) => {
+      try {
+        const payload = {
+          first_name: form.first_name,
+          last_name: form.last_name,
+          profile: {
+            phone_number: form.phone_number,
+            address: form.address,
+            city: form.city,
+            postal_code: form.postal_code,
+            country: form.country,
+          },
+        };
+    
+        console.log("Payload being sent:", payload);
+    
+        await updateUserProfile(user_id, payload);
+        setShowModal(false);
+        Alert.alert("Success", "Profile updated.");
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        Alert.alert("Error", "Failed to update profile.");
+      }
+    };
+  
+
   useFocusEffect(
+   
     useCallback(() => {
       let isActive = true;
+      getProfile();
 
       const fetchData = async () => {
         try {
           const [productsRes, categoriesRes] = await Promise.all([
             ProductService.getProducts(),
             ProductService.getCategories(),
+            
           ]);
 
           if (isActive) {
@@ -206,6 +284,12 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           )}
         </View>
       </ScrollView>
+       {/* 👇 Profile Modal Rendered Here */}
+       <CreateProfileModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleSaveProfile}
+      />
     </SafeAreaView>
   );
 };

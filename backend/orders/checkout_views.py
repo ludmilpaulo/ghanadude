@@ -82,22 +82,33 @@ def checkout(request):
     for item in items:
         if item.get("is_bulk"):
             try:
-                product = Product.objects.get(pk=item["id"])
-                product.reduce_stock(item["quantity"])
+                quantity = int(item.get("quantity", 0))
+                if quantity <= 0:
+                    return Response(
+                        {"error": f"Invalid quantity for product ID {item.get('id')}"}, status=400
+                    )
 
-                item_total = product.price * item["quantity"]
+                product = Product.objects.get(pk=item["id"])
+                product.reduce_stock(quantity)
+
+                item_total = product.price * quantity
                 bulk_items.append(
                     {
                         "product": product,
-                        "quantity": item["quantity"],
+                        "quantity": quantity,
                         "price": product.price,
                     }
                 )
                 bulk_total += item_total
             except Product.DoesNotExist:
                 return Response(
-                    {"error": f"Product ID {item['id']} not found"}, status=404
+                    {"error": f"Product ID {item.get('id')} not found"}, status=404
                 )
+            except (TypeError, ValueError):
+                return Response(
+                    {"error": f"Invalid quantity format for product ID {item.get('id')}"}, status=400
+                )
+
     # 🖼️ Handle brand logo and custom design uploads
     brand_logo = files.get("brand_logo")
     custom_design = files.get("custom_design")
