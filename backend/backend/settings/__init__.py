@@ -1,8 +1,11 @@
-import os
+import environ
 
-env = os.getenv("DJANGO_ENV", "prod")
+env = environ.Env()
+environ.Env.read_env()
 
-if env == "prod":
+DJANGO_ENV = env("DJANGO_ENV", default="prod")
+
+if DJANGO_ENV == "prod":
     from .prod import *
 else:
     from .dev import *
