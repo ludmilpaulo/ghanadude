@@ -2,6 +2,6 @@
 
 //export const baseAPI = 'http://192.168.1.109:8000'
 
-export const baseAPI ="https://www.ghanadude.co.za"
+//export const baseAPI ="https://www.ghanadude.co.za"
 
-//export const baseAPI = process.env.NEXT_PUBLIC_BASE_API as string;
+export const baseAPI = process.env.NEXT_PUBLIC_BASE_API as string;
