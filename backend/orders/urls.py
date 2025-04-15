@@ -10,12 +10,12 @@ from orders.bulk_views import create_bulk_order
 
 from .invoice_download import cancel_order, download_invoice
 
-from .checkout_views import checkout, payfast_notify
+from .checkout_views import checkout
 
 
 from rest_framework.routers import DefaultRouter
 from revenue.views import location_statistics, sales_summary, user_statistics
-from .views import OrderItemViewSet
+from .views import OrderItemViewSet, payfast_notify
 
 router = DefaultRouter()
 router.register(r"orders", OrderViewSet)

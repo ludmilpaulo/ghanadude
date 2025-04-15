@@ -9,8 +9,6 @@ from .serializers import BulkOrderSerializer
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def get_bulk_orders(request):
-    bulk_orders = BulkOrder.objects.select_related(
-        "user", "product", "designer"
-    ).order_by("-created_at")
-    serializer = BulkOrderSerializer(bulk_orders, many=True)
+    bulk_orders = BulkOrder.objects.select_related("user", "designer").prefetch_related("items__product")
+    serializer = BulkOrderSerializer(bulk_orders, many=True, context={'request': request})
     return Response(serializer.data)

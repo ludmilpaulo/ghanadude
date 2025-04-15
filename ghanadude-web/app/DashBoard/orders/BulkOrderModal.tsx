@@ -5,7 +5,6 @@ import { Dialog, Transition } from '@headlessui/react';
 import Image from 'next/image';
 import { Fragment } from 'react';
 import { BulkOrder } from './types';
-import { baseAPI } from '@/utils/variables';
 
 interface Props {
   order: BulkOrder | null;
@@ -38,38 +37,53 @@ const BulkOrderModal: React.FC<Props> = ({ order, onClose }) => {
 
               <div className="mb-4 space-y-1 text-sm text-gray-700">
                 <p><strong>User:</strong> {order.user}</p>
-                <p><strong>Product:</strong> {order.product_name}</p>
                 <p><strong>Designer:</strong> {order.designer_name}</p>
-                <p><strong>Quantity:</strong> {order.quantity}</p>
+                <p><strong>Order Type:</strong> {order.order_type}</p>
                 <p><strong>Status:</strong> {order.status}</p>
                 <p><strong>Date:</strong> {new Date(order.created_at).toLocaleString()}</p>
                 <p><strong>Shipping Address:</strong> {order.address}, {order.city}, {order.postal_code}, {order.country}</p>
                 <p><strong>PIN Code:</strong> {order.pin_code || 'N/A'}</p>
                 <p><strong>Dispatched:</strong> {order.is_dispatched ? 'Yes' : 'No'}</p>
+              </div>
 
+              <div className="mb-4">
+                <h4 className="font-semibold mb-2">📦 Items</h4>
+                <ul className="space-y-2">
+                {order.items.map((item, idx) => (
+  <li key={idx} className="text-sm border-b pb-2">
+    <p><strong>Product:</strong> {item.product_name || 'Design/Logo'}</p>
+    <p><strong>Size:</strong> {item.selected_size || 'N/A'}</p> {/* 👈 display selected size */}
+    <p><strong>Quantity:</strong> {item.quantity}</p>
+    <p><strong>Price:</strong> R{item.price}</p>
 
-                <div className="flex gap-4 mt-4">
-                  {order.brand_logo_url && (
-                    <div className="relative w-20 h-20 rounded overflow-hidden border">
-                      <Image
-                        src={`${baseAPI}${order.brand_logo_url}`}
-                        alt="Brand Logo"
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    </div>
-                  )}
-                  {order.custom_design_url && (
-                    <div className="relative w-20 h-20 rounded overflow-hidden border">
-                      <Image
-                        src={`${baseAPI}${order.custom_design_url}`}
-                        alt="Custom Design"
-                        layout="fill"
-                        objectFit="cover"
-                      />
-                    </div>
-                  )}
-                </div>
+    {(item.brand_logo_url || item.custom_design_url) && (
+      <div className="flex gap-3 mt-2">
+        {item.brand_logo_url && (
+          <div className="relative w-16 h-16 rounded overflow-hidden border">
+            <Image
+              src={item.brand_logo_url}
+              alt="Logo"
+              layout="fill"
+              objectFit="cover"
+            />
+          </div>
+        )}
+        {item.custom_design_url && (
+          <div className="relative w-16 h-16 rounded overflow-hidden border">
+            <Image
+              src={item.custom_design_url}
+              alt="Design"
+              layout="fill"
+              objectFit="cover"
+            />
+          </div>
+        )}
+      </div>
+    )}
+  </li>
+))}
+
+                </ul>
               </div>
 
               <div className="mt-6 text-right">

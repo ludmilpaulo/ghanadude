@@ -185,7 +185,7 @@ const OrderHistory: React.FC = () => {
                 : parseFloat(order.total_price || '0').toFixed(2);
 
               return (
-                <View key={order.id} style={tw`mb-4 p-4 bg-white rounded-xl shadow-md`}>
+                <View key={order.id} style={tw`mb-4 p-4 bg-white rounded-xl shadow-md border border-gray-100`}>
                   <View style={tw`flex-row justify-between items-center mb-2`}>
                     <Text style={tw`text-lg font-bold text-gray-800`}>
                       {order.type === 'bulk' ? '🧾 Bulk Order' : '📦 Order'} #{order.id}
@@ -196,6 +196,13 @@ const OrderHistory: React.FC = () => {
                       </Text>
                     </View>
                   </View>
+
+                  {order.is_dispatched && (
+                    <View style={tw`bg-green-100 border border-green-400 rounded-lg px-4 py-2 mb-2`}>
+                      <Text style={tw`text-green-800 font-bold text-base`}>✅ Dispatched</Text>
+                      <Text style={tw`text-green-700 mt-1`}>🔒 PIN Code: <Text style={tw`font-bold text-lg`}>{order.pin_code}</Text></Text>
+                    </View>
+                  )}
 
                   {order.type === 'bulk' && order.bulk_file ? (
                     <TouchableOpacity onPress={() => Linking.openURL(order.bulk_file!)}>

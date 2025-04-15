@@ -10,27 +10,40 @@ interface CheckoutSummaryProps {
   siteSettings: {
     vat_percentage: number;
     delivery_fee: number;
+    brand_price: number;
+    custom_price: number;
     address: string;
     country: string;
   } | null;
+  brandLogoQty?: number;
+  customDesignQty?: number;
   orderType: 'delivery' | 'collection';
   deliveryFee: number;
   deliveryFeeLoading?: boolean;
 }
+
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   cartItems,
   rewardApplied,
   rewardBalance,
   siteSettings,
+  brandLogoQty = 0,
+  customDesignQty = 0,
   orderType,
   deliveryFee,
   deliveryFeeLoading = false,
 }) => {
-  const subtotal = cartItems.reduce(
+  const brand_price = siteSettings?.brand_price || 0;
+  const custom_price = siteSettings?.custom_price || 0;
+
+  const cartSubtotal = cartItems.reduce(
     (sum, item) => sum + item.quantity * item.price,
     0
   );
+
+  const designSubtotal = brand_price * brandLogoQty + custom_price * customDesignQty;
+  const subtotal = cartSubtotal + designSubtotal;
 
   const vatRate = siteSettings ? siteSettings.vat_percentage : 0;
   const vatAmount = parseFloat(((subtotal * vatRate) / 100).toFixed(2));
@@ -86,5 +99,4 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     </View>
   );
 };
-
 export default CheckoutSummary;

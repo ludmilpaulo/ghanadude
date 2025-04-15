@@ -42,6 +42,8 @@ export interface Order {
   coupon_code?: string;
   bulk_file?: string;
   invoice?: string;
+  is_dispatched :boolean;
+  pin_code : number;
 }
 
 

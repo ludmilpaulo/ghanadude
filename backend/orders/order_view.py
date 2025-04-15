@@ -6,8 +6,10 @@ from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.models import User
 
 from .models import Order, BulkOrder
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, OrderItemSerializer
 from product.serializers import ProductSerializer
+from .serializers import BulkOrderItemSerializer
+from .models import BulkOrderItem
 
 
 class OrderViewSet(viewsets.ModelViewSet):
@@ -60,6 +62,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "product": ProductSerializer(item.product).data,
                     "quantity": item.quantity,
                     "price": item.price,
+                    "selected_size": item.selected_size,
                 }
                 for item in items
             ]
@@ -71,6 +74,10 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "total_price": order.total_price,
                     "created_at": order.created_at,
                     "items": serialized_items,
+                  #  "reward_applied": order.reward_applied,
+                  #  "reward_granted": order.reward_granted,
+                    "is_dispatched": order.is_dispatched,
+                    "pin_code": order.pin_code,
                     "type": "regular",
                 }
             )
@@ -79,20 +86,38 @@ class OrderViewSet(viewsets.ModelViewSet):
         bulk_orders = BulkOrder.objects.filter(
             user=user, status=status_filter
         ).order_by("-created_at")
-        serialized_bulk = [
-            {
-                "id": bo.id,
-                "product": ProductSerializer(bo.product).data,
-                "quantity": bo.quantity,
-                "brand_logo": bo.brand_logo.url if bo.brand_logo else None,
-                "custom_design": bo.custom_design.url if bo.custom_design else None,
-                "created_at": bo.created_at,
-                "type": "bulk",
-            }
-            for bo in bulk_orders
-        ]
 
-        combined = order_data + serialized_bulk
+        bulk_data = []
+        for bulk in bulk_orders:
+            items = BulkOrderItem.objects.filter(bulk_order=bulk).select_related("product")
+
+            serialized_items = [
+                {
+                    "product": ProductSerializer(item.product).data,
+                    "quantity": item.quantity,
+                    "selected_size": item.selected_size,
+                    "price": item.price,
+                }
+                for item in items
+            ]
+
+            bulk_data.append(
+                {
+                    "id": bulk.id,
+                    "items": serialized_items,
+                    "brand_logo": bulk.brand_logo.url if bulk.brand_logo else None,
+                    "custom_design": bulk.custom_design.url if bulk.custom_design else None,
+                    "created_at": bulk.created_at,
+                    "status": bulk.status,
+                  #  "reward_applied": bulk.reward_applied,
+                  #  "reward_granted": bulk.reward_granted,
+                    "is_dispatched": bulk.is_dispatched,
+                    "pin_code": bulk.pin_code,
+                    "type": "bulk",
+                }
+            )
+
+        combined = order_data + bulk_data
         combined_sorted = sorted(combined, key=lambda x: x["created_at"], reverse=True)
 
         return paginator.get_paginated_response(combined_sorted)

@@ -43,7 +43,6 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
                   <strong>Shipping:</strong> {order.address}, {order.city}, {order.country},{' '}
                   {order.postal_code}
                 </p>
-               
                 <p><strong>PIN Code:</strong> {order.pin_code || 'N/A'}</p>
                 <p><strong>Dispatched:</strong> {order.is_dispatched ? 'Yes' : 'No'}</p>
 
@@ -67,8 +66,13 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
                   <ul className="space-y-2">
                     {order.items.map((item) => (
                       <li key={item.id} className="text-sm text-gray-700 border-b pb-1">
-                        <span className="font-medium">{item.product_name}</span> × {item.quantity}{' '}
-                        = R{item.price}
+                        <p>
+                          <span className="font-medium">{item.product_name}</span>{' '}
+                          ({item.selected_size || 'N/A'}) × {item.quantity} ={' '}
+                          <span className="font-semibold">
+                            R{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                          </span>
+                        </p>
                       </li>
                     ))}
                   </ul>

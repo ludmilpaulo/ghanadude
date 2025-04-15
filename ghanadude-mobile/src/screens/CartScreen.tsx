@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -19,7 +19,6 @@ import {
   CartItem,
 } from "../redux/slices/basketSlice";
 import {
- 
   setBrandLogo,
   setCustomDesign,
   setBrandLogoQty,
@@ -30,13 +29,10 @@ import { API_BASE_URL } from "../services/AuthService";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation/types";
 import { StackNavigationProp } from "@react-navigation/stack";
-
-type NavigationProp = StackNavigationProp<RootStackParamList, "CartScreen">;
+import { fetchSiteSettings, SiteSetting } from "../services/SiteSettingService";
 
 const { width } = Dimensions.get("window");
-
-const BRAND_LOGO_PRICE = 50;
-const CUSTOM_DESIGN_PRICE = 100;
+type NavigationProp = StackNavigationProp<RootStackParamList, "CartScreen">;
 
 const getImageUrl = (image?: string | null): string | undefined => {
   if (!image) return undefined;
@@ -48,16 +44,23 @@ const CartScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp>();
   const cartItems = useSelector((state: RootState) => state.basket.items);
-
-  const {
-    brandLogo,
-    customDesign,
-    brandLogoQty,
-    customDesignQty,
-  } = useSelector(selectDesign);
+  const { brandLogo, customDesign, brandLogoQty, customDesignQty } = useSelector(selectDesign);
+  const [siteSettings, setSiteSettings] = useState<SiteSetting | null>(null);
 
   const safeBrandQty = brandLogoQty ?? 1;
   const safeDesignQty = customDesignQty ?? 1;
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const settings = await fetchSiteSettings();
+        setSiteSettings(settings);
+      } catch {
+        Alert.alert("Error", "Failed to load site settings.");
+      }
+    };
+    loadSettings();
+  }, []);
 
   const handleDecrease = (item: CartItem) => {
     if (item.isBulk && item.quantity <= 10) {
@@ -72,53 +75,43 @@ const CartScreen = () => {
   };
 
   const handleDelete = (item: CartItem) => {
-    Alert.alert(
-      "Remove Item",
-      `Remove ${item.name} (${item.selectedSize}) from your cart?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: () => {
-            dispatch(removeFromBasket({ id: item.id, selectedSize: item.selectedSize, isBulk: item.isBulk }));
-          },
+    Alert.alert("Remove Item", `Remove ${item.name} (${item.selectedSize}) from your cart?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: () => {
+          dispatch(removeFromBasket({ id: item.id, selectedSize: item.selectedSize, isBulk: item.isBulk }));
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleDeleteDesign = (type: "logo" | "custom") => {
-    Alert.alert(
-      "Remove Image",
-      `Remove the ${type === "logo" ? "Brand Logo" : "Custom Design"}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Remove",
-          style: "destructive",
-          onPress: () => {
-            if (type === "logo") {
-              dispatch(setBrandLogo(null));
-              dispatch(setBrandLogoQty(1));
-            }
-            if (type === "custom") {
-              dispatch(setCustomDesign(null));
-              dispatch(setCustomDesignQty(1));
-            }
-          },
+    Alert.alert("Remove Image", `Remove the ${type === "logo" ? "Brand Logo" : "Custom Design"}?`, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Remove",
+        style: "destructive",
+        onPress: () => {
+          if (type === "logo") {
+            dispatch(setBrandLogo(null));
+            dispatch(setBrandLogoQty(1));
+          }
+          if (type === "custom") {
+            dispatch(setCustomDesign(null));
+            dispatch(setCustomDesignQty(1));
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
-  const baseTotal = cartItems.reduce(
-    (total, item) => total + Number(item.price) * item.quantity,
-    0
-  );
-
-  const logoTotal = brandLogo ? BRAND_LOGO_PRICE * safeBrandQty : 0;
-  const designTotal = customDesign ? CUSTOM_DESIGN_PRICE * safeDesignQty : 0;
+  const baseTotal = cartItems.reduce((total, item) => total + Number(item.price) * item.quantity, 0);
+  const brand_price = siteSettings?.brand_price || 0;
+  const custom_price = siteSettings?.custom_price || 0;
+  const logoTotal = brandLogo ? brand_price * safeBrandQty : 0;
+  const designTotal = customDesign ? custom_price * safeDesignQty : 0;
   const totalPrice = baseTotal + logoTotal + designTotal;
 
   return (
@@ -148,7 +141,6 @@ const CartScreen = () => {
           </View>
         ) : (
           <>
-            {/* Regular Items */}
             {cartItems.map((item) => {
               const imageUrl = getImageUrl(item.image);
               return (
@@ -169,7 +161,7 @@ const CartScreen = () => {
                         Size: {item.selectedSize} {item.isBulk && "(Bulk Order ✨)"}
                       </Text>
                       <Text style={tw`text-blue-700 font-bold`}>
-                        R{Number(item.price).toFixed(2)}
+                        R{Number(item.price).toFixed(2)} × {item.quantity} = R{(Number(item.price) * item.quantity).toFixed(2)}
                       </Text>
                       <View style={tw`flex-row items-center mt-2`}>
                         <TouchableOpacity onPress={() => handleDecrease(item)} style={tw`p-1`}>
@@ -189,7 +181,6 @@ const CartScreen = () => {
               );
             })}
 
-            {/* Brand Logo */}
             {brandLogo && (
               <View style={tw`bg-white border rounded-xl p-4 mb-4 shadow`}>
                 <View style={tw`flex-row justify-between items-center mb-2`}>
@@ -204,7 +195,7 @@ const CartScreen = () => {
                   resizeMode="contain"
                 />
                 <Text style={tw`text-gray-700 font-semibold mt-2`}>
-                  R{BRAND_LOGO_PRICE} × {safeBrandQty} = R{BRAND_LOGO_PRICE * safeBrandQty}
+                  R{brand_price} × {safeBrandQty} = R{(brand_price * safeBrandQty).toFixed(2)}
                 </Text>
                 <View style={tw`flex-row justify-center mt-2`}>
                   <TouchableOpacity
@@ -224,12 +215,11 @@ const CartScreen = () => {
               </View>
             )}
 
-            {/* Custom Design */}
             {customDesign && (
               <View style={tw`bg-white border rounded-xl p-4 mb-4 shadow`}>
                 <View style={tw`flex-row justify-between items-center mb-2`}>
                   <Text style={tw`text-lg font-bold text-gray-800`}>Custom Design</Text>
-                  <TouchableOpacity onPress={() => handleDeleteDesign("custom")}>
+                  <TouchableOpacity onPress={() => handleDeleteDesign("custom")}> 
                     <FontAwesome name="trash" size={20} color="red" />
                   </TouchableOpacity>
                 </View>
@@ -239,7 +229,7 @@ const CartScreen = () => {
                   resizeMode="contain"
                 />
                 <Text style={tw`text-gray-700 font-semibold mt-2`}>
-                  R{CUSTOM_DESIGN_PRICE} × {safeDesignQty} = R{CUSTOM_DESIGN_PRICE * safeDesignQty}
+                  R{custom_price} × {safeDesignQty} = R{(custom_price * safeDesignQty).toFixed(2)}
                 </Text>
                 <View style={tw`flex-row justify-center mt-2`}>
                   <TouchableOpacity
@@ -264,9 +254,12 @@ const CartScreen = () => {
 
       {(cartItems.length > 0 || brandLogo || customDesign) && (
         <View style={tw`border-t border-gray-200 pt-5 mt-4`}>
+          <View style={tw`border-t border-gray-200 pt-5 mt-4`}>
           <Text style={tw`text-xl font-bold mb-3 text-right`}>
             Total: R{totalPrice.toFixed(2)}
           </Text>
+        </View>
+
           <TouchableOpacity
             style={tw`bg-green-600 py-4 rounded-xl shadow-lg`}
             onPress={() => navigation.navigate("CheckoutScreen")}

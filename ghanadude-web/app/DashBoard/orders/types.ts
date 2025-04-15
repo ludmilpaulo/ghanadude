@@ -5,6 +5,7 @@ export interface OrderItem {
   product_name: string;
   quantity: number;
   price: string;
+  selected_size: string | null;
 }
 
 export interface Order {
@@ -38,18 +39,28 @@ export interface Order {
 export type OrderStatus = 'Pending' | 'Processing' | 'Completed' | 'Cancelled';
 export type OrderType = 'delivery' | 'collection';
 
+export interface BulkOrderItem {
+  id: number;
+  product_name: string | null; // Some items are for designs/logos
+  quantity: number;
+  price: string;
+  brand_logo_url?: string;
+  custom_design_url?: string;
+  selected_size: string | null;
+}
+
 export interface BulkOrder {
   id: number;
-  user: string; // From serializer: user.username
-  product_name: string; // From serializer: product.name
-  designer_name: string; // From serializer: designer.name
+  user: string;
+  product_name: string; // still the representative product
+  designer_name: string;
   quantity: number;
   status: OrderStatus;
-  created_at: string; // ISO timestamp
-  brand_logo_url?: string; // From brand_logo (ImageField)
-  custom_design_url?: string; // From custom_design (ImageField)
-  delivery_fee: string; // Returned as string from DRF
-  vat_amount: string; // Returned as string from DRF
+  created_at: string;
+  brand_logo_url?: string;
+  custom_design_url?: string;
+  delivery_fee: string;
+  vat_amount: string;
   order_type: OrderType;
   address: string;
   city: string;
@@ -57,5 +68,5 @@ export interface BulkOrder {
   country: string;
   pin_code: string | null;
   is_dispatched: boolean;
+  items: BulkOrderItem[]; // ✅ NEW
 }
-

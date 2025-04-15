@@ -38,6 +38,7 @@ const AccountScreen: React.FC = () => {
 
   const [rewards, setRewards] = useState<Rewards | null>(null);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
+  const [updatingProfile, setUpdatingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     name: '',
     first_name: '',
@@ -71,7 +72,6 @@ const AccountScreen: React.FC = () => {
 
     try {
       const res = await fetchRewards(auth.user.user_id);
-
       setRewards(res);
     } catch {
       Alert.alert('Error', 'Failed to load rewards');
@@ -84,12 +84,23 @@ const AccountScreen: React.FC = () => {
 
     try {
       const res = await fetchUserProfile(auth.user.user_id);
-      console.log("user profile", res)
-      setProfileForm(res);
+      const { first_name, last_name, email, profile } = res;
+
+      setProfileForm({
+        name: `${first_name} ${last_name}`,
+        first_name,
+        last_name,
+        email,
+        phone_number: profile.phone_number || '',
+        address: profile.address || '',
+        city: profile.city || '',
+        postal_code: profile.postal_code || '',
+        country: profile.country || '',
+      });
 
       const location = await fetchAndPrefillLocation();
       if (location) {
-        setProfileForm(prev => ({
+        setProfileForm((prev) => ({
           ...prev,
           ...location,
         }));
@@ -105,12 +116,15 @@ const AccountScreen: React.FC = () => {
     const auth = ensureAuth();
     if (!auth) return;
 
+    setUpdatingProfile(true);
     try {
       await updateUserProfile(auth.user.user_id, profileForm);
       Alert.alert('Success', 'Profile updated');
       setProfileModalVisible(false);
     } catch {
       Alert.alert('Error', 'Failed to update profile');
+    } finally {
+      setUpdatingProfile(false);
     }
   };
 
@@ -186,29 +200,72 @@ const AccountScreen: React.FC = () => {
       <Modal visible={profileModalVisible} animationType="slide" transparent>
         <View style={tw`flex-1 bg-white p-6 justify-center`}>
           <Text style={tw`text-2xl font-bold mb-4`}>Edit Profile</Text>
-          {Object.entries(profileForm).map(([field, value]) => (
-            <TextInput
-              key={field}
-              style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-              placeholder={field.replace('_', ' ').toUpperCase()}
-              value={value}
-              onChangeText={(text) =>
-                setProfileForm((prev) => ({ ...prev, [field]: text }))
-              }
-            />
-          ))}
+
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="First Name"
+            value={profileForm.first_name}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, first_name: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="Last Name"
+            value={profileForm.last_name}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, last_name: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="Email"
+            value={profileForm.email}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, email: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="Phone Number"
+            value={profileForm.phone_number}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, phone_number: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="Address"
+            value={profileForm.address}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, address: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="City"
+            value={profileForm.city}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, city: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="Postal Code"
+            value={profileForm.postal_code}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, postal_code: text }))}
+          />
+          <TextInput
+            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+            placeholder="Country"
+            value={profileForm.country}
+            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, country: text }))}
+          />
+
           <TouchableOpacity
             style={tw`bg-blue-600 py-3 rounded-lg mb-2`}
             onPress={handleProfileUpdate}
           >
             <Text style={tw`text-white text-center font-bold`}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => setProfileModalVisible(false)}
-            style={tw`py-2`}
-          >
+          <TouchableOpacity onPress={() => setProfileModalVisible(false)} style={tw`py-2`}>
             <Text style={tw`text-center text-blue-600`}>Cancel</Text>
           </TouchableOpacity>
+
+          {/* Spinner Overlay */}
+          {updatingProfile && (
+            <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-white/70 justify-center items-center`}>
+              <ActivityIndicator size="large" color="#2563EB" />
+            </View>
+          )}
         </View>
       </Modal>
     </ScrollView>

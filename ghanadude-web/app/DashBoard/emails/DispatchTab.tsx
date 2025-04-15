@@ -14,6 +14,8 @@ interface Order {
   country: string;
   dispatched: boolean;
   user: string;
+  pin_code?: string;
+  is_dispatched?: boolean; // fallback support
 }
 
 const DispatchTab: React.FC = () => {
@@ -120,7 +122,7 @@ const DispatchTab: React.FC = () => {
               className="relative bg-white shadow-lg rounded-xl hover:shadow-xl transition-all duration-300 ease-in-out p-6 flex justify-between items-center space-x-6"
             >
               {/* Dispatched Badge */}
-              {order.dispatched && (
+              {order.is_dispatched && (
                 <span className="absolute top-3 right-3 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
                   ✅ Dispatched
                 </span>
@@ -137,10 +139,16 @@ const DispatchTab: React.FC = () => {
                 <p className={`mt-2 text-sm ${order.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'}`}>
                   <strong>Status:</strong> {order.status}
                 </p>
+
+                {order.is_dispatched && order.pin_code && (
+                  <p className="mt-2 text-sm text-indigo-600 font-semibold">
+                    <strong>PIN Code:</strong> {order.pin_code}
+                  </p>
+                )}
               </div>
 
               {/* Action Button */}
-              {!order.dispatched && (
+              {!order.is_dispatched && (
                 <div className="flex flex-col items-center justify-center">
                   <Button
                     onClick={() => handleDispatch(order.id)}

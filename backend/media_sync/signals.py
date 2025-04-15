@@ -8,17 +8,16 @@ from .ftp_upload import upload_file_to_cpanel
 
 @receiver(post_save)
 def sync_media_files_on_save(sender, instance, **kwargs):
-    print("📦 Signal received for:", sender.__name__)
-
+   
     env = os.environ.get("DJANGO_ENV")
-    print("⚙️ DJANGO_ENV =", env)
+   
 
     if env != "prod":
-        print("⛔ Not production, skipping upload.")
+       
         return
 
     if not hasattr(instance, "_meta") or sender.__module__.startswith("django."):
-        print("🛑 Skipping internal Django model:", sender)
+       
         return
 
     for field in instance._meta.fields:

@@ -1,11 +1,8 @@
-// app/DashBoard/orders/BulkOrderTable.tsx
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-import { BulkOrder } from './types';
-import { baseAPI } from '@/utils/variables';
 
+import { BulkOrder } from './types';
 
 
 interface Props {
@@ -15,18 +12,14 @@ interface Props {
 }
 
 const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) => {
-  
   return (
     <table className="min-w-full bg-white divide-y divide-gray-200 shadow rounded">
       <thead className="bg-gray-100 text-sm font-semibold text-gray-600">
         <tr>
           <th className="px-4 py-2 text-left">ID</th>
           <th className="px-4 py-2 text-left">User</th>
-          <th className="px-4 py-2 text-left">Product</th>
+          <th className="px-4 py-2 text-left">Items</th>
           <th className="px-4 py-2 text-left">Designer</th>
-          <th className="px-4 py-2 text-left">Quantity</th>
-          <th className="px-4 py-2 text-left">Logo</th>
-          <th className="px-4 py-2 text-left">Design</th>
           <th className="px-4 py-2 text-left">Order Type</th>
           <th className="px-4 py-2 text-left">Status</th>
           <th className="px-4 py-2 text-left">Date</th>
@@ -38,37 +31,14 @@ const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }
           <tr key={order.id} className="hover:bg-gray-50">
             <td className="px-4 py-2">{order.id}</td>
             <td className="px-4 py-2">{order.user}</td>
-            <td className="px-4 py-2">{order.product_name}</td>
-            <td className="px-4 py-2">{order.designer_name}</td>
-            <td className="px-4 py-2">{order.quantity}</td>
             <td className="px-4 py-2">
-              {order.brand_logo_url ? (
-                <div className="relative w-10 h-10 rounded overflow-hidden border">
-                  <Image
-                    src={`${baseAPI}${order.brand_logo_url}`}
-                    alt="Logo"
-                    layout="fill"
-                    objectFit="cover"
-                  />
+              {order.items.map((item, idx) => (
+                <div key={idx} className="mb-1">
+                  {item.product_name || (item.custom_design_url || item.brand_logo_url ? 'Design/Logo' : 'N/A')} x{item.quantity}
                 </div>
-              ) : (
-                <span className="text-gray-400">N/A</span>
-              )}
+              ))}
             </td>
-            <td className="px-4 py-2">
-              {order.custom_design_url ? (
-                <div className="relative w-10 h-10 rounded overflow-hidden border">
-                  <Image
-                    src={`${baseAPI}${order.custom_design_url}`}
-                    alt="Design"
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-              ) : (
-                <span className="text-gray-400">N/A</span>
-              )}
-            </td>
+            <td className="px-4 py-2">{order.designer_name || 'N/A'}</td>
             <td className="px-4 py-2 capitalize">{order.order_type}</td>
             <td className="px-4 py-2">
               <select
@@ -91,9 +61,7 @@ const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }
                 ))}
               </select>
             </td>
-            <td className="px-4 py-2">
-              {new Date(order.created_at).toLocaleDateString()}
-            </td>
+            <td className="px-4 py-2">{new Date(order.created_at).toLocaleDateString()}</td>
             <td className="px-4 py-2">
               <button
                 onClick={() => onViewOrder(order)}

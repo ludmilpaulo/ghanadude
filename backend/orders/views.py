@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from django.http import HttpResponse
+
 from product.serializers import CategorySerializer, ProductSerializer, ImageSerializer
 from product.models import Product, Image, Category
 from datetime import datetime
@@ -122,3 +124,29 @@ def location_statistics(request):
         return Response(location_stats, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ✅ PayFast Webhook
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def payfast_notify(request):
+    data = request.POST
+    m_payment_id = data.get("m_payment_id")
+    payment_status = data.get("payment_status")
+
+    try:
+        order = Order.objects.get(pk=m_payment_id)
+        if payment_status == "COMPLETE":
+            order.status = "completed"
+        elif payment_status == "CANCELLED":
+            order.status = "canceled"
+        else:
+            order.status = "pending"
+
+        order.save()
+        print(f"🔔 PayFast updated Order {order.id} to {order.status}")
+        return HttpResponse(status=200)
+
+    except Order.DoesNotExist:
+        print("❌ PayFast notify: Order not found")
+        return HttpResponse(status=400)

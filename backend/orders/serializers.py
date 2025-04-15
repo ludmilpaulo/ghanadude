@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import BulkOrder, Order, OrderItem
+from .models import BulkOrder, BulkOrderItem, Order, OrderItem
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ["id", "order", "product", "product_name", "quantity", "price"]
+        fields = ["id", "order", "product", "product_name", "quantity", "price", "selected_size"]
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -20,33 +20,36 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ("user", "created_at", "updated_at")
 
 
+class BulkOrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', default=None, read_only=True)
+    brand_logo_url = serializers.SerializerMethodField()
+    custom_design_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BulkOrderItem
+        fields = ['product_name', 'quantity', 'price', 'brand_logo_url', 'custom_design_url', 'selected_size']
+
+    def get_brand_logo_url(self, obj):
+        request = self.context.get('request')
+        if obj.brand_logo and request:
+            return request.build_absolute_uri(obj.brand_logo.url)
+        return None
+
+    def get_custom_design_url(self, obj):
+        request = self.context.get('request')
+        if obj.custom_design and request:
+            return request.build_absolute_uri(obj.custom_design.url)
+        return None
+
 class BulkOrderSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
-    product_name = serializers.CharField(source="product.name", read_only=True)
-    designer_name = serializers.CharField(
-        source="designer.name", default="", read_only=True
-    )
-    brand_logo_url = serializers.ImageField(source="brand_logo", read_only=True)
-    custom_design_url = serializers.ImageField(source="custom_design", read_only=True)
+    designer_name = serializers.CharField(source="designer.name", default="", read_only=True)
+    items = BulkOrderItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = BulkOrder
         fields = [
-            "id",
-            "user",
-            "product_name",
-            "quantity",
-            "designer_name",
-            "brand_logo_url",
-            "custom_design_url",
-            "status",
-            "created_at",
-            "address",
-            "city",
-            "postal_code",
-            "country",  # 🏠 Shipping address
-            "pin_code",
-            "is_dispatched",
-            "total_price",
-            "order_type",  # 📦 Dispatch info
+            "id", "user", "designer_name", "items", "status",
+            "created_at", "address", "city", "postal_code", "country",
+            "pin_code", "is_dispatched", "total_price", "order_type"
         ]

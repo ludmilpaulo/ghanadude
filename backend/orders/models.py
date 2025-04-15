@@ -64,6 +64,7 @@ class OrderItem(models.Model):
     )
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    selected_size = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         unique_together = (("order", "product"),)
@@ -145,6 +146,7 @@ class BulkOrderItem(models.Model):
         upload_to="bulk_order_designs/", null=True, blank=True
     )
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    selected_size = models.CharField(max_length=20, blank=True, null=True)
     designer = models.ForeignKey(
         Designer, null=True, blank=True, on_delete=models.SET_NULL
     )

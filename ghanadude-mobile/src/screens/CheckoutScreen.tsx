@@ -175,9 +175,20 @@ const CheckoutScreen: React.FC = () => {
     }
   }, [showSuccess]);
 
-  const calculateSubtotal = () =>
-    cartItems.reduce((sum, item) => sum + item.quantity * parseFloat(String(item.price)), 0);
-
+  const calculateSubtotal = () => {
+    const cartTotal = cartItems.reduce((sum, item) => sum + item.quantity * parseFloat(String(item.price)), 0);
+  
+    const brandDesignCost = design.brandLogo
+      ? (siteSettings?.brand_price || 0) * (design.brandLogoQty || 1)
+      : 0;
+  
+    const customDesignCost = design.customDesign
+      ? (siteSettings?.custom_price || 0) * (design.customDesignQty || 1)
+      : 0;
+  
+    return cartTotal + brandDesignCost + customDesignCost;
+  };
+  
   const calculateVAT = (amount: number) =>
     siteSettings ? parseFloat(((amount * siteSettings.vat_percentage) / 100).toFixed(2)) : 0;
 
@@ -275,6 +286,7 @@ const CheckoutScreen: React.FC = () => {
       formData.append('items', JSON.stringify(cartItems.map(item => ({
         id: item.id,
         quantity: item.quantity,
+        selectedSize: item.selectedSize,
         is_bulk: item.isBulk || false,
       }))));
 
@@ -367,7 +379,8 @@ const CheckoutScreen: React.FC = () => {
 
   const subtotal = calculateSubtotal();
   const vat = calculateVAT(subtotal);
-  const amount = subtotal + vat - rewardApplied;
+  const amount = subtotal + vat + calculatedDeliveryFee - rewardApplied;
+
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={tw`flex-1`}>
@@ -399,8 +412,9 @@ const CheckoutScreen: React.FC = () => {
         orderType={orderType}
         deliveryFee={calculatedDeliveryFee}
         deliveryFeeLoading={deliveryFeeLoading}
+        brandLogoQty={design.brandLogo ? design.brandLogoQty || 1 : 0}
+        customDesignQty={design.customDesign ? design.customDesignQty || 1 : 0}
       />
-
 
 
         <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 mt-6 p-4 rounded-lg`}>
@@ -435,7 +449,7 @@ const CheckoutScreen: React.FC = () => {
       )}
 
       <Modal visible={confirmVisible} animationType="slide" transparent>
-        <View style={tw`flex-1 justify-end bg-black bg-opacity-30`}>
+        <View style={tw`flex-1 justify-center bg-black bg-opacity-30`}>
           <View style={tw`bg-white p-6 rounded-t-3xl`}>
             <Text style={tw`text-lg font-bold mb-2`}>Confirm Your Order</Text>
             <Text>Total: R{amount.toFixed(2)}</Text>
@@ -452,7 +466,12 @@ const CheckoutScreen: React.FC = () => {
       </Modal>
 
       {showSuccess && (
-        <Animated.View style={[tw`absolute inset-0 bg-white items-center justify-center`, { transform: [{ scale: scaleAnim }] }]}>
+        <Animated.View
+          style={[
+            tw`absolute inset-0 bg-white items-center justify-center`,
+            { transform: [{ scale: scaleAnim }] },
+          ]}
+        >
           <Text style={tw`text-5xl text-green-600 mb-4`}>✅</Text>
           <Text style={tw`text-lg font-bold`}>Payment Successful!</Text>
         </Animated.View>

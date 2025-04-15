@@ -11,8 +11,7 @@ def upload_file_to_cpanel(local_file_path: str, remote_file_path: str):
     try:
         with FTP(FTP_HOST) as ftp:
             ftp.login(FTP_USER, FTP_PASS)  # 👈 force direct login
-            print("✅ Logged in to FTP")
-            print("📍 Current directory:", ftp.pwd())
+
 
             # create folder chain
             folders = os.path.dirname(remote_file_path).split("/")
@@ -20,7 +19,7 @@ def upload_file_to_cpanel(local_file_path: str, remote_file_path: str):
                 if folder:
                     try:
                         ftp.mkd(folder)
-                        print(f"📁 Created folder: {folder}")
+
                     except:
                         pass
                     ftp.cwd(folder)
@@ -28,7 +27,6 @@ def upload_file_to_cpanel(local_file_path: str, remote_file_path: str):
             with open(local_file_path, "rb") as file:
                 ftp.storbinary(f"STOR {os.path.basename(remote_file_path)}", file)
 
-            print(f"✅ Upload complete: {remote_file_path}")
 
     except Exception as e:
         print(f"❌ FTP upload failed for {remote_file_path}: {e}")
