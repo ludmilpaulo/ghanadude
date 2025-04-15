@@ -11,9 +11,10 @@ DATABASES = {
         "USER": env("DB_USER"),
         "PASSWORD": env("DB_PASSWORD"),
         "HOST": env("DB_HOST"),
-        "PORT": env("DB_PORT", "5432"),
+        "PORT": env("DB_PORT", default="5432"),
     }
 }
+
 
 MEDIA_URL = "https://ghanadude.com/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "static_cdn", "media_root")
