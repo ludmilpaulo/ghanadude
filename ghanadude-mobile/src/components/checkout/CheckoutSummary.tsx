@@ -1,8 +1,7 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import tw from 'twrnc';
 import InfoTooltip from '../InfoTooltip';
-
 
 interface CheckoutSummaryProps {
   cartItems: { quantity: number; price: number; name: string }[];
@@ -15,6 +14,8 @@ interface CheckoutSummaryProps {
     country: string;
   } | null;
   orderType: 'delivery' | 'collection';
+  deliveryFee: number;
+  deliveryFeeLoading?: boolean;
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
@@ -23,21 +24,17 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   rewardBalance,
   siteSettings,
   orderType,
+  deliveryFee,
+  deliveryFeeLoading = false,
 }) => {
-    const subtotal = cartItems.reduce(
-        (sum, item) => sum + item.quantity * item.price,
-        0
-      );
-      
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.quantity * item.price,
+    0
+  );
+
   const vatRate = siteSettings ? siteSettings.vat_percentage : 0;
-  const deliveryFee = orderType === 'delivery' && siteSettings?.delivery_fee != null
-  ? Number(siteSettings.delivery_fee)
-  : 0;
-
-
-
   const vatAmount = parseFloat(((subtotal * vatRate) / 100).toFixed(2));
-  const total = subtotal + vatAmount + deliveryFee - rewardApplied;
+  const total = subtotal + vatAmount + (orderType === 'delivery' ? deliveryFee : 0) - rewardApplied;
 
   return (
     <View style={tw`bg-white shadow-md p-4 rounded-lg mt-4`}>
@@ -51,8 +48,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       <View style={tw`flex-row justify-between mb-1 items-center`}>
         <Text>📦 Delivery</Text>
         <View style={tw`flex-row items-center`}>
-        <Text>R{Number(deliveryFee || 0).toFixed(2)}</Text>
-
+          {orderType === 'collection' ? (
+            <Text>R0.00</Text>
+          ) : deliveryFeeLoading ? (
+            <ActivityIndicator size="small" color="#888" />
+          ) : (
+            <Text>R{Number(deliveryFee).toFixed(2)}</Text>
+          )}
           <InfoTooltip text="Delivery fee is based on distance and estimated parcel weight." />
         </View>
       </View>

@@ -1,4 +1,4 @@
-import React, { useState,  useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -13,28 +13,33 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
-import ProductService from "../services/ProductService";
-import ProductCard from "../components/ProductCard";
-import { Product, Category } from "./types";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp, FadeInRight } from "react-native-reanimated";
-import { NavigationProp, useFocusEffect } from "@react-navigation/native";
-import { HomeStackParamList } from "../navigation/HomeNavigator";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { useFocusEffect, NavigationProp } from "@react-navigation/native";
+
+import ProductService from "../services/ProductService";
+import ProductCard from "../components/ProductCard";
 import CreateProfileModal from "../components/CreateProfileModal";
+import { fetchUserProfile, ProfileForm, updateUserProfile } from "../services/UserService";
+
+import { Product, Category } from "./types";
 import { selectUser } from "../redux/slices/authSlice";
-
-import { fetchUserProfile, updateUserProfile } from "../services/UserService";
- interface ProfileData {
-    name: string;
-    email: string;
-    phone?: string;
-    [key: string]: string | number | undefined; // Add additional fields if necessary
-  }
-
+import { HomeStackParamList } from "../navigation/HomeNavigator";
 
 const { width } = Dimensions.get("window");
+
+export interface ProfileData {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  address: string;
+  city: string;
+  postal_code: string;
+  country: string;
+}
 
 const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
   const user = useSelector(selectUser);
@@ -45,69 +50,68 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-   const ensureAuth = () => {
-        if (!user) {
-          Alert.alert('Error', 'User not found.');
-          return null;
-        }
-        return { user };
+  const ensureAuth = () => {
+    if (!user) {
+      Alert.alert("Error", "User not found.");
+      return null;
+    }
+    return { user };
+  };
+
+  const auth = ensureAuth();
+  if (!auth) return null;
+  const user_id = auth.user.user_id;
+
+  const getProfile = async () => {
+    try {
+      const profileData = await fetchUserProfile(user_id);
+      console.log("Fetched profile data:", profileData);
+
+      if (!profileData.profile || Object.keys(profileData.profile).length === 0) {
+        console.log("User has no profile. Showing modal.");
+        setShowModal(true);
+      } else {
+        console.log("User profile found:", profileData);
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 500) {
+        console.log("User has no profile. Showing modal.");
+        setShowModal(true);
+      } else {
+        console.log("Error fetching profile", error);
+      }
+    }
+  };
+
+  const handleSaveProfile = async (form: ProfileData) => {
+    try {
+      const payload: ProfileForm = {
+        name: `${form.first_name} ${form.last_name}`.trim(),
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        phone_number: form.phone_number,
+        address: form.address,
+        city: form.city,
+        postal_code: form.postal_code,
+        country: form.country,
       };
-      const auth = ensureAuth();
-      if (!auth) return;
-    const [showModal, setShowModal] = useState(false);
-    const user_id = auth.user.user_id;
-
-    const getProfile = async () => {
-      try {
-        const profileData = await fetchUserProfile(user_id);
-        console.log("Fetched profile data:", profileData);
   
-        // Check if profile is null or None
-        if (!profileData.profile || Object.keys(profileData.profile).length === 0) {
-          console.log("User has no profile. Showing modal.");
-          setShowModal(true); // Show modal if profile is None
-        } else {
-          console.log("User profile found:", profileData);
-        }
-      } catch (error) {
-        if (axios.isAxiosError(error) && error.response?.status === 500) {
-          console.log("User has no profile. Showing modal.");
-          setShowModal(true);
-        } else {
-          console.log("Error fetching profile", error);
-        }
-      }
-    };
-    
-    const handleSaveProfile = async (form: ProfileData) => {
-      try {
-        const payload = {
-          first_name: form.first_name,
-          last_name: form.last_name,
-          profile: {
-            phone_number: form.phone_number,
-            address: form.address,
-            city: form.city,
-            postal_code: form.postal_code,
-            country: form.country,
-          },
-        };
-    
-        console.log("Payload being sent:", payload);
-    
-        await updateUserProfile(user_id, payload);
-        setShowModal(false);
-        Alert.alert("Success", "Profile updated.");
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        Alert.alert("Error", "Failed to update profile.");
-      }
-    };
+      console.log("Payload being sent:", payload);
+  
+      await updateUserProfile(user_id, payload);
+      setShowModal(false);
+      Alert.alert("Success", "Profile updated.");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      Alert.alert("Error", "Failed to update profile.");
+    }
+  };
   
 
   useFocusEffect(
-   
     useCallback(() => {
       let isActive = true;
       getProfile();
@@ -117,7 +121,6 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           const [productsRes, categoriesRes] = await Promise.all([
             ProductService.getProducts(),
             ProductService.getCategories(),
-            
           ]);
 
           if (isActive) {
@@ -284,8 +287,9 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           )}
         </View>
       </ScrollView>
-       {/* 👇 Profile Modal Rendered Here */}
-       <CreateProfileModal
+
+      {/* Profile creation modal */}
+      <CreateProfileModal
         visible={showModal}
         onClose={() => setShowModal(false)}
         onSave={handleSaveProfile}

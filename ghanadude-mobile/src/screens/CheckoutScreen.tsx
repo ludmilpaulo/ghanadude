@@ -19,8 +19,9 @@ import * as Location from 'expo-location';
 
 import { checkoutOrder } from '../services/Checkout';
 import { fetchUserProfile, fetchRewards, updateUserProfile } from '../services/UserService';
-import { fetchSiteSettings } from '../services/SiteSettingService';
+import { fetchSiteSettings, SiteSetting } from '../services/SiteSettingService';
 import { getLatLngFromAddress, haversineDistance } from '../utils/geoUtils';
+import { appendImageToFormData, RNImageFile } from '../utils/formDataUtils';
 
 import { selectUser } from '../redux/slices/authSlice';
 import { selectCartItems, clearCart } from '../redux/slices/basketSlice';
@@ -55,15 +56,18 @@ const CheckoutScreen: React.FC = () => {
   const [rewardBalance, setRewardBalance] = useState(0);
   const [rewardApplied, setRewardApplied] = useState(0);
   const [orderId, setOrderId] = useState<number | null>(null);
+  const [bulkOrderId, setBulkOrderId] = useState<number | null>(null);
   const [payFastVisible, setPayFastVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [calculatedDeliveryFee, setCalculatedDeliveryFee] = useState<number>(0);
+  const [deliveryFeeLoading, setDeliveryFeeLoading] = useState<boolean>(false);
+
+
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
-  const [siteSettings, setSiteSettings] = useState<{
-    delivery_fee: number; vat_percentage: number; address: string; country: string;
-  } | null>(null);
+  const [siteSettings, setSiteSettings] = useState<SiteSetting | null>(null);
 
   const ensureAuth = () => {
     if (!user) {
@@ -96,7 +100,16 @@ const CheckoutScreen: React.FC = () => {
           fetchRewards(auth.user.user_id),
           fetchSiteSettings(),
         ]);
-        setSiteSettings(settings);
+        setSiteSettings({
+          brand_price: settings.brand_price,
+          custom_price: settings.custom_price,
+          delivery_fee: settings.delivery_fee,
+          estimatedWeight: settings.estimatedWeight,
+          internationalRate: settings.internationalRate,
+          vat_percentage: settings.vat_percentage,
+          address: settings.address,
+          country: settings.country,
+        });
         setForm({
           first_name: profile.first_name,
           last_name: profile.last_name,
@@ -121,33 +134,96 @@ const CheckoutScreen: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (showSuccess && orderId !== null) {
+    const shouldCalculate =
+      orderType === 'delivery' &&
+      siteSettings &&
+      form.address.trim() !== '' &&
+      form.city.trim() !== '' &&
+      form.country.trim() !== '' &&
+      cartItems.length > 0;
+  
+    const autoUpdateDeliveryFee = async () => {
+      if (shouldCalculate) {
+        setDeliveryFeeLoading(true);
+        const fee = await calculateDeliveryFee();
+        setCalculatedDeliveryFee(fee);
+        setDeliveryFeeLoading(false);
+      } else {
+        setCalculatedDeliveryFee(0);
+      }
+    };
+  
+    autoUpdateDeliveryFee();
+  }, [orderType, siteSettings, form.address, form.city, form.country, cartItems]);
+  
+  
+
+  useEffect(() => {
+    if (showSuccess && (orderId !== null || bulkOrderId !== null)) {
       Animated.spring(scaleAnim, {
         toValue: 1,
         useNativeDriver: true,
         friction: 5,
       }).start(() => {
-        setTimeout(() => navigation.navigate('SuccessScreen', { order_id: orderId }), 1500);
+        setTimeout(() => {
+          navigation.navigate('SuccessScreen', {
+            ...(orderId !== null && { order_id: orderId }),
+            ...(bulkOrderId !== null && { bulk_order_id: bulkOrderId }),
+          });
+        }, 1500);
       });
     }
   }, [showSuccess]);
 
-  const calculateSubtotal = () => cartItems.reduce(
-    (sum, item) => sum + item.quantity * parseFloat(String(item.price)),
-    0
-  );
+  const calculateSubtotal = () =>
+    cartItems.reduce((sum, item) => sum + item.quantity * parseFloat(String(item.price)), 0);
 
   const calculateVAT = (amount: number) =>
     siteSettings ? parseFloat(((amount * siteSettings.vat_percentage) / 100).toFixed(2)) : 0;
 
-  const calculateDeliveryFee = async () => {
+  const calculateDeliveryFee = async (): Promise<number> => {
     if (orderType === 'collection' || !siteSettings) return 0;
+  
+    const isInternational = form.country.trim().toLowerCase() !== 'south africa';
+    const { estimatedWeight, internationalRate, delivery_fee } = siteSettings;
+  
+    // Total item count
+    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  
+    // Calculate weight only if 10 or more items, charge every 5 items
+    const weightChargeKg = totalItems >= 10 ? Math.floor((totalItems - 5) / 5) : 0;
+  
+    if (isInternational) {
+      const internationalFee = weightChargeKg * internationalRate;
+      console.log('🌍 International Delivery Fee Breakdown:', {
+        totalItems,
+        weightChargeKg,
+        internationalRate,
+        deliveryFee: internationalFee.toFixed(2),
+      });
+      return parseFloat(internationalFee.toFixed(2));
+    }
+  
     const distanceKm = await getDistanceKm();
-    const estimatedWeight = cartItems.length >= 10 ? 5 : 2;
-    const fee = distanceKm * siteSettings.delivery_fee + (estimatedWeight >= 5 ? 50 : 30);
-    return parseFloat(fee.toFixed(2));
+    const distanceComponent = distanceKm * delivery_fee;
+    const weightComponent = weightChargeKg * estimatedWeight;
+    const total = distanceComponent + weightComponent;
+  
+    console.log('📦 Local Delivery Fee Breakdown:', {
+      totalItems,
+      weightChargeKg,
+      distanceKm: distanceKm.toFixed(2),
+      delivery_fee,
+      estimatedWeight,
+      distanceComponent: distanceComponent.toFixed(2),
+      weightComponent: weightComponent.toFixed(2),
+      deliveryFee: total.toFixed(2),
+    });
+  
+    return parseFloat(total.toFixed(2));
   };
-
+  
+  
   const validateForm = (): boolean => {
     if (orderType === 'collection') return true;
     const requiredFields: (keyof FormFields)[] = [
@@ -164,11 +240,15 @@ const CheckoutScreen: React.FC = () => {
 
   const initiatePayment = async () => {
     if (!validateForm()) return;
+  
+    const delivery = await calculateDeliveryFee(); // 👈 call async fee
+    setCalculatedDeliveryFee(delivery); // 👈 store in state
+  
     setConfirmVisible(true);
   };
+  
 
   const confirmPayment = async () => {
-    console.log('Confirming payment...');
     const auth = ensureAuth();
     if (!auth || !siteSettings) return;
     setConfirmVisible(false);
@@ -192,26 +272,35 @@ const CheckoutScreen: React.FC = () => {
       formData.append('order_type', orderType);
       formData.append('vat_amount', String(vat));
       formData.append('delivery_fee', String(delivery));
-      formData.append(
-        'items',
-        JSON.stringify(cartItems.map((item) => ({
-          id: item.id, quantity: item.quantity, is_bulk: item.isBulk || false,
-        })))
-      );
+      formData.append('items', JSON.stringify(cartItems.map(item => ({
+        id: item.id,
+        quantity: item.quantity,
+        is_bulk: item.isBulk || false,
+      }))));
+
       if (design.brandLogo) {
-        formData.append('brand_logo', {
-          uri: design.brandLogo, name: 'brand_logo.png', type: 'image/png',
-        } as any);
+        const brandLogoFile: RNImageFile = {
+          uri: design.brandLogo,
+          name: 'brand_logo.png',
+          type: 'image/png',
+        };
+        appendImageToFormData(formData, 'brand_logo', brandLogoFile);
         formData.append('brand_logo_qty', String(design.brandLogoQty || 1));
       }
+
       if (design.customDesign) {
-        formData.append('custom_design', {
-          uri: design.customDesign, name: 'custom_design.png', type: 'image/png',
-        } as any);
+        const customDesignFile: RNImageFile = {
+          uri: design.customDesign,
+          name: 'custom_design.png',
+          type: 'image/png',
+        };
+        appendImageToFormData(formData, 'custom_design', customDesignFile);
         formData.append('custom_design_qty', String(design.customDesignQty || 1));
       }
+
       const res = await checkoutOrder(formData);
       setOrderId(res.order_id);
+      setBulkOrderId(res.bulk_order_id);
       setPayFastVisible(true);
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
@@ -222,14 +311,23 @@ const CheckoutScreen: React.FC = () => {
   };
 
   const handlePaymentClose = async (reference?: string) => {
-    if (!orderId || !reference || !user) return;
+    if (!reference || !user) return;
+    const fullName = `${form.first_name} ${form.last_name}`.trim();
     try {
-      await fetch(`${API_BASE_URL}/order/orders/${orderId}/update-status/`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'Processing' }),
-      });
-      const fullName = `${form.first_name} ${form.last_name}`.trim();
+      if (orderId) {
+        await fetch(`${API_BASE_URL}/order/orders/${orderId}/update-status/`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Processing' }),
+        });
+      }
+      if (bulkOrderId) {
+        await fetch(`${API_BASE_URL}/order/bulk-orders/${bulkOrderId}/update-status/`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Processing' }),
+        });
+      }
       await updateUserProfile(user.user_id, { name: fullName, ...form });
       dispatch(clearCart());
       dispatch(clearDesign());
@@ -293,13 +391,18 @@ const CheckoutScreen: React.FC = () => {
             </Text>
           </View>
         )}
-        <CheckoutSummary
-          cartItems={cartItems}
-          rewardApplied={rewardApplied}
-          rewardBalance={rewardBalance}
-          siteSettings={siteSettings}
-          orderType={orderType}
-        />
+       <CheckoutSummary
+        cartItems={cartItems}
+        rewardApplied={rewardApplied}
+        rewardBalance={rewardBalance}
+        siteSettings={siteSettings}
+        orderType={orderType}
+        deliveryFee={calculatedDeliveryFee}
+        deliveryFeeLoading={deliveryFeeLoading}
+      />
+
+
+
         <TouchableOpacity onPress={initiatePayment} style={tw`bg-green-600 mt-6 p-4 rounded-lg`}>
           {loading || locationLoading ? (
             <ActivityIndicator color="#fff" />
@@ -310,7 +413,7 @@ const CheckoutScreen: React.FC = () => {
         <InfoTooltip text="Rewards apply to orders of R1000+. Delivery fee is distance-based." />
       </ScrollView>
 
-      {payFastVisible && orderId && (
+      {payFastVisible && (orderId || bulkOrderId) && (
         <PayFast
           merchantId="10037687"
           merchantKey="t9k4qun47sejo"
@@ -321,8 +424,8 @@ const CheckoutScreen: React.FC = () => {
             customerLastName: form.last_name,
             customerEmailAddress: form.email,
             customerPhoneNumber: form.phone_number,
-            reference: `ORDER_${orderId}`,
-            amount: Number(amount.toFixed(2)), // ✅ amount is now a number
+            reference: orderId ? `ORDER_${orderId}` : `BULKORDER_${bulkOrderId}`,
+            amount: Number(amount.toFixed(2)),
             itemName: cartItems.map(item => `${item.quantity}x ${item.name}`).join(', '),
             itemDescription: 'Checkout Payment',
           }}

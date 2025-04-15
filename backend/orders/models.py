@@ -109,7 +109,7 @@ class BulkOrder(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-    )
+    ) 
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     order_type = models.CharField(
         max_length=20, choices=ORDER_TYPE_CHOICES, default="delivery"
@@ -135,7 +135,7 @@ class BulkOrder(models.Model):
 
 
 class BulkOrderItem(models.Model):
-    group = models.ForeignKey(BulkOrder, related_name="items", on_delete=models.CASCADE)
+    bulk_order = models.ForeignKey(BulkOrder, related_name="items", on_delete=models.CASCADE)
     product = models.ForeignKey(
         Product, null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -150,7 +150,7 @@ class BulkOrderItem(models.Model):
     )
 
     def __str__(self):
-        return f"{self.quantity} x {self.product} in BulkGroup #{self.group.id}"
+        return f"{self.quantity} x {self.product} in BulkGroup #{self.bulk_order.id}"
 
     @property
     def dev_earnings(self):

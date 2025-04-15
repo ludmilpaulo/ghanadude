@@ -1,6 +1,6 @@
 # serializers.py
 from rest_framework import serializers
-from .models import DevPayment, SiteSetting
+from .models import DevPayment, SiteSetting, AppVersion
 
 
 class DevPaymentSerializer(serializers.ModelSerializer):
@@ -12,4 +12,13 @@ class DevPaymentSerializer(serializers.ModelSerializer):
 class SiteSettingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SiteSetting
+        fields = "__all__"
+
+
+
+
+
+class AppVersionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppVersion
         fields = "__all__"

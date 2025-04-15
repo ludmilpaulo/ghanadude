@@ -66,7 +66,7 @@ def developer_earnings_summary(request):
         .annotate(total=Sum("earnings"))
     ):
         key = entry["month"].strftime("%b %Y")
-        monthly_data[key] = monthly_data.get(key, 0) + entry["total"]
+        monthly_data[key] = monthly_data.get(key, 0) + (entry["total"] or 0)
 
     monthly_breakdown = [
         {"month": month, "total": round(total, 2)}

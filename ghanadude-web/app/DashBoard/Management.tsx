@@ -8,6 +8,7 @@ import ManagementNav from "./manager/ManagementNav";
 import PaymentHistory from "./manager/PaymentHistory";
 import { Earnings, DevPayment } from "./manager/types";
 import PaymentModal from "./manager/PaymentModal";
+import ManagerPanel from "./manager/ManagerPanel";
 
 
 const Management: React.FC = () => {
@@ -43,7 +44,7 @@ const Management: React.FC = () => {
 
       <Tab.Group>
         <Tab.List className="mb-4">
-          {["Earnings Summary", "Payment History"].map(tab => (
+        {["Earnings Summary", "Payment History", "Manager"].map((tab) =>(
             <Tab key={tab} as={Fragment}>
               {({ selected }) => (
                 <button className={`px-4 py-2 rounded ${selected ? "bg-gray-200" : ""}`}>
@@ -62,7 +63,11 @@ const Management: React.FC = () => {
           <Tab.Panel>
             <PaymentHistory payments={payments} />
           </Tab.Panel>
+          <Tab.Panel>
+            <ManagerPanel />
+          </Tab.Panel>
         </Tab.Panels>
+
       </Tab.Group>
 
       <PaymentModal isOpen={modalOpen} onClose={() => {

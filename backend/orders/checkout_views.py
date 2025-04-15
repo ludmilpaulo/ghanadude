@@ -7,149 +7,122 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 from .models import BulkOrderItem, Order, OrderItem, BulkOrder
 from product.models import Product
+from .order_email import send_invoice_email
 import json
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def checkout(request):
-    print("✅ Received checkout request")
-    data = request.data.copy()
+    print("✅ Checkout request received")
+    data = request.data
+    print(f"Request data: {data}")
     files = request.FILES
 
-    # 🧾 Check if order_type is 'delivery' or 'collection'
     order_type = data.get("order_type", "delivery")
-    print(f"📦 Order type: {order_type}")
-
-    required_fields = (
-        []
-        if order_type == "collection"
-        else ["address", "city", "postal_code", "country"]
-    )
+    required_fields = [] if order_type == "collection" else ["address", "city", "postal_code", "country"]
     missing = [f for f in required_fields if not data.get(f)]
     if missing:
-        print(f"❌ Missing fields: {missing}")
         return Response({"error": f'Missing fields: {", ".join(missing)}'}, status=400)
 
     try:
         user = User.objects.get(pk=data.get("user_id"))
-        print(f"👤 User found: {user.username}")
     except User.DoesNotExist:
-        print("❌ User not found")
         return Response({"error": "User not found"}, status=404)
 
-    total_price = Decimal(data.get("total_price", "0"))
     reward_applied = Decimal(data.get("reward_applied", "0"))
+    delivery_fee = Decimal(data.get("delivery_fee", "0"))
+    vat_amount = Decimal(data.get("vat_amount", "0"))
 
-    # 🏆 Deduct reward if used
     if reward_applied > 0:
         profile = user.profile
-        print(f"💸 Deducting reward: {reward_applied}")
-        profile.reward_balance = max(
-            Decimal("0.00"), profile.reward_balance - reward_applied
-        )
+        profile.reward_balance = max(Decimal("0.00"), profile.reward_balance - reward_applied)
         profile.save()
 
-    # 🧾 Create Order
-    order = Order.objects.create(
-        user=user,
-        total_price=total_price,
-        reward_applied=reward_applied,
-        address=data.get("address", ""),
-        city=data.get("city", ""),
-        postal_code=data.get("postal_code", ""),
-        country=data.get("country", ""),
-        payment_method=data.get("payment_method", "payfast"),
-        status=data.get("status", "pending"),
-        delivery_fee=Decimal(data.get("delivery_fee", "0.00")),
-        vat_amount=Decimal(data.get("vat_amount", "0.00")),
-        order_type=order_type,  # ✅ Save order_type
-    )
-    print(f"✅ Order created: #{order.id}")
-
-    # 🛒 Process items
     try:
         items = json.loads(data.get("items", "[]"))
-        print(f"🧾 Items received: {len(items)}")
     except json.JSONDecodeError:
-        print("❌ Invalid items JSON")
-        return Response({"error": "Invalid items JSON format"}, status=400)
+        return Response({"error": "Invalid items format"}, status=400)
 
+    regular_items = []
     bulk_items = []
-    bulk_total = Decimal("0.00")
 
-    # Prepare bulk items
     for item in items:
-        if item.get("is_bulk"):
-            try:
-                quantity = int(item.get("quantity", 0))
-                if quantity <= 0:
-                    return Response(
-                        {"error": f"Invalid quantity for product ID {item.get('id')}"}, status=400
-                    )
+        try:
+            product = Product.objects.get(pk=item["id"])
+            quantity = int(item.get("quantity", 0))
+            if quantity <= 0:
+                return Response({"error": f"Invalid quantity for product ID {item.get('id')}"}, status=400)
 
-                product = Product.objects.get(pk=item["id"])
-                product.reduce_stock(quantity)
+            price = product.price
+            if product.on_sale:
+                discount = price * (Decimal(product.discount_percentage) / 100)
+                price -= discount
 
-                item_total = product.price * quantity
-                bulk_items.append(
-                    {
-                        "product": product,
-                        "quantity": quantity,
-                        "price": product.price,
-                    }
-                )
-                bulk_total += item_total
-            except Product.DoesNotExist:
-                return Response(
-                    {"error": f"Product ID {item.get('id')} not found"}, status=404
-                )
-            except (TypeError, ValueError):
-                return Response(
-                    {"error": f"Invalid quantity format for product ID {item.get('id')}"}, status=400
-                )
+            product.reduce_stock(quantity)
 
-    # 🖼️ Handle brand logo and custom design uploads
+            if item.get("is_bulk"):
+                bulk_items.append({"product": product, "quantity": quantity, "price": price})
+            else:
+                regular_items.append({"product": product, "quantity": quantity, "price": price})
+        except Product.DoesNotExist:
+            return Response({"error": f"Product ID {item.get('id')} not found"}, status=404)
+
+    # Add brand logo and custom design
     brand_logo = files.get("brand_logo")
     custom_design = files.get("custom_design")
     brand_logo_qty = int(data.get("brand_logo_qty", 0))
     custom_design_qty = int(data.get("custom_design_qty", 0))
 
-    # Check if brand_logo/custom_design was uploaded
     if brand_logo and brand_logo_qty > 0:
-        bulk_items.append(
-            {
-                "product": None,
-                "quantity": brand_logo_qty,
-                "price": Decimal("0.00"),  # or set a design price
-                "brand_logo": brand_logo,
-            }
-        )
-
+        bulk_items.append({"product": None, "quantity": brand_logo_qty, "price": Decimal("0.00"), "brand_logo": brand_logo})
     if custom_design and custom_design_qty > 0:
-        bulk_items.append(
-            {
-                "product": None,
-                "quantity": custom_design_qty,
-                "price": Decimal("0.00"),  # or set a design price
-                "custom_design": custom_design,
-            }
-        )
+        bulk_items.append({"product": None, "quantity": custom_design_qty, "price": Decimal("0.00"), "custom_design": custom_design})
 
-    # Create BulkOrder if there are items
-    if bulk_items:
-        bulk_order = BulkOrder.objects.create(
+    order = None
+    bulk_order = None
+
+    if regular_items:
+        regular_total = sum(item["price"] * item["quantity"] for item in regular_items)
+        order = Order.objects.create(
             user=user,
-            total_price=bulk_total,
+            total_price=regular_total,
+            reward_applied=reward_applied,
             address=data.get("address", ""),
             city=data.get("city", ""),
             postal_code=data.get("postal_code", ""),
             country=data.get("country", ""),
-            delivery_fee=Decimal(data.get("delivery_fee", "0.00")),
-            vat_amount=Decimal(data.get("vat_amount", "0.00")),
+            payment_method=data.get("payment_method", "payfast"),
+            status=data.get("status", "pending"),
+            delivery_fee=delivery_fee,
+            vat_amount=vat_amount,
             order_type=order_type,
         )
+        for item in regular_items:
+            OrderItem.objects.create(
+                order=order,
+                product=item["product"],
+                quantity=item["quantity"],
+                price=item["price"],
+            )
+        send_invoice_email(order)
+        print(f"✅ Regular order created: #{order.id}")
 
+    if bulk_items:
+        bulk_total = sum(item["price"] * item["quantity"] for item in bulk_items)
+        bulk_quantity = sum(item["quantity"] for item in bulk_items)
+        bulk_order = BulkOrder.objects.create(
+            user=user,
+            total_price=bulk_total,
+            quantity=bulk_quantity,
+            address=data.get("address", ""),
+            city=data.get("city", ""),
+            postal_code=data.get("postal_code", ""),
+            country=data.get("country", ""),
+            delivery_fee=delivery_fee,
+            vat_amount=vat_amount,
+            order_type=order_type,
+        )
         for item in bulk_items:
             BulkOrderItem.objects.create(
                 bulk_order=bulk_order,
@@ -159,12 +132,20 @@ def checkout(request):
                 brand_logo=item.get("brand_logo"),
                 custom_design=item.get("custom_design"),
             )
+        send_invoice_email(bulk_order)
+        print(f"📦 Bulk order created: #{bulk_order.id}")
 
-        print(
-            f"📦 Bulk order created with {len(bulk_items)} items and total: {bulk_total}"
-        )
+    response_data = {}
+    if order:
+        response_data["order_id"] = order.id
+    if bulk_order:
+        response_data["bulk_order_id"] = bulk_order.id
+    print(f"📦 response: #{response_data}")
+    return Response(response_data, status=201)
 
 
+
+    
 # ✅ PayFast Webhook
 @api_view(["POST"])
 @permission_classes([AllowAny])

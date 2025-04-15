@@ -3,13 +3,32 @@ import axios from 'axios';
 import { API_BASE_URL } from './AuthService';
 
 export interface SiteSetting {
-  delivery_fee: number;         // base fee per km
-  vat_percentage: number;       // VAT %
-  address: string;              // store address
+  brand_price: number;
+  custom_price: number;
+  delivery_fee: number;
+  estimatedWeight: number;
+  internationalRate: number;
+  vat_percentage: number;
+  address: string;
   country: string;
 }
 
+
 export const fetchSiteSettings = async (): Promise<SiteSetting> => {
   const res = await axios.get(`${API_BASE_URL}/api/site-settings/`);
-  return res.data;
+  const settings = res.data;
+
+  return {
+    brand_price: parseFloat(settings.brand_price),
+    custom_price: parseFloat(settings.custom_price),
+    delivery_fee: parseFloat(settings.delivery_fee),
+    estimatedWeight: parseFloat(settings.estimatedWeight),
+    internationalRate: parseFloat(settings.internationalRate),
+    vat_percentage: parseFloat(settings.vat_percentage),
+    address: settings.address,
+    country: settings.country,
+  };
 };
+
+
+

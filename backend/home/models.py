@@ -8,6 +8,9 @@ class AppVersion(models.Model):
     ]
 
     platform = models.CharField(max_length=10, choices=PLATFORM_CHOICES, unique=True)
+    logo = models.ImageField(
+        max_length=3000, default=None, blank=True, upload_to="logo_image/"
+    )
     latest_version = models.CharField(max_length=20)
     store_url = models.URLField()  # ✅ Allows linking to App Store or Play Store
     force_update = models.BooleanField(default=True)  # ✅ Forces user to update
@@ -28,7 +31,11 @@ class DevPayment(models.Model):
 
 
 class SiteSetting(models.Model):
+    brand_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    custom_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    estimatedWeight = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    internationalRate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     address = models.CharField(
         max_length=255, default="205 Victoria Rd, Woodstock, Cape Town, 7925"

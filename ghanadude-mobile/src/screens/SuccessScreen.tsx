@@ -20,6 +20,8 @@ const SuccessScreen = () => {
   const [loading, setLoading] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
+  const { order_id, bulk_order_id } = route.params || {};
+
   useEffect(() => {
     Animated.spring(scaleAnim, {
       toValue: 1,
@@ -58,9 +60,28 @@ const SuccessScreen = () => {
         Thank You!
       </Animated.Text>
 
-      <Text style={tw`text-center text-lg text-gray-600 mb-4`}>
-        Your order #{route.params?.order_id || 'N/A'} has been successfully placed.
-      </Text>
+      {order_id && bulk_order_id ? (
+        <>
+          <Text style={tw`text-center text-lg text-gray-600 mb-1`}>
+            Your regular order #{order_id} has been placed.
+          </Text>
+          <Text style={tw`text-center text-lg text-gray-600 mb-4`}>
+            Your bulk order #{bulk_order_id} has been placed.
+          </Text>
+        </>
+      ) : order_id ? (
+        <Text style={tw`text-center text-lg text-gray-600 mb-4`}>
+          Your order #{order_id} has been successfully placed.
+        </Text>
+      ) : bulk_order_id ? (
+        <Text style={tw`text-center text-lg text-gray-600 mb-4`}>
+          Your bulk order #{bulk_order_id} has been successfully placed.
+        </Text>
+      ) : (
+        <Text style={tw`text-center text-lg text-gray-600 mb-4`}>
+          Your order has been placed.
+        </Text>
+      )}
 
       <TouchableOpacity
         style={tw`bg-blue-600 w-full py-3 rounded-full mt-4 ${

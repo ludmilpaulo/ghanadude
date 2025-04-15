@@ -23,7 +23,10 @@ export type HomeStackParamList = {
   Cart: undefined;
   DealsScreen: undefined;
   CheckoutScreen: undefined;
-  SuccessScreen: { order_id: number };
+  SuccessScreen: {
+    order_id?: number;
+    bulk_order_id?: number;
+  };
   ProductDetail: { id: number };
   MyCouponsScreen: undefined;
   InvoiceHistoryScreen: undefined;
