@@ -5,7 +5,6 @@ DEBUG = False
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 
-# Supabase Postgres DB
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -20,12 +19,15 @@ DATABASES = {
     }
 }
 
-# Supabase S3-compatible Storage
-AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+# Supabase Storage (S3-compatible)
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_STORAGE_BUCKET_NAME = "ghanadude"
 AWS_S3_ENDPOINT_URL = "https://ucekkzhmdgmcenhvxary.supabase.co/storage/v1/s3"
 AWS_S3_REGION_NAME = "us-west-1"
+AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+AWS_QUERYSTRING_AUTH = False  # Make URLs publicly accessible
 
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+# Media URLs (can be used in frontend if needed)
 MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "static_cdn", "media_root")
