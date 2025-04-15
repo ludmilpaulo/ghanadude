@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "product",
     "orders",
     "revenue",
+    "storages",
     "home",
     "media_sync",
 ]
