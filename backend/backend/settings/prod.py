@@ -12,6 +12,9 @@ DATABASES = {
         "PASSWORD": env("DB_PASSWORD"),
         "HOST": env("DB_HOST"),
         "PORT": env("DB_PORT", default="5432"),
+        "OPTIONS": {
+            "sslmode": "require",  # Supabase requires SSL
+        },
     }
 }
 
