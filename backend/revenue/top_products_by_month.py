@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Sum
+from backend.upload_test import SUPABASE_URL
+from backend.utils.supabase import SUPABASE_PUBLIC_BASE
 from orders.models import Order, OrderItem
 from datetime import datetime
 from collections import defaultdict
@@ -68,7 +70,9 @@ def top_products_by_month(request):
             if product_obj.images.exists():
                 image = product_obj.images.first()
                 if image and image.image:
-                    image_url = request.build_absolute_uri(image.image.url)
+                    file_path = image.image.name
+                    image_url = f"{SUPABASE_PUBLIC_BASE}/{file_path}"
+
 
             result.append(
                 {
