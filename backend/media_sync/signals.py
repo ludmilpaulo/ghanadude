@@ -1,41 +1,40 @@
 import os
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.apps import apps
 from django.db.models import FileField, ImageField
-from django.core.files.storage import default_storage
 from .upload_file_to_supabase import upload_file_to_supabase
 
 
-
-@receiver(post_save)
-def sync_media_files_on_save(sender, instance, **kwargs):
-   
+def sync_all_model_media_files():
     env = os.environ.get("DJANGO_ENV")
-   
-
     if env != "prod":
-       
+        print("🛑 Not syncing media files outside of production.")
         return
 
-    if not hasattr(instance, "_meta") or sender.__module__.startswith("django."):
-       
-        return
+    print("🔄 Scanning all model media files...")
 
-    for field in instance._meta.fields:
-        if isinstance(field, (FileField, ImageField)):
-            file = getattr(instance, field.name)
-            if file:
-                print(f"📁 Field found: {field.name} → {file.name}")
-                try:
+    for model in apps.get_models():
+        if model._meta.app_label == "contenttypes":
+            continue  # skip built-in models
+
+        file_fields = [f for f in model._meta.fields if isinstance(f, (FileField, ImageField))]
+        if not file_fields:
+            continue
+
+        try:
+            instances = model.objects.all()
+        except Exception as e:
+            print(f"⚠️ Could not fetch instances of {model.__name__}: {e}")
+            continue
+
+        for instance in instances:
+            for field in file_fields:
+                file = getattr(instance, field.name)
+                if file and hasattr(file, "path"):
                     local_path = file.path
                     remote_path = file.name
-                    print(f"⬆️ Uploading: {local_path} → {remote_path}")
-                    upload_file_to_supabase(local_path, remote_path)
-
-                except Exception as e:
-                    print(f"❌ Upload failed for {field.name}: {e}")
-                    print(
-                        f"📎 Tried path: {getattr(file, 'path', 'unknown')} → {getattr(file, 'name', 'unknown')}"
-                    )
-            else:
-                print(f"⚠️ FileField {field.name} is empty.")
+                    if os.path.exists(local_path):
+                        print(f"⬆️ Syncing: {remote_path}")
+                        try:
+                            upload_file_to_supabase(local_path, remote_path)
+                        except Exception as e:
+                            print(f"❌ Failed to upload {remote_path}: {e}")
