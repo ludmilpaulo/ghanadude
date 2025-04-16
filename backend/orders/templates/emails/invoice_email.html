@@ -114,33 +114,46 @@
 
     <div class="content">
       <p>Hello <strong>{{ order.user.username }}</strong>,</p>
-      <p>Thank you for your {{ "bulk order" if is_bulk else "order" }}! Please find your invoice below.</p>
-
+      <p>
+        Thank you for your 
+        {% if is_bulk %}
+          bulk order
+        {% else %}
+          order
+        {% endif %}! Please find your invoice below.
+      </p>
+    
       <div class="details">
         <p><strong>Total Price:</strong> R{{ order.total_price }}</p>
         <p><strong>Payment Method:</strong> {{ order.payment_method|capfirst }}</p>
         <p><strong>Status:</strong> {{ order.status|capfirst }}</p>
         <p><strong>Address:</strong> {{ address_summary }}</p>
       </div>
-
+    
       <div class="order-items">
         <h3>Order Items:</h3>
         <ul>
-          {% for item in order.items.all %}
-            <li>{{ item.product.name }} — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
-          {% endfor %}
           {% if is_bulk %}
             {% for item in order.bulkorderitem_set.all %}
-              <li>{{ item.product.name if item.product }} — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
+              {% if item.product %}
+                <li>{{ item.product.name }} — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
+              {% else %}
+                <li>Custom Design or Logo — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% for item in order.items.all %}
+              <li>{{ item.product.name }} — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
             {% endfor %}
           {% endif %}
         </ul>
       </div>
-
+    
       <div class="total">
         Total Paid: R{{ order.total_price|floatformat:2 }}
       </div>
     </div>
+    
 
     <div class="footer">
       &copy; {{ order.created_at|date:"Y" }} Ghana Dude — All rights reserved.<br />
