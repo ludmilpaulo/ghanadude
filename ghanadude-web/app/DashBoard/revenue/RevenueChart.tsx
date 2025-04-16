@@ -26,7 +26,7 @@ ChartJS.register(
   PointElement,
   Tooltip,
   Legend,
-  LineController, 
+  LineController,
   BarController
 );
 
