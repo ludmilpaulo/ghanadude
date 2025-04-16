@@ -19,12 +19,14 @@ import UserStats from './revenue/UserStats';
 
 import dynamic from 'next/dynamic';
 
-const WorldLeafletMap = dynamic(() => import('@/components/WorldLeafletMap'), {
-  ssr: false,
-});
-
 const RevenueChart = dynamic(() => import('./revenue/RevenueChart'), {
   ssr: false,
+  loading: () => <p>Loading chart...</p>,
+});
+
+const WorldLeafletMap = dynamic(() => import('@/components/WorldLeafletMap'), {
+  ssr: false,
+  loading: () => <p>Loading map...</p>,
 });
 
 

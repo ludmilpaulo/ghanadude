@@ -35,6 +35,12 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_BASE_API: process.env.NEXT_PUBLIC_BASE_API,
   },
+  transpilePackages: [
+    "chart.js",
+    "react-chartjs-2",
+    "react-leaflet",
+    "leaflet",
+  ], // 👈 ADD THIS BLOCK
 };
 
 export default nextConfig;
