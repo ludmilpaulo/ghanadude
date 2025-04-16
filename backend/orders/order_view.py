@@ -74,8 +74,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "total_price": order.total_price,
                     "created_at": order.created_at,
                     "items": serialized_items,
-                  #  "reward_applied": order.reward_applied,
-                  #  "reward_granted": order.reward_granted,
+                    #  "reward_applied": order.reward_applied,
+                    #  "reward_granted": order.reward_granted,
                     "is_dispatched": order.is_dispatched,
                     "pin_code": order.pin_code,
                     "type": "regular",
@@ -89,7 +89,9 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         bulk_data = []
         for bulk in bulk_orders:
-            items = BulkOrderItem.objects.filter(bulk_order=bulk).select_related("product")
+            items = BulkOrderItem.objects.filter(bulk_order=bulk).select_related(
+                "product"
+            )
 
             serialized_items = [
                 {
@@ -106,11 +108,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                     "id": bulk.id,
                     "items": serialized_items,
                     "brand_logo": bulk.brand_logo.url if bulk.brand_logo else None,
-                    "custom_design": bulk.custom_design.url if bulk.custom_design else None,
+                    "custom_design": (
+                        bulk.custom_design.url if bulk.custom_design else None
+                    ),
                     "created_at": bulk.created_at,
                     "status": bulk.status,
-                  #  "reward_applied": bulk.reward_applied,
-                  #  "reward_granted": bulk.reward_granted,
+                    #  "reward_applied": bulk.reward_applied,
+                    #  "reward_granted": bulk.reward_granted,
                     "is_dispatched": bulk.is_dispatched,
                     "pin_code": bulk.pin_code,
                     "type": "bulk",

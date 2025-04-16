@@ -19,6 +19,7 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+
     @property
     def logo_url(self):
         return f"{SUPABASE_PUBLIC_BASE}/{self.logo.name}" if self.logo else None
@@ -50,8 +51,6 @@ class Image(models.Model):
         if self.image:
             return f"{SUPABASE_PUBLIC_BASE}/{self.image.name}"
         return None
-
-
 
 
 class Size(models.Model):

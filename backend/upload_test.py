@@ -5,7 +5,7 @@ from supabase import create_client
 
 # Set these as needed or pull from your environment
 SUPABASE_URL = "https://ucekkzhmdgmcenhvxary.supabase.co"
-SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjZWtremhtZGdtY2VuaHZ4YXJ5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDc1MDI2OSwiZXhwIjoyMDYwMzI2MjY5fQ.t-l64xWSTCZKe_4RvTNY2YNwaCCssuzLiwWsttCfVW0"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjZWtremhtZGdtY2VuaHZ4YXJ5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDc1MDI2OSwiZXhwIjoyMDYwMzI2MjY5fQ.t-l64xWSTCZKe_4RvTNY2YNwaCCssuzLiwWsttCfVW0"
 BUCKET_NAME = "ghanadude"
 
 # File paths
@@ -32,7 +32,9 @@ try:
     if hasattr(response, "data") and response.data:
         print("✅ Upload successful!")
         print("🔗 Public URL:")
-        print(f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{remote_file_path}")
+        print(
+            f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_NAME}/{remote_file_path}"
+        )
     elif hasattr(response, "error") and response.error:
         print(f"❌ Upload failed: {response.error.message}")
     else:

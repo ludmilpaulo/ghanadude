@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from backend.utils.supabase import SUPABASE_PUBLIC_BASE
+from utils.supabase import SUPABASE_PUBLIC_BASE
 from product.models import Product
 from .models import AppVersion
 
@@ -38,7 +38,7 @@ def send_promotional_email(request):
             image_url = f"{SUPABASE_PUBLIC_BASE}/{file_path}"
             print(f"✅ Supabase image URL: {image_url}")
         else:
-   
+
             print(f"✅ Found image of product: {image_url}")
 
     except Product.DoesNotExist:

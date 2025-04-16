@@ -7,7 +7,7 @@ class SiteMeta(models.Model):
         upload_to="site_logo/",
         blank=True,
         null=True,
-        help_text="Primary logo displayed in emails and frontend."
+        help_text="Primary logo displayed in emails and frontend.",
     )
 
     # ✅ Social media links (all optional)
@@ -30,6 +30,8 @@ class SiteMeta(models.Model):
     class Meta:
         verbose_name = "Site Meta"
         verbose_name_plural = "Site Meta"
+
+
 class AppVersion(models.Model):
     PLATFORM_CHOICES = [
         ("ios", "iOS"),
@@ -61,7 +63,9 @@ class SiteSetting(models.Model):
     custom_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     estimatedWeight = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    internationalRate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    internationalRate = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00
+    )
     vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     address = models.CharField(
         max_length=255, default="205 Victoria Rd, Woodstock, Cape Town, 7925"

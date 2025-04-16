@@ -9,6 +9,7 @@ MEDIA_ROOT = os.environ.get("MEDIA_ROOT", os.path.join("static_cdn", "media_root
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+
 class Command(BaseCommand):
     help = "Upload all media files from MEDIA_ROOT to Supabase Storage"
 
@@ -31,7 +32,9 @@ class Command(BaseCommand):
                 try:
                     with open(local_path, "rb") as f:
                         file_data = f.read()
-                    response = supabase.storage.from_(BUCKET_NAME).update(remote_path, file_data)
+                    response = supabase.storage.from_(BUCKET_NAME).update(
+                        remote_path, file_data
+                    )
 
                     if hasattr(response, "data") and response.data:
                         self.stdout.write(f"✅ {remote_path}")

@@ -78,18 +78,24 @@ def create_product(request):
         # Step 2: Handle Category
         category_name = data.get("category", "Uncategorized").strip()
         category, created_cat = Category.objects.get_or_create(name=category_name)
-        print(f"📦 Step 2: Category '{category_name}' → {'created' if created_cat else 'found'}")
+        print(
+            f"📦 Step 2: Category '{category_name}' → {'created' if created_cat else 'found'}"
+        )
 
         # Step 3: Handle Brand
         brand_name = data.get("brand", "ghanadue").strip()
         brand, created_brand = Brand.objects.get_or_create(name=brand_name)
-        print(f"🏷️ Step 3: Brand '{brand_name}' → {'created' if created_brand else 'found'}")
+        print(
+            f"🏷️ Step 3: Brand '{brand_name}' → {'created' if created_brand else 'found'}"
+        )
 
         # Step 4: Parse booleans and numbers
         bulk_sale = str(data.get("bulk_sale", "false")).lower() in ["true", "1"]
         on_sale = str(data.get("on_sale", "false")).lower() in ["true", "1"]
         discount_percentage = int(data.get("discount_percentage", 0))
-        print(f"🔢 Step 4: bulk_sale={bulk_sale}, on_sale={on_sale}, discount={discount_percentage}")
+        print(
+            f"🔢 Step 4: bulk_sale={bulk_sale}, on_sale={on_sale}, discount={discount_percentage}"
+        )
 
         # Step 5: Set percentage
         percentage = 3 if bulk_sale else 4
@@ -153,7 +159,6 @@ def create_product(request):
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
-
 
 
 @api_view(["GET"])

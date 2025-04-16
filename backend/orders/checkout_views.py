@@ -9,6 +9,7 @@ from product.models import Product
 from .order_email import send_invoice_email
 import json
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def checkout(request):
@@ -22,7 +23,11 @@ def checkout(request):
     files = request.FILES
 
     order_type = data.get("order_type", "delivery")
-    required_fields = [] if order_type == "collection" else ["address", "city", "postal_code", "country"]
+    required_fields = (
+        []
+        if order_type == "collection"
+        else ["address", "city", "postal_code", "country"]
+    )
     missing = [f for f in required_fields if not data.get(f)]
     if missing:
         print("❌ Missing required fields:", missing)
@@ -40,9 +45,13 @@ def checkout(request):
 
     if reward_applied > 0:
         profile = user.profile
-        profile.reward_balance = max(Decimal("0.00"), profile.reward_balance - reward_applied)
+        profile.reward_balance = max(
+            Decimal("0.00"), profile.reward_balance - reward_applied
+        )
         profile.save()
-        print(f"🎁 Applied reward: {reward_applied} | New balance: {profile.reward_balance}")
+        print(
+            f"🎁 Applied reward: {reward_applied} | New balance: {profile.reward_balance}"
+        )
 
     try:
         items = json.loads(data.get("items", "[]"))
@@ -62,9 +71,11 @@ def checkout(request):
             quantity = int(item.get("quantity", 0))
             selected_size = item.get("selectedSize", "")  # match frontend camelCase
 
-
             if quantity <= 0:
-                return Response({"error": f"Invalid quantity for product ID {item.get('id')}"}, status=400)
+                return Response(
+                    {"error": f"Invalid quantity for product ID {item.get('id')}"},
+                    status=400,
+                )
 
             price = product.price
             if product.on_sale:
@@ -81,15 +92,21 @@ def checkout(request):
             }
 
             if item.get("is_bulk", False):
-                print(f"🧵 Bulk item detected: {product.name} x{quantity} (Size: {selected_size})")
+                print(
+                    f"🧵 Bulk item detected: {product.name} x{quantity} (Size: {selected_size})"
+                )
                 bulk_items.append(item_data)
             else:
-                print(f"📦 Regular item detected: {product.name} x{quantity} (Size: {selected_size})")
+                print(
+                    f"📦 Regular item detected: {product.name} x{quantity} (Size: {selected_size})"
+                )
                 regular_items.append(item_data)
 
         except Product.DoesNotExist:
             print(f"❌ Product not found: ID {item.get('id')}")
-            return Response({"error": f"Product ID {item.get('id')} not found"}, status=404)
+            return Response(
+                {"error": f"Product ID {item.get('id')} not found"}, status=404
+            )
 
     # Add brand logo and custom design
     brand_logo = files.get("brand_logo")
@@ -99,23 +116,27 @@ def checkout(request):
 
     if brand_logo and brand_logo_qty > 0:
         print(f"🧵 Adding brand logo (qty {brand_logo_qty}) to bulk items")
-        bulk_items.append({
-            "product": None,
-            "quantity": brand_logo_qty,
-            "price": Decimal("0.00"),
-            "brand_logo": brand_logo,
-            "selected_size": "",  # ✅ optional default
-        })
+        bulk_items.append(
+            {
+                "product": None,
+                "quantity": brand_logo_qty,
+                "price": Decimal("0.00"),
+                "brand_logo": brand_logo,
+                "selected_size": "",  # ✅ optional default
+            }
+        )
 
     if custom_design and custom_design_qty > 0:
         print(f"🎨 Adding custom design (qty {custom_design_qty}) to bulk items")
-        bulk_items.append({
-            "product": None,
-            "quantity": custom_design_qty,
-            "price": Decimal("0.00"),
-            "custom_design": custom_design,
-            "selected_size": "",  # ✅ optional default
-        })
+        bulk_items.append(
+            {
+                "product": None,
+                "quantity": custom_design_qty,
+                "price": Decimal("0.00"),
+                "custom_design": custom_design,
+                "selected_size": "",  # ✅ optional default
+            }
+        )
 
     order = None
     bulk_order = None
@@ -148,7 +169,9 @@ def checkout(request):
         print(f"✅ Regular order created: #{order.id}")
 
     # Pick first actual product as reference for bulk_order.product (optional)
-    bulk_order_product = next((item.get("product") for item in bulk_items if item.get("product")), None)
+    bulk_order_product = next(
+        (item.get("product") for item in bulk_items if item.get("product")), None
+    )
 
     if bulk_items:
         bulk_total = sum(item["price"] * item["quantity"] for item in bulk_items)
@@ -178,7 +201,9 @@ def checkout(request):
                 custom_design=item.get("custom_design"),
                 selected_size=item.get("selected_size", ""),  # ✅
             )
-            print(f"✅ BulkOrderItem #{idx + 1} created: {created_item.product or 'Design/Logo'} x{created_item.quantity}")
+            print(
+                f"✅ BulkOrderItem #{idx + 1} created: {created_item.product or 'Design/Logo'} x{created_item.quantity}"
+            )
             if created_item.custom_design:
                 print(f"   🎨 Design file saved at: {created_item.custom_design.url}")
             if created_item.brand_logo:

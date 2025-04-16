@@ -15,9 +15,6 @@ class SiteSettingSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-
-
-
 class AppVersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppVersion

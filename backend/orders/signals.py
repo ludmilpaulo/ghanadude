@@ -19,7 +19,8 @@ from .models import Order
 from .utils import send_order_email
 
 
-site_meta = SiteMeta.objects.first()
+
+
 
 @receiver(pre_save, sender=Order)
 def track_order_status_change(sender, instance, **kwargs):
@@ -40,6 +41,7 @@ def order_status_changed(sender, instance, **kwargs):
         hasattr(instance, "_previous_status")
         and instance._previous_status != instance.status
     ):
+        site_meta = SiteMeta.objects.first()
         logo_url = ""
         if site_meta and site_meta.logo:
             logo_path = site_meta.logo.name

@@ -56,11 +56,10 @@ class Order(DirtyFieldsMixin, models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
-    
+
     @property
     def invoice_url(self):
         return f"{SUPABASE_PUBLIC_BASE}/{self.invoice.name}" if self.invoice else None
-
 
 
 class OrderItem(models.Model):
@@ -116,7 +115,7 @@ class BulkOrder(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-    ) 
+    )
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     order_type = models.CharField(
         max_length=20, choices=ORDER_TYPE_CHOICES, default="delivery"
@@ -139,19 +138,28 @@ class BulkOrder(models.Model):
         return round(
             self.product.price * self.quantity * (self.product.percentage / 100), 2
         )
-        
+
     @property
     def brand_logo_url(self):
-        return f"{SUPABASE_PUBLIC_BASE}/{self.brand_logo.name}" if self.brand_logo else None
+        return (
+            f"{SUPABASE_PUBLIC_BASE}/{self.brand_logo.name}"
+            if self.brand_logo
+            else None
+        )
 
     @property
     def custom_design_url(self):
-        return f"{SUPABASE_PUBLIC_BASE}/{self.custom_design.name}" if self.custom_design else None
-
+        return (
+            f"{SUPABASE_PUBLIC_BASE}/{self.custom_design.name}"
+            if self.custom_design
+            else None
+        )
 
 
 class BulkOrderItem(models.Model):
-    bulk_order = models.ForeignKey(BulkOrder, related_name="items", on_delete=models.CASCADE)
+    bulk_order = models.ForeignKey(
+        BulkOrder, related_name="items", on_delete=models.CASCADE
+    )
     product = models.ForeignKey(
         Product, null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -176,12 +184,19 @@ class BulkOrderItem(models.Model):
                 self.price * self.quantity * (self.product.percentage / 100), 2
             )
         return Decimal("0.00")
-    
+
     @property
     def brand_logo_url(self):
-        return f"{SUPABASE_PUBLIC_BASE}/{self.brand_logo.name}" if self.brand_logo else None
+        return (
+            f"{SUPABASE_PUBLIC_BASE}/{self.brand_logo.name}"
+            if self.brand_logo
+            else None
+        )
 
     @property
     def custom_design_url(self):
-        return f"{SUPABASE_PUBLIC_BASE}/{self.custom_design.name}" if self.custom_design else None
-
+        return (
+            f"{SUPABASE_PUBLIC_BASE}/{self.custom_design.name}"
+            if self.custom_design
+            else None
+        )

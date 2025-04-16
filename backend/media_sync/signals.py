@@ -16,7 +16,9 @@ def sync_all_model_media_files():
         if model._meta.app_label == "contenttypes":
             continue  # skip built-in models
 
-        file_fields = [f for f in model._meta.fields if isinstance(f, (FileField, ImageField))]
+        file_fields = [
+            f for f in model._meta.fields if isinstance(f, (FileField, ImageField))
+        ]
         if not file_fields:
             continue
 

@@ -27,7 +27,6 @@ class ImageSerializer(serializers.ModelSerializer):
         return obj.url  # uses the @property
 
 
-
 class ProductSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.name", read_only=True)
     sizes = serializers.SerializerMethodField()

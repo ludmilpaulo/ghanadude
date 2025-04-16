@@ -1,6 +1,7 @@
 import os
 from supabase import create_client
 
+
 def upload_file_to_supabase(local_file_path: str, remote_file_path: str):
     SUPABASE_URL = os.environ.get("SUPABASE_URL")
     SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
@@ -16,10 +17,14 @@ def upload_file_to_supabase(local_file_path: str, remote_file_path: str):
             file_data = f.read()
 
         # Use update() to overwrite existing files
-        response = supabase.storage.from_("ghanadude").update(remote_file_path, file_data)
+        response = supabase.storage.from_("ghanadude").update(
+            remote_file_path, file_data
+        )
 
         if hasattr(response, "error") and response.error:
-            print(f"❌ Supabase upload failed for {remote_file_path}: {response.error.message}")
+            print(
+                f"❌ Supabase upload failed for {remote_file_path}: {response.error.message}"
+            )
         else:
             print(f"✅ Supabase upload successful: {remote_file_path}")
 

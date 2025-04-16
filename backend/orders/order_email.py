@@ -24,7 +24,9 @@ def generate_invoice_pdf(instance, is_bulk=False):
     p = canvas.Canvas(buffer)
 
     p.setFont("Helvetica-Bold", 16)
-    title = f"Bulk Invoice #{instance.id}" if is_bulk else f"Order Invoice #{instance.id}"
+    title = (
+        f"Bulk Invoice #{instance.id}" if is_bulk else f"Order Invoice #{instance.id}"
+    )
     p.drawString(100, 800, title)
     p.setFont("Helvetica", 12)
 
@@ -38,15 +40,15 @@ def generate_invoice_pdf(instance, is_bulk=False):
     items = instance.bulkorderitem_set.all() if is_bulk else instance.items.all()
     for item in items:
         product_name = item.product.name if item.product else "Custom Upload"
-        p.drawString(100, y, f"{product_name} - Qty: {item.quantity} - Price: ${item.price}")
+        p.drawString(
+            100, y, f"{product_name} - Qty: {item.quantity} - Price: ${item.price}"
+        )
         y -= 20
 
     p.showPage()
     p.save()
     buffer.seek(0)
     return buffer
-
-
 
 
 def send_invoice_email(instance, is_bulk=False):
@@ -73,7 +75,7 @@ def send_invoice_email(instance, is_bulk=False):
             "address_summary": address_summary,
             "is_bulk": is_bulk,
             "logo_url": logo_url,
-        }
+        },
     )
 
     plain_message = strip_tags(message)
@@ -85,12 +87,7 @@ def send_invoice_email(instance, is_bulk=False):
         [instance.user.email],
     )
 
-    email.attach(
-        f"invoice_{instance.id}.pdf",
-        pdf.read(),
-        "application/pdf"
-    )
+    email.attach(f"invoice_{instance.id}.pdf", pdf.read(), "application/pdf")
 
     email.send()
     print(f"✅ Invoice sent to {instance.user.email}")
-
