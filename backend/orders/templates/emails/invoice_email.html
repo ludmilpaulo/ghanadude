@@ -1,22 +1,151 @@
-<!-- email/invoice_email.html -->
-<html>
-    <body>
-        <h2>Invoice for Order #{{ order.id }}</h2>
-        <p>Hello {{ order.user.username }},</p>
-        <p>Thank you for your order! Here is your invoice:</p>
-        
-        <p><strong>Total Price: </strong>${{ order.total_price }}</p>
-        <p><strong>Payment Method: </strong>{{ order.payment_method }}</p>
-        <p><strong>Status: </strong>{{ order.status }}</p>
-        
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice INV-{{ order.id }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      font-size: 14px;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+
+    .header {
+      background: linear-gradient(to right, #e3342f, #facc15, #15803d); /* Ghana Flag */
+      color: white;
+      text-align: center;
+      padding: 30px 20px 20px;
+    }
+
+    .header img {
+      max-width: 140px;
+      margin-bottom: 10px;
+    }
+
+    .header h2 {
+      margin: 10px 0 5px;
+      font-size: 22px;
+    }
+
+    .header small {
+      display: block;
+      font-size: 13px;
+      color: #fefefe;
+    }
+
+    .content {
+      padding: 25px 30px;
+    }
+
+    .content p {
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .details {
+      margin: 20px 0;
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-left: 5px solid #15803d;
+      border-radius: 6px;
+    }
+
+    .details strong {
+      display: inline-block;
+      width: 150px;
+    }
+
+    .order-items {
+      margin-top: 20px;
+    }
+
+    .order-items ul {
+      padding-left: 20px;
+    }
+
+    .order-items li {
+      margin-bottom: 6px;
+    }
+
+    .total {
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .footer {
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+      padding: 20px;
+      border-top: 1px solid #eee;
+      background-color: #fafafa;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      {% if logo_url %}
+        <img src="{{ logo_url }}" alt="Ghana Dude Logo" />
+      {% endif %}
+      <h2>Invoice INV-{{ order.id }}</h2>
+      <small>Date: {{ order.created_at|date:"Y-m-d" }}</small>
+    </div>
+
+    <div class="content">
+      <p>Hello <strong>{{ order.user.username }}</strong>,</p>
+      <p>Thank you for your {{ "bulk order" if is_bulk else "order" }}! Please find your invoice below.</p>
+
+      <div class="details">
+        <p><strong>Total Price:</strong> R{{ order.total_price }}</p>
+        <p><strong>Payment Method:</strong> {{ order.payment_method|capfirst }}</p>
+        <p><strong>Status:</strong> {{ order.status|capfirst }}</p>
+        <p><strong>Address:</strong> {{ address_summary }}</p>
+      </div>
+
+      <div class="order-items">
         <h3>Order Items:</h3>
         <ul>
-            {% for item in order.items.all %}
-                <li>{{ item.product.name }} - Quantity: {{ item.quantity }} - Price: ${{ item.price }}</li>
+          {% for item in order.items.all %}
+            <li>{{ item.product.name }} — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
+          {% endfor %}
+          {% if is_bulk %}
+            {% for item in order.bulkorderitem_set.all %}
+              <li>{{ item.product.name if item.product }} — Qty: {{ item.quantity }} — Unit: R{{ item.price|floatformat:2 }}</li>
             {% endfor %}
+          {% endif %}
         </ul>
-        
-        <p>Best regards,</p>
-        <p>GhanaDude</p>
-    </body>
+      </div>
+
+      <div class="total">
+        Total Paid: R{{ order.total_price|floatformat:2 }}
+      </div>
+    </div>
+
+    <div class="footer">
+      &copy; {{ order.created_at|date:"Y" }} Ghana Dude — All rights reserved.<br />
+      Contact us: <a href="mailto:hello@ghanadude.co.za">hello@ghanadude.co.za</a>
+    </div>
+  </div>
+</body>
 </html>

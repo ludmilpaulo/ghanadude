@@ -7,6 +7,9 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 from django.core.mail import EmailMessage
 from django.conf import settings
+
+from home.models import SiteMeta
+from utils.supabase import SUPABASE_PUBLIC_BASE
 from .models import BulkOrderItem, Order, OrderItem, BulkOrder
 from product.models import Product
 from io import BytesIO
@@ -44,6 +47,8 @@ def generate_invoice_pdf(instance, is_bulk=False):
     return buffer
 
 
+
+
 def send_invoice_email(instance, is_bulk=False):
     pdf = generate_invoice_pdf(instance, is_bulk=is_bulk)
     subject = f"Invoice for {'Bulk Order' if is_bulk else 'Order'} #{instance.id}"
@@ -54,12 +59,20 @@ def send_invoice_email(instance, is_bulk=False):
     else:
         address_summary = f"{instance.address}, {instance.city}, {instance.postal_code}, {instance.country}"
 
+    # ✅ Get logo from SiteMeta if available
+    site_meta = SiteMeta.objects.first()
+    logo_url = ""
+    if site_meta and site_meta.logo:
+        logo_url = f"{SUPABASE_PUBLIC_BASE}/{site_meta.logo.name}"
+
+    # ✅ Render email with additional context
     message = render_to_string(
         "emails/invoice_email.html",
         {
             "order": instance,
             "address_summary": address_summary,
             "is_bulk": is_bulk,
+            "logo_url": logo_url,
         }
     )
 
@@ -80,3 +93,4 @@ def send_invoice_email(instance, is_bulk=False):
 
     email.send()
     print(f"✅ Invoice sent to {instance.user.email}")
+
