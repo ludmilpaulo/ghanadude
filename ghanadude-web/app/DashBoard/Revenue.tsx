@@ -12,7 +12,7 @@ import {
 import CityHeatmapByProduct from './revenue/CityHeatmapByProduct';
 import GoalEditor from './revenue/GoalEditor';
 import Heatmap from './revenue/Heatmap';
-import RevenueChart from './revenue/RevenueChart';
+
 import RevenueFilters from './revenue/RevenueFilters';
 import TopProductGrid from './revenue/TopProductGrid';
 import UserStats from './revenue/UserStats';
@@ -20,6 +20,10 @@ import UserStats from './revenue/UserStats';
 import dynamic from 'next/dynamic';
 
 const WorldLeafletMap = dynamic(() => import('@/components/WorldLeafletMap'), {
+  ssr: false,
+});
+
+const RevenueChart = dynamic(() => import('./revenue/RevenueChart'), {
   ssr: false,
 });
 
