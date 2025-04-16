@@ -29,6 +29,7 @@ const ProductList: React.FC = () => {
     setLoading(true);
     try {
       const productsData = await fetchProducts();
+      console.log("product data", productsData)
       setProducts(productsData);
     } catch (error) {
       setError(error instanceof Error ? error.message : "An unknown error occurred.");

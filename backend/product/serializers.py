@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from utils.supabase import get_public_supabase_url
 from .models import Brand, Category, Designer, Product, Image, Wishlist
 
 
@@ -17,9 +18,13 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     class Meta:
         model = Image
         fields = ["id", "image"]
+        
+    def get_image(self, obj):
+        return get_public_supabase_url(obj.image)
 
 
 class ProductSerializer(serializers.ModelSerializer):
