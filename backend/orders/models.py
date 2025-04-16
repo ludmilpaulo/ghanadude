@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
+from utils.supabase import SUPABASE_PUBLIC_BASE
 from revenue.models import Coupon
 from product.models import Designer, Product
 
@@ -55,6 +56,11 @@ class Order(DirtyFieldsMixin, models.Model):
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
+    
+    @property
+    def invoice_url(self):
+        return f"{SUPABASE_PUBLIC_BASE}/{self.invoice.name}" if self.invoice else None
+
 
 
 class OrderItem(models.Model):
@@ -133,6 +139,15 @@ class BulkOrder(models.Model):
         return round(
             self.product.price * self.quantity * (self.product.percentage / 100), 2
         )
+        
+    @property
+    def brand_logo_url(self):
+        return f"{SUPABASE_PUBLIC_BASE}/{self.brand_logo.name}" if self.brand_logo else None
+
+    @property
+    def custom_design_url(self):
+        return f"{SUPABASE_PUBLIC_BASE}/{self.custom_design.name}" if self.custom_design else None
+
 
 
 class BulkOrderItem(models.Model):
@@ -161,3 +176,12 @@ class BulkOrderItem(models.Model):
                 self.price * self.quantity * (self.product.percentage / 100), 2
             )
         return Decimal("0.00")
+    
+    @property
+    def brand_logo_url(self):
+        return f"{SUPABASE_PUBLIC_BASE}/{self.brand_logo.name}" if self.brand_logo else None
+
+    @property
+    def custom_design_url(self):
+        return f"{SUPABASE_PUBLIC_BASE}/{self.custom_design.name}" if self.custom_design else None
+

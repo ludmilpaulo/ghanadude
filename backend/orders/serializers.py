@@ -22,24 +22,22 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class BulkOrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', default=None, read_only=True)
-    brand_logo_url = serializers.SerializerMethodField()
-    custom_design_url = serializers.SerializerMethodField()
+    brand_logo = serializers.SerializerMethodField()
+    custom_design = serializers.SerializerMethodField()
 
     class Meta:
         model = BulkOrderItem
-        fields = ['product_name', 'quantity', 'price', 'brand_logo_url', 'custom_design_url', 'selected_size']
+        fields = [
+            'product_name', 'quantity', 'price',
+            'brand_logo', 'custom_design', 'selected_size'
+        ]
 
-    def get_brand_logo_url(self, obj):
-        request = self.context.get('request')
-        if obj.brand_logo and request:
-            return request.build_absolute_uri(obj.brand_logo.url)
-        return None
+    def get_brand_logo(self, obj):
+        return obj.brand_logo_url
 
-    def get_custom_design_url(self, obj):
-        request = self.context.get('request')
-        if obj.custom_design and request:
-            return request.build_absolute_uri(obj.custom_design.url)
-        return None
+    def get_custom_design(self, obj):
+        return obj.custom_design_url
+
 
 class BulkOrderSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source="user.username", read_only=True)
