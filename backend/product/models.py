@@ -3,6 +3,8 @@ from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django_ckeditor_5.fields import CKEditor5Field
 
+from utils.supabase import SUPABASE_PUBLIC_BASE
+
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
@@ -17,6 +19,9 @@ class Brand(models.Model):
 
     def __str__(self):
         return self.name
+    @property
+    def logo_url(self):
+        return f"{SUPABASE_PUBLIC_BASE}/{self.logo.name}" if self.logo else None
 
 
 class Designer(models.Model):
@@ -38,7 +43,15 @@ class Image(models.Model):
         verbose_name_plural = "Products Images"
 
     def __str__(self):
-        return self.image.name
+        return self.image.name if self.image else "No Image"
+
+    @property
+    def url(self):
+        if self.image:
+            return f"{SUPABASE_PUBLIC_BASE}/{self.image.name}"
+        return None
+
+
 
 
 class Size(models.Model):
