@@ -1,6 +1,35 @@
 from django.db import models
 
 
+class SiteMeta(models.Model):
+    # ✅ Supabase-hosted logo
+    logo = models.ImageField(
+        upload_to="site_logo/",
+        blank=True,
+        null=True,
+        help_text="Primary logo displayed in emails and frontend."
+    )
+
+    # ✅ Social media links (all optional)
+    facebook_url = models.URLField(blank=True, null=True)
+    twitter_url = models.URLField(blank=True, null=True)
+    instagram_url = models.URLField(blank=True, null=True)
+    youtube_url = models.URLField(blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    whatsapp_url = models.URLField(blank=True, null=True)
+    tiktok_url = models.URLField(blank=True, null=True)
+    pinterest_url = models.URLField(blank=True, null=True)
+    snapchat_url = models.URLField(blank=True, null=True)
+    telegram_url = models.URLField(blank=True, null=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Site Meta & Socials"
+
+    class Meta:
+        verbose_name = "Site Meta"
+        verbose_name_plural = "Site Meta"
 class AppVersion(models.Model):
     PLATFORM_CHOICES = [
         ("ios", "iOS"),
@@ -8,9 +37,6 @@ class AppVersion(models.Model):
     ]
 
     platform = models.CharField(max_length=10, choices=PLATFORM_CHOICES, unique=True)
-    logo = models.ImageField(
-        max_length=3000, default=None, blank=True, upload_to="logo_image/"
-    )
     latest_version = models.CharField(max_length=20)
     store_url = models.URLField()  # ✅ Allows linking to App Store or Play Store
     force_update = models.BooleanField(default=True)  # ✅ Forces user to update

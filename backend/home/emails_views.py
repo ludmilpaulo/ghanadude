@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+from backend.utils.supabase import SUPABASE_PUBLIC_BASE
 from product.models import Product
 from .models import AppVersion
 
@@ -30,12 +31,15 @@ def send_promotional_email(request):
         product = Product.objects.get(id=product_id)
         print(f"✅ Found product: {product.name}")
         first_image = product.images.first()
-        image_url = (
-            request.build_absolute_uri(first_image.image.url)
-            if first_image and first_image.image
-            else ""
-        )
-        print(f"✅ Found image of product: {image_url}")
+        image_url = ""
+
+        if first_image and first_image.image:
+            file_path = first_image.image.name  # e.g., 'product_images/shoe.png'
+            image_url = f"{SUPABASE_PUBLIC_BASE}/{file_path}"
+            print(f"✅ Supabase image URL: {image_url}")
+        else:
+   
+            print(f"✅ Found image of product: {image_url}")
 
     except Product.DoesNotExist:
         print("❌ Product not found in database")

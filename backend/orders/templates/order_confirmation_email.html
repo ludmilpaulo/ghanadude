@@ -1,94 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .header {
-            background: linear-gradient(to right, #3b82f6, #2563eb, #1e40af);
-            padding: 20px;
-            border-radius: 10px 10px 0 0;
-            color: white;
-        }
-        .header img {
-            max-width: 150px;
-            margin-bottom: 10px;
-        }
-        h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        p {
-            line-height: 1.6;
-            margin: 10px 0;
-        }
-        .order-details {
-            margin: 20px 0;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            text-align: left;
-        }
-        .footer {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            text-align: center;
-            color: #777;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background: linear-gradient(to right, #3b82f6, #2563eb, #1e40af);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn:hover {
-            background: linear-gradient(to right, #2563eb, #1e40af, #1e3a8a);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Confirmation</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(to right, #e3342f, #facc15, #15803d); /* Ghana flag */
+      padding: 30px 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .header img {
+      max-width: 120px;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    .content p {
+      font-size: 15px;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    .order-details {
+      text-align: left;
+      margin: 20px auto;
+      padding: 15px 20px;
+      background-color: #f9f9f9;
+      border-left: 5px solid #15803d;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1f2937;
+    }
+
+    .order-details h2 {
+      margin-top: 0;
+      color: #111827;
+      font-size: 16px;
+    }
+
+    .order-details p {
+      margin: 8px 0;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: linear-gradient(to right, #e3342f, #facc15, #15803d);
+      color: white !important;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.3s ease-in-out;
+    }
+
+    .btn:hover {
+      background: linear-gradient(to right, #d12a2a, #eab308, #127c39);
+    }
+
+    .footer {
+      background-color: #fafafa;
+      padding: 20px;
+      font-size: 13px;
+      color: #6b7280;
+      text-align: center;
+      border-top: 1px solid #eee;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .content, .order-details {
+        padding: 20px;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <img src="https://ludmil.pythonanywhere.com/media/logo/logo2_w3URzZg.png" alt="Men's Clinic Logo">
-            <h1>Thank you for your order, {{ user.username }}!</h1>
-        </div>
-        <p>Your order # {{ order.id }} has been received and is being processed.</p>
-        <div class="order-details">
-            <h2>Order Details:</h2>
-            <p><strong>Order ID:</strong> {{ order.id }}</p>
-            <p><strong>Total Price:</strong> R{{ order.total_price }} </p>
-        </div>
-        <p>If you have any questions, feel free to <a href="mailto:support@example.com">contact our support team</a>.</p>
-        <p>Thank you for shopping with us!</p>
-        <a href="#" class="btn">View Order</a>
-        <div class="footer">
-            <p>&copy; {{ year }} Ghana Dude. All rights reserved.</p>
-        </div>
+  <div class="container">
+    <div class="header">
+      <img src="{{ logo_url }}" alt="Ghana Dude Logo" />
+      <h1>Thank you for your order, {{ user.username }}!</h1>
     </div>
+
+    <div class="content">
+      <p>Your order <strong>#{{ order.id }}</strong> has been received and is being processed.</p>
+
+      <div class="order-details">
+        <h2>🧾 Order Details:</h2>
+        <p><strong>Order ID:</strong> {{ order.id }}</p>
+        <p><strong>Total Price:</strong> R{{ order.total_price }}</p>
+      </div>
+
+      <p>If you have any questions, feel free to <a href="mailto:support@ghanadude.co.za">contact our support team</a>.</p>
+      <p>We appreciate your business!</p>
+
+      <a href="{{ order_url }}" class="btn">🔍 View Order</a>
+    </div>
+
+    <div class="footer">
+      &copy; {{ year }} Ghana Dude. All rights reserved.
+    </div>
+  </div>
 </body>
 </html>

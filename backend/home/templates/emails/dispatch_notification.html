@@ -1,24 +1,117 @@
 <!DOCTYPE html>
-<html>
-  <body style="font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px;">
-    <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; overflow: hidden;">
-      <div style="background-color: #10b981; padding: 20px; color: white;">
-        <h2 style="margin: 0;">🚚 Order Dispatched</h2>
-      </div>
-      <div style="padding: 20px;">
-        <p>Hi {{ user.username }},</p>
-        <p>Your order has been dispatched and will be delivered today to:</p>
-        <p><strong>{{ address }}</strong></p>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🚚 Order Dispatched</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 30px 15px;
+      color: #333;
+    }
 
-        <p>🕒 Please be available to receive it. To verify delivery, you will need to provide the following PIN code:</p>
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      border-top: 10px solid transparent;
+    }
 
-        <h2 style="text-align: center; color: #10b981; font-size: 32px;">{{ pin_code }}</h2>
+    .header {
+      background: linear-gradient(to right, #e3342f, #facc15, #15803d); /* Ghana flag gradient */
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
 
-        <p>Keep this PIN confidential and only share it with our delivery agent.</p>
+    .header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
 
-        <p>Thank you for shopping with us!</p>
-        <p style="margin-top: 20px;">Best regards,<br />The Ghana Dude Team</p>
-      </div>
+    .content {
+      padding: 30px;
+    }
+
+    .content p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 12px 0;
+    }
+
+    .address {
+      font-weight: bold;
+      font-size: 16px;
+      color: #1f2937;
+    }
+
+    .pin-box {
+      margin: 25px 0;
+      background-color: #f0fdf4;
+      border: 2px dashed #10b981;
+      padding: 25px;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    .pin-code {
+      font-size: 36px;
+      font-weight: bold;
+      color: #10b981;
+      letter-spacing: 3px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+      padding: 20px;
+      background-color: #fafafa;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    @media (max-width: 640px) {
+      .content {
+        padding: 20px;
+      }
+
+      .pin-code {
+        font-size: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>🚚 Your Order Is On the Way!</h2>
     </div>
-  </body>
+    <div class="content">
+      <p>Hi {{ user.username }},</p>
+
+      <p>Your order has been dispatched and will be delivered today to:</p>
+      <p class="address">{{ address }}</p>
+
+      <p>🕒 Please ensure someone is available to receive the delivery.</p>
+      <p>To confirm receipt, you'll need to provide the following PIN code:</p>
+
+      <div class="pin-box">
+        <div class="pin-code">{{ pin_code }}</div>
+      </div>
+
+      <p>Keep this PIN secure and only share it with our delivery agent upon arrival.</p>
+
+      <p>Thank you for shopping with us!</p>
+      <p style="margin-top: 20px;">Warm regards,<br /><strong>The Ghana Dude Team</strong></p>
+    </div>
+    <div class="footer">
+      You're receiving this email because you placed an order on Ghana Dude.
+    </div>
+  </div>
+</body>
 </html>

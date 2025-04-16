@@ -12,10 +12,14 @@ from decimal import Decimal
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 
+from utils.supabase import SUPABASE_PUBLIC_BASE
+from home.models import SiteMeta
 from orders.pdf import generate_order_pdf
 from .models import Order
 from .utils import send_order_email
 
+
+site_meta = SiteMeta.objects.first()
 
 @receiver(pre_save, sender=Order)
 def track_order_status_change(sender, instance, **kwargs):
@@ -36,7 +40,10 @@ def order_status_changed(sender, instance, **kwargs):
         hasattr(instance, "_previous_status")
         and instance._previous_status != instance.status
     ):
-        logo_url = static("logo.png")
+        logo_url = ""
+        if site_meta and site_meta.logo:
+            logo_path = site_meta.logo.name
+            logo_url = f"{SUPABASE_PUBLIC_BASE}/{logo_path}"
         order_url = (
             f"https://yourdomain.com{reverse('order-detail', args=[instance.id])}"
         )
@@ -51,6 +58,16 @@ def order_status_changed(sender, instance, **kwargs):
                 "year": datetime.now().year,
                 "logo_url": logo_url,
                 "order_url": order_url,
+                "facebook_url": getattr(site_meta, "facebook_url", ""),
+                "twitter_url": getattr(site_meta, "twitter_url", ""),
+                "instagram_url": getattr(site_meta, "instagram_url", ""),
+                "youtube_url": getattr(site_meta, "youtube_url", ""),
+                "linkedin_url": getattr(site_meta, "linkedin_url", ""),
+                "whatsapp_url": getattr(site_meta, "whatsapp_url", ""),
+                "tiktok_url": getattr(site_meta, "tiktok_url", ""),
+                "pinterest_url": getattr(site_meta, "pinterest_url", ""),
+                "snapchat_url": getattr(site_meta, "snapchat_url", ""),
+                "telegram_url": getattr(site_meta, "telegram_url", ""),
             },
         )
 
