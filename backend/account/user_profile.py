@@ -40,7 +40,7 @@ def update_user_profile(request, user_id):
     user_data = {
         "first_name": request.data.get("first_name"),
         "last_name": request.data.get("last_name"),
-        "email": request.data.get("email"),
+        "email": user.email,
     }
     profile_data = {
         "phone_number": request.data.get("phone_number"),

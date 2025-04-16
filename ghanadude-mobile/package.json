@@ -21,7 +21,7 @@
     "@shopify/react-native-skia": "1.5.0",
     "axios": "^1.8.3",
     "crypto-js": "^4.2.0",
-    "expo": "~52.0.42",
+    "expo": "~52.0.46",
     "expo-clipboard": "~7.0.1",
     "expo-constants": "^17.0.8",
     "expo-file-system": "^18.0.12",

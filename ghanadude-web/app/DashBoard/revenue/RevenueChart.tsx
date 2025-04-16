@@ -10,6 +10,8 @@ import {
   PointElement,
   Tooltip,
   Legend,
+  LineController,
+  BarController,
   ChartOptions,
   ChartData,
   TooltipItem,
@@ -23,7 +25,9 @@ ChartJS.register(
   LineElement,
   PointElement,
   Tooltip,
-  Legend
+  Legend,
+  LineController, 
+  BarController
 );
 
 interface Props {

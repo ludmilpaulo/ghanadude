@@ -11,6 +11,12 @@ const isProd = !__DEV__;
 
 export const API_BASE_URL = isProd ? prodAPI : devAPI;
 
+interface ResetPasswordResponse {
+  message: string;
+  username: string;
+  uid: string;
+  token: string;
+}
 
 
 interface AuthResponse {
@@ -65,18 +71,26 @@ const AuthService = {
     
   },
 
-  resetPassword: async (email: string) => {
+  resetPassword: async (email: string): Promise<ResetPasswordResponse> => {
     try {
-      await axios.post(`${API_BASE_URL}/account/password-reset/`, { email });
-      return { message: 'Password reset email sent' };
+      const response = await axios.post<ResetPasswordResponse>(
+        `${API_BASE_URL}/account/password-reset/`,
+        { email }
+      );
+      return response.data;
     } catch (error: unknown) {
-      if (error instanceof AxiosError) {
-        throw error.response?.data || 'Error occurred';
+      if (
+        error instanceof AxiosError &&
+        error.response?.data &&
+        typeof error.response.data === "object" &&
+        "error" in error.response.data
+      ) {
+        throw error.response.data as { error: string };
       }
-      throw 'An unexpected error occurred';
+      throw { error: "An unexpected error occurred." };
     }
-    
   },
+  
 
   resetPasswordConfirm: async (uid: string, token: string, newPassword: string) => {
     try {

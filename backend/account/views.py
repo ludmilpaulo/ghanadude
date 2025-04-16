@@ -116,7 +116,9 @@ class UserLoginView(APIView):
                 {"error": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+from rest_framework.permissions import AllowAny
 
+@permission_classes([AllowAny])
 class PasswordResetView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -124,23 +126,13 @@ class PasswordResetView(APIView):
             user = User.objects.get(email=email)
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            reset_url = f"{settings.FRONTEND_URL}/ResetPassword?uid={uid}&token={token}"
-            subject = "Password Reset Request"
-            message = render_to_string(
-                "emails/password_reset_email.html",
-                {"username": user.username, "reset_url": reset_url},
-            )
 
-            send_mail(
-                subject,
-                "",
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email],
-                html_message=message,
-            )
-            return Response(
-                {"detail": "Password reset email sent."}, status=status.HTTP_200_OK
-            )
+            return Response({
+                "username": user.username,
+                "uid": uid,
+                "token": token,
+            }, status=status.HTTP_200_OK)
+
         except User.DoesNotExist:
             return Response(
                 {"error": "User with this email does not exist."},
@@ -154,22 +146,50 @@ class PasswordResetConfirmView(APIView):
         uid = request.data.get("uid")
         token = request.data.get("token")
         new_password = request.data.get("newPassword")
+
         try:
-            uid = force_str(urlsafe_base64_decode(uid))
-            user = User.objects.get(pk=uid)
+            uid_decoded = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=uid_decoded)
+
             if default_token_generator.check_token(user, token):
                 user.set_password(new_password)
                 user.save()
-                return Response(
-                    {"detail": "Password has been reset."}, status=status.HTTP_200_OK
+
+                # Send email with new credentials
+                subject = "Your Password Has Been Reset"
+                message = render_to_string(
+                    "emails/password_reset_success_email.html",
+                    {
+                        "username": user.username,
+                        "email": user.email,
+                        "new_password": new_password,
+                    }
                 )
+
+                send_mail(
+                    subject,
+                    "",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    html_message=message,
+                )
+
+                return Response(
+                    {"detail": "Password has been reset."},
+                    status=status.HTTP_200_OK
+                )
+
             return Response(
-                {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid token."},
+                status=status.HTTP_400_BAD_REQUEST
             )
+
         except (User.DoesNotExist, ValueError):
             return Response(
-                {"error": "Invalid user."}, status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid user."},
+                status=status.HTTP_400_BAD_REQUEST
             )
+
 
 
 class UserProfileView(APIView):
