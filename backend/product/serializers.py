@@ -29,6 +29,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source="category.name", read_only=True)
+    brand = serializers.CharField(source="brand.name", read_only=True)
     sizes = serializers.SerializerMethodField()
     images = ImageSerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(

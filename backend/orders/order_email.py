@@ -61,14 +61,14 @@ def send_invoice_email(instance, is_bulk=False):
     else:
         address_summary = f"{instance.address}, {instance.city}, {instance.postal_code}, {instance.country}"
 
-    # ✅ Get logo from SiteMeta if available
+    # Get logo from SiteMeta if available
     site_meta = SiteMeta.objects.first()
     logo_url = ""
     if site_meta and site_meta.logo:
         logo_url = f"{SUPABASE_PUBLIC_BASE}/{site_meta.logo.name}"
 
-    # ✅ Render email with additional context
-    message = render_to_string(
+    # Render HTML email
+    html_message = render_to_string(
         "emails/invoice_email.html",
         {
             "order": instance,
@@ -78,16 +78,20 @@ def send_invoice_email(instance, is_bulk=False):
         },
     )
 
-    plain_message = strip_tags(message)
-
+    # Prepare email
     email = EmailMessage(
         subject,
-        plain_message,
+        html_message,
         settings.DEFAULT_FROM_EMAIL,
         [instance.user.email],
     )
 
+    # ✅ Important fix: set content subtype to HTML
+    email.content_subtype = "html"
+
+    # Attach PDF invoice
     email.attach(f"invoice_{instance.id}.pdf", pdf.read(), "application/pdf")
 
+    # Send email
     email.send()
     print(f"✅ Invoice sent to {instance.user.email}")
