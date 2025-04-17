@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Opening App...</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {% if is_android %}
+    <script>
+      // Android: try intent-based deep link
+      window.location = "intent://product/{{ product_id }}#Intent;scheme=ghanadude;package=com.ludmil.ghanadudemobile;end";
+      setTimeout(() => {
+        window.location.href = "{{ android_store_url }}";
+      }, 2000);
+    </script>
+  {% elif is_ios %}
+    <script>
+      // iOS: try custom URL scheme
+      window.location = "ghanadude://product/{{ product_id }}";
+      setTimeout(() => {
+        window.location.href = "{{ ios_store_url }}";
+      }, 2000);
+    </script>
+  {% else %}
+    <meta http-equiv="refresh" content="0; URL='{{ fallback_url }}'" />
+  {% endif %}
+</head>
+<body>
+  <p style="text-align:center; margin-top:40px;">
+    Redirecting to app...<br>
+    If nothing happens, <a href="{{ fallback_url }}">click here</a> or install the app from the store.
+  </p>
+</body>
+</html>

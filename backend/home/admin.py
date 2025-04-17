@@ -6,7 +6,8 @@ from .models import SiteMeta, AppVersion, DevPayment, SiteSetting
 @admin.register(SiteMeta)
 class SiteMetaAdmin(admin.ModelAdmin):
     list_display = ("__str__", "logo_preview", "updated_at")
-    readonly_fields = ("logo_preview",)
+    readonly_fields = ("logo_preview", "updated_at")  # 👈 add updated_at here
+
     fieldsets = (
         (None, {
             "fields": ("logo", "logo_preview")
@@ -19,7 +20,7 @@ class SiteMetaAdmin(admin.ModelAdmin):
             )
         }),
         ("Meta", {
-            "fields": ("updated_at",),
+            "fields": ("updated_at",),  # ✅ This is fine now because it's readonly
         }),
     )
 
@@ -28,6 +29,7 @@ class SiteMetaAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" width="100" style="object-fit:contain;" />', obj.logo.url)
         return "No logo uploaded"
     logo_preview.short_description = "Logo Preview"
+
 
 
 @admin.register(AppVersion)

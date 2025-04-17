@@ -14,7 +14,7 @@ import {
 import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
 import Carousel from "react-native-reanimated-carousel";
-import Animated, { FadeInUp, FadeInRight } from "react-native-reanimated";
+import Animated, { FadeInUp } from "react-native-reanimated";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useFocusEffect, NavigationProp } from "@react-navigation/native";

@@ -190,32 +190,32 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
   const handleShare = async () => {
     try {
-      const deepLink = `ghanadude://product/${id}`;
+      const universalLink = `https://ghanadude.co.za/deeplink/product/${id}`;
       const imageUrl = product?.images?.[0]?.image || null;
+      const shareMessage = `🛍️ Check out this product on Ghanadude!\n\n${product?.name}\n${universalLink}`;
   
       if (!imageUrl) {
-        // Fallback if no image
+        // No image, just share text + link
         await Share.share({
-          message: `Check out this product: ${product?.name}\n${deepLink}`,
-          url: deepLink,
+          message: shareMessage,
           title: product?.name,
         });
         return;
       }
   
       if (Platform.OS === 'android') {
-        // Android supports image URLs in the message
+        // Android can include image URL in the message
         await Share.share({
-          message: `Check out this product: ${product?.name}\n${deepLink}`,
-          url: imageUrl,
+          message: `${shareMessage}\n📸 ${imageUrl}`,
           title: product?.name,
         });
       } else {
-        // iOS: download image first
+        // iOS: download and attach the image
         const localUri = `${FileSystem.cacheDirectory}product.jpg`;
         const download = await FileSystem.downloadAsync(imageUrl, localUri);
   
-        if (!(await Sharing.isAvailableAsync())) {
+        const isSharingAvailable = await Sharing.isAvailableAsync();
+        if (!isSharingAvailable) {
           Alert.alert("Sharing not available", "Sharing is not supported on this device.");
           return;
         }
@@ -223,13 +223,19 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         await Sharing.shareAsync(download.uri, {
           dialogTitle: `Check out ${product?.name}`,
           mimeType: 'image/jpeg',
+          UTI: 'public.jpeg', // iOS specific
         });
+  
+        // You may also add a separate Share.share() if you want to combine text + link
+        // But iOS does not support both image and message natively
       }
   
     } catch (error) {
       console.error("Sharing failed", error);
+      Alert.alert("Error", "Failed to share this product.");
     }
   };
+  
 
   if (loading) {
     return (
