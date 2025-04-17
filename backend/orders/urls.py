@@ -1,5 +1,7 @@
 from django.urls import path, include
 
+from .payfast_notify import payfast_notify
+
 from .bulk_view import BulkOrderViewSet
 
 from .admin_bulk import get_bulk_orders
@@ -15,7 +17,7 @@ from .checkout_views import checkout
 
 from rest_framework.routers import DefaultRouter
 from revenue.views import location_statistics, sales_summary, user_statistics
-from .views import OrderItemViewSet, payfast_notify
+from .views import OrderItemViewSet
 
 router = DefaultRouter()
 router.register(r"orders", OrderViewSet)

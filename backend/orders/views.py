@@ -124,44 +124,6 @@ def location_statistics(request):
         return Response(location_stats, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    
 
-@csrf_exempt
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def payfast_notify(request):
-    data = request.POST
-    m_payment_id = data.get("m_payment_id")
-    payment_status = data.get("payment_status")
-
-    print("🔔 Received PayFast Notify:", m_payment_id, payment_status)
-
-    try:
-        if m_payment_id.startswith("ORDER_"):
-            order_id = int(m_payment_id.replace("ORDER_", ""))
-            order = Order.objects.get(pk=order_id)
-        elif m_payment_id.startswith("BULKORDER_"):
-            order_id = int(m_payment_id.replace("BULKORDER_", ""))
-            order = BulkOrder.objects.get(pk=order_id)
-        else:
-            print("❌ Invalid m_payment_id format:", m_payment_id)
-            return HttpResponse("Invalid m_payment_id", status=400)
-
-        # ✅ Update status
-        if payment_status == "COMPLETE":
-            order.status = "completed"
-        elif payment_status == "CANCELLED":
-            order.status = "canceled"
-        else:
-            order.status = "pending"
-
-        order.save()
-        print(f"✅ PayFast updated {order.__class__.__name__} {order.id} to {order.status}")
-        return HttpResponse("OK", status=200)
-
-    except (Order.DoesNotExist, BulkOrder.DoesNotExist):
-        print("❌ PayFast notify: Order not found")
-        return HttpResponse("Order not found", status=404)
-
-    except Exception as e:
-        print("❌ Server error:", str(e))
-        return HttpResponse("Internal server error", status=500)
