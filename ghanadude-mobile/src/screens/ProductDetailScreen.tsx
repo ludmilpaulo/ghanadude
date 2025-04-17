@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, Image, ScrollView, ActivityIndicator, SafeAreaView,
-  TouchableOpacity, Alert, Dimensions, Share
+  TouchableOpacity, Alert, Dimensions, Share, Platform
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import Animated, { FadeInUp } from 'react-native-reanimated';
@@ -18,6 +18,9 @@ import { useNavigation } from "@react-navigation/native";
 import { fetchWishlistCount } from "../services/WishlistService";
 import { setWishlistCount } from "../redux/slices/wishlistSlice";
 
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
+import * as Linking from 'expo-linking';
 
 import { API_BASE_URL } from '../services/AuthService';
 import { getWishlist, addToWishlist, removeFromWishlist } from '../services/WishlistService';
@@ -187,12 +190,42 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
   const handleShare = async () => {
     try {
-      const shareUrl = `${API_BASE_URL}/product/products/${id}/`;
-      await Share.share({
-        message: `Check out this product: ${product?.name}\n${shareUrl}`,
-        url: shareUrl,
-        title: product?.name
-      });
+      const deepLink = `ghanadude://product/${id}`;
+      const imageUrl = product?.images?.[0]?.image || null;
+  
+      if (!imageUrl) {
+        // Fallback if no image
+        await Share.share({
+          message: `Check out this product: ${product?.name}\n${deepLink}`,
+          url: deepLink,
+          title: product?.name,
+        });
+        return;
+      }
+  
+      if (Platform.OS === 'android') {
+        // Android supports image URLs in the message
+        await Share.share({
+          message: `Check out this product: ${product?.name}\n${deepLink}`,
+          url: imageUrl,
+          title: product?.name,
+        });
+      } else {
+        // iOS: download image first
+        const localUri = `${FileSystem.cacheDirectory}product.jpg`;
+        const download = await FileSystem.downloadAsync(imageUrl, localUri);
+  
+        if (!(await Sharing.isAvailableAsync())) {
+          Alert.alert("Sharing not available", "Sharing is not supported on this device.");
+          return;
+        }
+  
+        await Sharing.shareAsync(download.uri, {
+          dialogTitle: `Check out ${product?.name}`,
+          mimeType: 'image/jpeg',
+        });
+      }
+  
     } catch (error) {
       console.error("Sharing failed", error);
     }
@@ -384,7 +417,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
                     source={{
                       uri:
                         item.images && item.images.length > 0
-                          ? `${API_BASE_URL}${item.images[0].image}` // 👈 FIXED: prepend full base URL
+                          ? item.images[0].image
                           : 'https://via.placeholder.com/150',
                     }}
                     style={tw`w-full h-28 rounded-lg`}

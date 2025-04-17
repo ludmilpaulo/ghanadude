@@ -19,9 +19,6 @@ from .models import Order
 from .utils import send_order_email
 
 
-
-
-
 @receiver(pre_save, sender=Order)
 def track_order_status_change(sender, instance, **kwargs):
     if instance.pk:

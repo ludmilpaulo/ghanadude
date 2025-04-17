@@ -38,10 +38,11 @@ def update_user_profile(request, user_id):
 
     # Prepare data
     user_data = {
-        "first_name": request.data.get("first_name"),
-        "last_name": request.data.get("last_name"),
-        "email": user.email,
+    "first_name": request.data.get("first_name"),
+    "last_name": request.data.get("last_name"),
+    "email": request.data.get("email") or user.email,
     }
+
     profile_data = {
         "phone_number": request.data.get("phone_number"),
         "address": request.data.get("address"),

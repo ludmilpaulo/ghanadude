@@ -18,7 +18,7 @@ export const useAppVersionCheck = () => {
         const storeUrl = Platform.OS === 'ios' ? res.data.app_store_url : res.data.play_store_url;
         setStoreUrl(storeUrl);
         setIsCompatible(current === latest);
-      } catch (e) {
+      } catch  {
         console.warn('Version check failed. Defaulting to allow access.');
         setIsCompatible(true);
       }

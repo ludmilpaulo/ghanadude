@@ -6,6 +6,7 @@ from django.conf import settings
 
 from .upload_file_to_supabase import upload_file_to_supabase
 
+
 @receiver(post_save)
 def upload_media_to_supabase(sender, instance, **kwargs):
     # only in production

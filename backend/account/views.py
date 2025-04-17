@@ -116,7 +116,9 @@ class UserLoginView(APIView):
                 {"error": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+
 from rest_framework.permissions import AllowAny
+
 
 @permission_classes([AllowAny])
 class PasswordResetView(APIView):
@@ -127,11 +129,14 @@ class PasswordResetView(APIView):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
 
-            return Response({
-                "username": user.username,
-                "uid": uid,
-                "token": token,
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "username": user.username,
+                    "uid": uid,
+                    "token": token,
+                },
+                status=status.HTTP_200_OK,
+            )
 
         except User.DoesNotExist:
             return Response(
@@ -163,7 +168,7 @@ class PasswordResetConfirmView(APIView):
                         "username": user.username,
                         "email": user.email,
                         "new_password": new_password,
-                    }
+                    },
                 )
 
                 send_mail(
@@ -175,21 +180,17 @@ class PasswordResetConfirmView(APIView):
                 )
 
                 return Response(
-                    {"detail": "Password has been reset."},
-                    status=status.HTTP_200_OK
+                    {"detail": "Password has been reset."}, status=status.HTTP_200_OK
                 )
 
             return Response(
-                {"error": "Invalid token."},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid token."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         except (User.DoesNotExist, ValueError):
             return Response(
-                {"error": "Invalid user."},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Invalid user."}, status=status.HTTP_400_BAD_REQUEST
             )
-
 
 
 class UserProfileView(APIView):

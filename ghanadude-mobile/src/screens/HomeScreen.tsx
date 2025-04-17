@@ -18,11 +18,12 @@ import Animated, { FadeInUp, FadeInRight } from "react-native-reanimated";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useFocusEffect, NavigationProp } from "@react-navigation/native";
-
+import * as Animatable from "react-native-animatable";
 import ProductService from "../services/ProductService";
 import ProductCard from "../components/ProductCard";
 import CreateProfileModal from "../components/CreateProfileModal";
 import { fetchUserProfile, ProfileForm, updateUserProfile } from "../services/UserService";
+
 
 import { Product, Category } from "./types";
 import { selectUser } from "../redux/slices/authSlice";
@@ -228,29 +229,37 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           />
         </View>
 
-        {/* Categories */}
-        <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>Categories</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`pl-4 pt-3 mb-2`}>
-          {categories.map((cat, index) => (
-            <Animated.View key={cat.id} entering={FadeInRight.delay(index * 100)}>
-              <TouchableOpacity
-                onPress={() => handleCategorySelect(cat.name)}
-                style={[
-                  tw`px-4 py-2 mr-3 rounded-full border`,
-                  selectedCategory === cat.name
-                    ? tw`bg-blue-600 border-blue-600`
-                    : tw`bg-white border-gray-300`,
-                ]}
-              >
-                <Text
-                  style={tw`${selectedCategory === cat.name ? "text-white" : "text-gray-800"}`}
-                >
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          ))}
-        </ScrollView>
+        {/* 🧭 Category Chips */}
+        <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>Browse Categories</Text>
+<ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`pl-4 pt-4 pb-2`}>
+  {categories.map((cat, index) => (
+    <Animatable.View
+      key={cat.id}
+      animation="fadeInRight"
+      delay={index * 100}
+      useNativeDriver
+      style={tw`mr-3`}
+    >
+      <TouchableOpacity
+        onPress={() => handleCategorySelect(cat.name)}
+        activeOpacity={0.8}
+        style={[
+          tw`px-4 py-2 rounded-full shadow-sm border`,
+          selectedCategory === cat.name
+            ? tw`bg-blue-600 border-blue-600`
+            : tw`bg-white border-gray-300`,
+        ]}
+      >
+        <Text
+          style={tw`${selectedCategory === cat.name ? "text-white" : "text-gray-800"} text-sm font-semibold`}
+        >
+          {cat.name}
+        </Text>
+      </TouchableOpacity>
+    </Animatable.View>
+  ))}
+</ScrollView>
+
 
         {/* Product Grid */}
         <View style={tw`px-4`}>

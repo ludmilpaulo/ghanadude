@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice {{ order.id }}</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 12px;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: right;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      float: right;
+      max-height: 80px;
+    }
+
+    .company-details {
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .invoice-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .meta {
+      margin-top: 10px;
+      margin-bottom: 30px;
+      font-size: 12px;
+    }
+
+    .meta strong {
+      display: inline-block;
+      width: 100px;
+    }
+
+    .stamp {
+      float: right;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
+      background-color: red;
+      border-radius: 4px;
+      margin-top: -30px;
+    }
+
+    .stamp.paid {
+      background-color: green;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 12px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    .totals {
+      margin-top: 30px;
+      font-size: 12px;
+      float: right;
+    }
+
+    .totals p {
+      margin: 5px 0;
+    }
+
+    .totals strong {
+      display: inline-block;
+      width: 130px;
+    }
+
+    .amount-words {
+      clear: both;
+      margin-top: 40px;
+      font-style: italic;
+    }
+
+    .payment-instructions {
+      margin-top: 40px;
+      font-size: 12px;
+      background: #fff4f4;
+      padding: 15px;
+      border-left: 5px solid red;
+    }
+
+    .bank-details {
+      margin-top: 50px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  {% if logo_url %}
+    <div class="header">
+      <img src="{{ logo_url }}" class="logo" alt="Logo" />
+    </div>
+  {% endif %}
+
+  {% if order.status == "pending" %}
+    <div class="stamp">UNPAID</div>
+  {% elif order.status == "processing" %}
+    <div class="stamp paid">PAID</div>
+  {% endif %}
+
+  <div class="company-details">
+    <strong>GhanaDude (Pty) Ltd</strong><br/>
+    REG. 2014 / 213923 / 07, VAT No. 4450305703<br/>
+    205 Victoria Road, Woodstock, Cape Town, ZA 7925<br/>
+    Tel: 021 753 8603 | Cell: 061 464 4743<br/>
+    E-mail: ghanadudeclothing@gmail.com
+  </div>
+
+  <div class="invoice-title">Sales Invoice</div>
+
+  <div class="meta">
+    <p><strong>Invoice No:</strong> {{ order.id }}</p>
+    <p><strong>Invoice Date:</strong> {{ order.created_at|date:"Y-m-d" }}</p>
+    <p><strong>Due Date:</strong> {{ due_date|date:"Y-m-d" }}</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          <td>
+            {% if item.product %}
+              {{ item.selected_size }} {{ item.product.name }}
+            {% else %}
+              Custom Upload
+            {% endif %}
+          </td>
+          <td>{{ item.quantity }}</td>
+          <td>R{{ item.price|floatformat:2 }}</td>
+          <td>R{{ item.quantity|floatformat:0|add:item.price|floatformat:2 }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <p><strong>Subtotal:</strong> R{{ subtotal|floatformat:2 }}</p>
+    <p><strong>Delivery Fee:</strong> R{{ delivery|floatformat:2 }}</p>
+    <p><strong>VAT:</strong> R{{ vat|floatformat:2 }}</p>
+    <p><strong>Total:</strong> R{{ total|floatformat:2 }}</p>
+  </div>
+
+  <div class="amount-words">
+    Total amount in words: {{ total_words }}
+  </div>
+
+  {% if order.status == "Pending" %}
+    <div class="payment-instructions">
+      <strong>Important:</strong><br/>
+      Your order is currently <strong>unpaid</strong>. Please make payment using the details below and use your <strong>Order Number #{{ order.id }}</strong> as the payment reference.<br/><br/>
+      Once payment is received, we will proceed with processing and shipping your order.
+    </div>
+  {% endif %}
+
+  <div class="bank-details">
+    <strong>Bank Details:</strong><br/>
+    FNB Bank, Ghanadude Pty Ltd<br/>
+    A/c No. 62797179720<br/>
+    Branch code: 250655<br/>
+    Account type: Cheque Account
+  </div>
+
+</body>
+</html>

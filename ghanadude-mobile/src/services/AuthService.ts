@@ -11,6 +11,8 @@ const isProd = !__DEV__;
 
 export const API_BASE_URL = isProd ? prodAPI : devAPI;
 
+//export const API_BASE_URL = 'https://www.ghanadude.co.za';
+
 interface ResetPasswordResponse {
   message: string;
   username: string;

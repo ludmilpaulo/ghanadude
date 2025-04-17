@@ -6,11 +6,11 @@ import { PayFastMerchantDetails, PayFastTransactionDetails } from './types';
 import { buildQueryString, generateMD5, removeUndefined } from './Helpers';
 
 type Props = PayFastMerchantDetails & {
-  paymentMethod?: 'ef' | 'cc' | 'dc' | 'mp' | 'mc' | 'sc' | 'ss' | 'zp' | 'mt' | 'rcs'
-  transactionDetails: PayFastTransactionDetails
-  isVisible: boolean
-  onClose: (reference?: string) => void
-}
+  paymentMethod?: 'ef' | 'cc' | 'dc' | 'mp' | 'mc' | 'sc' | 'ss' | 'zp' | 'mt' | 'rcs';
+  transactionDetails: PayFastTransactionDetails;
+  isVisible: boolean;
+  onClose: (reference?: string) => void;
+};
 
 const PayFast = ({
   paymentMethod = 'cc',
@@ -57,27 +57,42 @@ const PayFast = ({
   const CLEAN_PAYLOAD = removeUndefined(PAYLOAD);
 
   const getQueryString = () => {
+    console.log("🧾 CLEAN_PAYLOAD →", CLEAN_PAYLOAD);
+
     let queryString = buildQueryString(CLEAN_PAYLOAD);
+    console.log("🔗 Initial Query String →", queryString);
+
     if (signature && passPhrase) {
       const queryStringWithPassPhrase = `${queryString}&passphrase=${passPhrase}`;
       const generatedSignature = generateMD5(queryStringWithPassPhrase);
+      console.log("🔐 Signature Generated →", generatedSignature);
       queryString = `${queryString}&signature=${generatedSignature}`;
     }
+
     setPostBody(queryString);
+    console.log("📦 Final POST body →", queryString);
     setShowWeb(true);
   };
 
   useEffect(() => {
     if (isVisible) {
+      console.log("📲 PayFast modal opened → isVisible:", isVisible);
       getQueryString();
     }
   }, [isVisible]);
 
   const handleNavigationChange = (event: WebViewNavigation) => {
+    console.log("🌐 WebView navigation change:", event.url);
     if (event.url.includes('finish')) {
+      console.log("✅ Payment completed! Closing modal with ref:", TRANSACTION_DETAILS.m_payment_id);
       setShowWeb(false);
       onClose(TRANSACTION_DETAILS.m_payment_id);
     }
+  };
+
+  const handleCancel = () => {
+    console.log("❌ Payment canceled by user");
+    onClose();
   };
 
   return (
@@ -90,7 +105,7 @@ const PayFast = ({
             renderLoading={() => (
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" />
-                <Button title="Cancel" onPress={() => onClose()} />
+                <Button title="Cancel" onPress={handleCancel} />
               </View>
             )}
             source={{
@@ -102,11 +117,18 @@ const PayFast = ({
               method: 'POST',
               body: postBody,
             }}
+            onError={(syntheticEvent) => {
+              const { nativeEvent } = syntheticEvent;
+              console.log("❌ WebView error:", nativeEvent);
+            }}
+            onHttpError={({ nativeEvent }) => {
+              console.log("❌ HTTP error:", nativeEvent.statusCode, nativeEvent.description);
+            }}
           />
         ) : (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator size="large" />
-            <Button title="Cancel" onPress={() => onClose()} />
+            <Button title="Cancel" onPress={handleCancel} />
           </View>
         )}
       </SafeAreaView>

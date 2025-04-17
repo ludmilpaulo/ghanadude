@@ -432,7 +432,7 @@ const CheckoutScreen: React.FC = () => {
           merchantId="10037687"
           merchantKey="t9k4qun47sejo"
           sandbox
-          notifyUrl={`${API_BASE_URL}/order/notify/`}
+          notifyUrl="https://www.ghanadude.co.za/order/notify/"
           transactionDetails={{
             customerFirstName: form.first_name,
             customerLastName: form.last_name,
@@ -440,7 +440,7 @@ const CheckoutScreen: React.FC = () => {
             customerPhoneNumber: form.phone_number,
             reference: orderId ? `ORDER_${orderId}` : `BULKORDER_${bulkOrderId}`,
             amount: Number(amount.toFixed(2)),
-            itemName: cartItems.map(item => `${item.quantity}x ${item.name}`).join(', '),
+            itemName: cartItems.map(item => `${item.quantity}x ${item.name.replace(/[^a-zA-Z0-9 ]/g, '')}`).join(' & ').slice(0, 100),
             itemDescription: 'Checkout Payment',
           }}
           isVisible={payFastVisible}

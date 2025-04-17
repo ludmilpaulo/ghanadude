@@ -12,8 +12,18 @@ LogBox.ignoreLogs(["new NativeEventEmitter"]);
 export default function AppNavigator() {
   const user = useSelector(selectUser);
 
+  const linking = {
+    prefixes: ['ghanadude://'],
+    config: {
+      screens: {
+        ProductDetail: 'product/:id',
+        // add others if needed
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       {user ? <HomeNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );

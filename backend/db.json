@@ -1,0 +1,2441 @@
+✔ .env loaded from: /home/ludmil/ghanadude/backend/.env
+✔ DJANGO_SECRET_KEY = qh+%xb9dzm-71jn(6byem33$^6+!uoa@)dpt0@^bvpc-jcdp$o
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2025-04-16T00:16:20.589Z",
+    "user": 1,
+    "content_type": 4,
+    "object_id": "3",
+    "object_repr": "shop",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Staff status\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2025-04-16T00:20:46.617Z",
+    "user": 1,
+    "content_type": 23,
+    "object_id": "1",
+    "object_repr": "ANDROID v1.0.1",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2025-04-16T00:22:44.617Z",
+    "user": 1,
+    "content_type": 25,
+    "object_id": "1",
+    "object_repr": "Global Site Settings",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2025-04-16T23:11:58.416Z",
+    "user": 1,
+    "content_type": 15,
+    "object_id": "4",
+    "object_repr": "Maindo",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "13",
+    "object_repr": "product_images/DSC_3756.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "12",
+    "object_repr": "product_images/DSC_3753.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "11",
+    "object_repr": "product_images/DSC_3748.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "10",
+    "object_repr": "product_images/DSC_3746.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "9",
+    "object_repr": "product_images/DSC_3780.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "8",
+    "object_repr": "product_images/DSC_3779.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "7",
+    "object_repr": "product_images/DSC_3765_sSyu18k.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "6",
+    "object_repr": "product_images/DSC_3854.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 13,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "5",
+    "object_repr": "product_images/DSC_3851_pn7exE9.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 14,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "4",
+    "object_repr": "product_images/DSC_3845.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 15,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "3",
+    "object_repr": "product_images/DSC_3865_WZS9kDO.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 16,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.243Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "2",
+    "object_repr": "product_images/DSC_3864_1.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 17,
+  "fields": {
+    "action_time": "2025-04-16T23:12:28.244Z",
+    "user": 1,
+    "content_type": 12,
+    "object_id": "1",
+    "object_repr": "product_images/DSC_3861_fIqc7B9.jpg",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 18,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "8",
+    "object_repr": "Order 8 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 19,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "7",
+    "object_repr": "Order 7 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 20,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "6",
+    "object_repr": "Order 6 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 21,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "5",
+    "object_repr": "Order 5 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 22,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "4",
+    "object_repr": "Order 4 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 23,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "3",
+    "object_repr": "Order 3 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 24,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "2",
+    "object_repr": "Order 2 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 25,
+  "fields": {
+    "action_time": "2025-04-16T23:13:01.429Z",
+    "user": 1,
+    "content_type": 20,
+    "object_id": "1",
+    "object_repr": "Order 1 by test",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 26,
+  "fields": {
+    "action_time": "2025-04-16T23:27:30.897Z",
+    "user": 1,
+    "content_type": 11,
+    "object_id": "1",
+    "object_repr": "Mens",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 27,
+  "fields": {
+    "action_time": "2025-04-16T23:27:30.897Z",
+    "user": 1,
+    "content_type": 11,
+    "object_id": "2",
+    "object_repr": "woman",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 28,
+  "fields": {
+    "action_time": "2025-04-16T23:30:02.142Z",
+    "user": 1,
+    "content_type": 15,
+    "object_id": "5",
+    "object_repr": "Jet Black Oversized Pullover Hoodie",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Text\"]}}]"
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$n4me6acf2G8Pdn6dHEI2S1$J87mkiZgDVDLG3h7q7wnC/LT5GPYDagIfkkI9RdQT3I=",
+    "last_login": "2025-04-16T00:14:49.678Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "last",
+    "last_name": "name",
+    "email": "ludmilpaulo@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-04-15T22:45:08.776Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$noT7gKS5DDEGTpkAkOv9mK$P8it85+0zTxtihgxtheJoeiOshmGCMg18B0X6Ln22EU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "test",
+    "first_name": "name",
+    "last_name": "last",
+    "email": "214196356av@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-04-15T23:20:09.009Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$870000$8OOufBbPMVpn5I08XqfEgB$05hw+6O9P/3Hkir81+wzZpti4Wys3IsepHS+V1BhaGc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "shop",
+    "first_name": "",
+    "last_name": "",
+    "email": "fekebuyiseka@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-04-16T00:15:52Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "w5hryqx1ix3op4b5ol0phm0l9mz9r8as",
+  "fields": {
+    "session_data": ".eJxVjEsOwjAMBe-SNYripMUJS_Y9Q-TaMS2gRupnhbg7VOoCtm9m3stk2tYhb0uZ8yjmYsCcfree-FGmHcidplu1XKd1Hnu7K_agi-2qlOf1cP8OBlqGb03Be69O5SxOCTAqq0Zqm-QhRGggMKMUhwCIpY-lZYeSGDBpTE7M-wPn0zfb:1u4qQT:MGcQykU5mPzyLUfAUBBVVPOpPmlaQr0gl6aJ0LrC6Js",
+    "expire_date": "2025-04-30T00:14:49.758Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "648abecde6671a03d5af13e952c98d5542dea66d",
+  "fields": {
+    "user": 1,
+    "created": "2025-04-17T01:28:10.119Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "7d83fafdc04779bfe68db4fc214a020ce430ba0c",
+  "fields": {
+    "user": 3,
+    "created": "2025-04-16T00:15:52.995Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "cf378651d871c3a8439507cb7fd68ffb4faf0426",
+  "fields": {
+    "user": 2,
+    "created": "2025-04-15T23:20:10.304Z"
+  }
+},
+{
+  "model": "account.userprofile",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "phone_number": "0842368752",
+    "address": "21 Royal Road",
+    "reward_balance": "0.00",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "created_at": "2025-04-16T00:54:01.519Z",
+    "updated_at": "2025-04-17T08:40:02.464Z"
+  }
+},
+{
+  "model": "account.userprofile",
+  "pk": 2,
+  "fields": {
+    "user": 1,
+    "phone_number": "0842368752",
+    "address": "21 Royal Road",
+    "reward_balance": "0.00",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "created_at": "2025-04-17T01:28:34.987Z",
+    "updated_at": "2025-04-17T01:30:01.475Z"
+  }
+},
+{
+  "model": "product.category",
+  "pk": 3,
+  "fields": {
+    "name": "Loungewear"
+  }
+},
+{
+  "model": "product.category",
+  "pk": 4,
+  "fields": {
+    "name": "Loungewear Set"
+  }
+},
+{
+  "model": "product.category",
+  "pk": 5,
+  "fields": {
+    "name": "Activewear"
+  }
+},
+{
+  "model": "product.category",
+  "pk": 6,
+  "fields": {
+    "name": "Activewear Set"
+  }
+},
+{
+  "model": "product.category",
+  "pk": 7,
+  "fields": {
+    "name": "Casual Basics"
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 1,
+  "fields": {
+    "name": "ghanadue",
+    "logo": ""
+  }
+},
+{
+  "model": "product.brand",
+  "pk": 2,
+  "fields": {
+    "name": "ghanadude",
+    "logo": ""
+  }
+},
+{
+  "model": "product.image",
+  "pk": 14,
+  "fields": {
+    "image": "product_images/DSC_3746.jpg",
+    "created_at": "2025-04-16T23:25:11.438Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 15,
+  "fields": {
+    "image": "product_images/DSC_3748.jpg",
+    "created_at": "2025-04-16T23:25:11.832Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 16,
+  "fields": {
+    "image": "product_images/DSC_3753.jpg",
+    "created_at": "2025-04-16T23:25:12.169Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 17,
+  "fields": {
+    "image": "product_images/DSC_3756.jpg",
+    "created_at": "2025-04-16T23:25:12.527Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 18,
+  "fields": {
+    "image": "product_images/DSC_3746_oE2iwk0.jpg",
+    "created_at": "2025-04-16T23:36:18.024Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 19,
+  "fields": {
+    "image": "product_images/DSC_3748_evBSPFD.jpg",
+    "created_at": "2025-04-16T23:36:18.357Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 20,
+  "fields": {
+    "image": "product_images/DSC_3753_c5BzlU0.jpg",
+    "created_at": "2025-04-16T23:36:18.701Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 21,
+  "fields": {
+    "image": "product_images/DSC_3756_wfmh1rW.jpg",
+    "created_at": "2025-04-16T23:36:19.072Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 22,
+  "fields": {
+    "image": "product_images/DSC_3746_UHyVCkR.jpg",
+    "created_at": "2025-04-16T23:41:04.383Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 23,
+  "fields": {
+    "image": "product_images/DSC_3748_VFsG46m.jpg",
+    "created_at": "2025-04-16T23:41:04.724Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 24,
+  "fields": {
+    "image": "product_images/DSC_3753_4Z96aNW.jpg",
+    "created_at": "2025-04-16T23:41:05.074Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 25,
+  "fields": {
+    "image": "product_images/DSC_3756_HI76MAi.jpg",
+    "created_at": "2025-04-16T23:41:05.458Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 26,
+  "fields": {
+    "image": "product_images/DSC_3765.jpg",
+    "created_at": "2025-04-16T23:46:49.091Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 27,
+  "fields": {
+    "image": "product_images/DSC_3779.jpg",
+    "created_at": "2025-04-16T23:46:49.455Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 28,
+  "fields": {
+    "image": "product_images/DSC_3780.jpg",
+    "created_at": "2025-04-16T23:46:49.816Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 29,
+  "fields": {
+    "image": "product_images/DSC_3765_NUkCVC5.jpg",
+    "created_at": "2025-04-16T23:54:09.078Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 30,
+  "fields": {
+    "image": "product_images/DSC_3779_iekMzVB.jpg",
+    "created_at": "2025-04-16T23:54:09.423Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 31,
+  "fields": {
+    "image": "product_images/DSC_3780_fQaRCjO.jpg",
+    "created_at": "2025-04-16T23:54:09.782Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 32,
+  "fields": {
+    "image": "product_images/DSC_3765_z72MgQt.jpg",
+    "created_at": "2025-04-17T00:19:21.232Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 33,
+  "fields": {
+    "image": "product_images/DSC_3779_VQOQYjh.jpg",
+    "created_at": "2025-04-17T00:19:23.001Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 34,
+  "fields": {
+    "image": "product_images/DSC_3780_nO6ysxH.jpg",
+    "created_at": "2025-04-17T00:19:24.231Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 35,
+  "fields": {
+    "image": "product_images/DSC_3781.jpg",
+    "created_at": "2025-04-17T00:22:55.652Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 36,
+  "fields": {
+    "image": "product_images/DSC_3794.jpg",
+    "created_at": "2025-04-17T00:22:57.548Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 37,
+  "fields": {
+    "image": "product_images/DSC_3797.jpg",
+    "created_at": "2025-04-17T00:22:59.083Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 38,
+  "fields": {
+    "image": "product_images/DSC_3799.jpg",
+    "created_at": "2025-04-17T00:23:00.471Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 39,
+  "fields": {
+    "image": "product_images/DSC_3781_CVc2Ycx.jpg",
+    "created_at": "2025-04-17T00:25:39.335Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 40,
+  "fields": {
+    "image": "product_images/DSC_3794_ovQE6Ga.jpg",
+    "created_at": "2025-04-17T00:25:41.207Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 41,
+  "fields": {
+    "image": "product_images/DSC_3797_s44Dyyu.jpg",
+    "created_at": "2025-04-17T00:25:42.867Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 42,
+  "fields": {
+    "image": "product_images/DSC_3799_ovtVdMq.jpg",
+    "created_at": "2025-04-17T00:25:44.283Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 43,
+  "fields": {
+    "image": "product_images/DSC_3781_LNdwuwl.jpg",
+    "created_at": "2025-04-17T00:28:25.512Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 44,
+  "fields": {
+    "image": "product_images/DSC_3794_AjDKOjo.jpg",
+    "created_at": "2025-04-17T00:28:27.060Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 45,
+  "fields": {
+    "image": "product_images/DSC_3797_LyQydtv.jpg",
+    "created_at": "2025-04-17T00:28:28.547Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 46,
+  "fields": {
+    "image": "product_images/DSC_3799_1hVhrsd.jpg",
+    "created_at": "2025-04-17T00:28:29.795Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 47,
+  "fields": {
+    "image": "product_images/DSC_3807.jpg",
+    "created_at": "2025-04-17T00:42:08.721Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 48,
+  "fields": {
+    "image": "product_images/DSC_3812.jpg",
+    "created_at": "2025-04-17T00:42:10.507Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 49,
+  "fields": {
+    "image": "product_images/DSC_3820.jpg",
+    "created_at": "2025-04-17T00:42:12.337Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 50,
+  "fields": {
+    "image": "product_images/DSC_3807_rxl460y.jpg",
+    "created_at": "2025-04-17T00:44:37.064Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 51,
+  "fields": {
+    "image": "product_images/DSC_3812_mxDKUuI.jpg",
+    "created_at": "2025-04-17T00:44:39.282Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 52,
+  "fields": {
+    "image": "product_images/DSC_3820_ogbWtoM.jpg",
+    "created_at": "2025-04-17T00:44:40.825Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 53,
+  "fields": {
+    "image": "product_images/DSC_3807_0NXo7SJ.jpg",
+    "created_at": "2025-04-17T00:46:47.068Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 54,
+  "fields": {
+    "image": "product_images/DSC_3812_6xwLmIX.jpg",
+    "created_at": "2025-04-17T00:46:48.627Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 55,
+  "fields": {
+    "image": "product_images/DSC_3820_RKcXpvP.jpg",
+    "created_at": "2025-04-17T00:46:50.139Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 56,
+  "fields": {
+    "image": "product_images/DSC_3838.jpg",
+    "created_at": "2025-04-17T00:49:40.657Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 57,
+  "fields": {
+    "image": "product_images/DSC_3840.jpg",
+    "created_at": "2025-04-17T00:49:42.296Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 58,
+  "fields": {
+    "image": "product_images/DSC_3838_BKloy2v.jpg",
+    "created_at": "2025-04-17T00:51:58.636Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 59,
+  "fields": {
+    "image": "product_images/DSC_3840_qlHnray.jpg",
+    "created_at": "2025-04-17T00:52:00.564Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 60,
+  "fields": {
+    "image": "product_images/DSC_3838_xQMvleA.jpg",
+    "created_at": "2025-04-17T00:53:31.510Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 61,
+  "fields": {
+    "image": "product_images/DSC_3840_fSx1QBt.jpg",
+    "created_at": "2025-04-17T00:53:33.289Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 62,
+  "fields": {
+    "image": "product_images/DSC_3845.jpg",
+    "created_at": "2025-04-17T00:57:05.457Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 63,
+  "fields": {
+    "image": "product_images/DSC_3851.jpg",
+    "created_at": "2025-04-17T00:57:07.203Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 64,
+  "fields": {
+    "image": "product_images/DSC_3854.jpg",
+    "created_at": "2025-04-17T00:57:08.806Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 65,
+  "fields": {
+    "image": "product_images/DSC_3872.jpg",
+    "created_at": "2025-04-17T01:01:27.475Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 66,
+  "fields": {
+    "image": "product_images/DSC_3873.jpg",
+    "created_at": "2025-04-17T01:01:29.109Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 67,
+  "fields": {
+    "image": "product_images/DSC_3875.jpg",
+    "created_at": "2025-04-17T01:01:30.739Z"
+  }
+},
+{
+  "model": "product.image",
+  "pk": 68,
+  "fields": {
+    "image": "product_images/DSC_3878.jpg",
+    "created_at": "2025-04-17T01:01:32.144Z"
+  }
+},
+{
+  "model": "product.size",
+  "pk": 1,
+  "fields": {
+    "name": "M"
+  }
+},
+{
+  "model": "product.size",
+  "pk": 2,
+  "fields": {
+    "name": "XL"
+  }
+},
+{
+  "model": "product.size",
+  "pk": 3,
+  "fields": {
+    "name": "XS"
+  }
+},
+{
+  "model": "product.size",
+  "pk": 4,
+  "fields": {
+    "name": "L"
+  }
+},
+{
+  "model": "product.size",
+  "pk": 5,
+  "fields": {
+    "name": "XXL"
+  }
+},
+{
+  "model": "product.product",
+  "pk": 5,
+  "fields": {
+    "name": "Jet Black Oversized Pullover Hoodie",
+    "description": "<p>A premium heavyweight cotton‑blend hoodie with dropped shoulders for an effortlessly relaxed fit. Features a spacious kangaroo pocket, ribbed cuffs &amp; hem, and an adjustable drawstring hood. Perfect for layering or lounging in style.<br><br><strong>Fabric &amp; Care</strong></p><ul><li>80% cotton / 20% polyester fleece</li><li>Machine wash cold, tumble dry low</li></ul><p><strong>Fit &amp; Styling Notes</strong></p><ul><li>Model is 6′1″ (185&nbsp;cm), wearing size M</li><li>For a more tailored silhouette, size down; for extra drape, size up.</li></ul>",
+    "price": "800.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 95,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 45,
+    "season": "winter",
+    "images": [
+      14,
+      15,
+      16,
+      17
+    ],
+    "sizes": [
+      1,
+      2
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 6,
+  "fields": {
+    "name": "Jet Black Relaxed‑Fit Sweatpants",
+    "description": "Matching cotton‑blend sweatpants with a mid‑rise elastic waistband and tonal drawcord. Side seam pockets, back patch pocket, and ribbed ankle cuffs ensure comfort and practicality. Ideal for casual days or workouts.",
+    "price": "699.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 96,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 12,
+    "season": "winter",
+    "images": [
+      18,
+      19,
+      20,
+      21
+    ],
+    "sizes": [
+      1,
+      2
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 7,
+  "fields": {
+    "name": "Bundle: Hoodie + Sweatpants Set",
+    "description": "Save on the full look: one Jet Black Oversized Pullover Hoodie paired with Relaxed‑Fit Sweatpants. Comes packaged as a gift‑ready set.",
+    "price": "1399.00",
+    "category": 4,
+    "brand": 1,
+    "stock": 98,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 25,
+    "season": "",
+    "images": [
+      22,
+      23,
+      24,
+      25
+    ],
+    "sizes": [
+      1,
+      2
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 8,
+  "fields": {
+    "name": "Crimson Tech Shell Zip‑Up Jacket",
+    "description": "Lightweight water‑resistant nylon shell jacket with a high funnel collar and full‑length zip. Features angled hand pockets, elastic cuffs, and subtle contrast piping down the sleeves for a sporty edge.",
+    "price": "899.00",
+    "category": 5,
+    "brand": 1,
+    "stock": 341,
+    "on_sale": false,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 0,
+    "season": "winter",
+    "images": [
+      26,
+      27,
+      28
+    ],
+    "sizes": [
+      3
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 9,
+  "fields": {
+    "name": "Crimson Tech Shell Track Pants",
+    "description": "Matching nylon shell track pants with an elasticated waistband and tonal drawcord. Side seam pockets and contrast piping detail down the leg—cut for a straight, relaxed fit.",
+    "price": "799.00",
+    "category": 5,
+    "brand": 1,
+    "stock": 197,
+    "on_sale": false,
+    "percentage": "4.0",
+    "bulk_sale": false,
+    "discount_percentage": 0,
+    "season": "winter",
+    "images": [
+      29,
+      30,
+      31
+    ],
+    "sizes": [
+      4
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 10,
+  "fields": {
+    "name": "Bundle: Hoodie + Sweatpants Set",
+    "description": "Save on the full cozy look: one Heather Grey Oversized Pullover Hoodie plus Relaxed‑Fit Sweatpants in a ready‑to‑wear set.",
+    "price": "1339.00",
+    "category": 5,
+    "brand": 1,
+    "stock": 62,
+    "on_sale": true,
+    "percentage": "4.0",
+    "bulk_sale": false,
+    "discount_percentage": 7,
+    "season": "all_seasons",
+    "images": [
+      32,
+      33,
+      34
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 11,
+  "fields": {
+    "name": "Heather Grey Oversized Pullover Hoodie",
+    "description": "Soft cotton‑blend fleece hoodie with dropped shoulders and a roomy kangaroo pocket. Finished with ribbed cuffs & hem and a relaxed hood—perfect for cozy layering.",
+    "price": "799.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 97,
+    "on_sale": false,
+    "percentage": "4.0",
+    "bulk_sale": false,
+    "discount_percentage": 0,
+    "season": "all_seasons",
+    "images": [
+      35,
+      36,
+      37,
+      38
+    ],
+    "sizes": [
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 12,
+  "fields": {
+    "name": "Heather Grey Relaxed‑Fit Sweatpants",
+    "description": "Matching fleece sweatpants with mid‑rise elastic waistband and drawcord. Features side slit pockets and a loose, straight leg for all‑day comfort.",
+    "price": "699.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 97,
+    "on_sale": false,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 0,
+    "season": "winter",
+    "images": [
+      39,
+      40,
+      41,
+      42
+    ],
+    "sizes": [
+      1,
+      2,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 13,
+  "fields": {
+    "name": "Bundle: Hoodie + Sweatpants Set",
+    "description": "Save on the full cozy look: one Heather Grey Oversized Pullover Hoodie plus Relaxed‑Fit Sweatpants in a ready‑to‑wear set.",
+    "price": "1400.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 98,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 35,
+    "season": "all_seasons",
+    "images": [
+      43,
+      44,
+      45,
+      46
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 14,
+  "fields": {
+    "name": "Blush Pink Shell Zip‑Up Jacket",
+    "description": "Lightweight nylon‑shell jacket in a soft blush pink with white contrast piping down the sleeves. Features a high funnel collar, full‑length zip, and angled hand pockets.",
+    "price": "899.00",
+    "category": 5,
+    "brand": 1,
+    "stock": 63,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 20,
+    "season": "all_seasons",
+    "images": [
+      47,
+      48,
+      49
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 15,
+  "fields": {
+    "name": "Blush Pink Shell Track Pants",
+    "description": "Matching nylon‑shell pants with elastic waistband and drawcord in blush pink, finished with white side‑stripe detail. Straight‑leg fit with inset side pockets.",
+    "price": "799.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 55,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 20,
+    "season": "",
+    "images": [
+      50,
+      51,
+      52
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 16,
+  "fields": {
+    "name": "Bundle: Jacket + Track Pants Set",
+    "description": "Complete your look: one Blush Pink Shell Zip‑Up Jacket paired with Shell Track Pants. Packaged as an all‑in‑one activewear set.",
+    "price": "1400.00",
+    "category": 6,
+    "brand": 1,
+    "stock": 26,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 10,
+    "season": "winter",
+    "images": [
+      53,
+      54,
+      55
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 17,
+  "fields": {
+    "name": "Emerald Velvet Relaxed‑Fit Tee",
+    "description": "Sumptuously soft crushed‑velvet tee with a relaxed, slightly oversized cut. Features a mock crew neckline and short sleeves—perfect for an elevated loungewear look.",
+    "price": "1000.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 64,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 50,
+    "season": "",
+    "images": [
+      56,
+      57
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 18,
+  "fields": {
+    "name": "Emerald Velvet Lounge Shorts",
+    "description": "Matching crushed‑velvet shorts with an elasticated waistband and tonal drawcord. Side pockets and a mid‑thigh cut create effortless comfort and style.",
+    "price": "799.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 52,
+    "on_sale": false,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 0,
+    "season": "all_seasons",
+    "images": [
+      58,
+      59
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 19,
+  "fields": {
+    "name": "Bundle: Velvet Tee + Shorts Set",
+    "description": "Save on the full look: one Emerald Velvet Relaxed‑Fit Tee paired with Lounge Shorts, packaged as a ready‑to‑wear set.",
+    "price": "1700.00",
+    "category": 4,
+    "brand": 1,
+    "stock": 42,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 38,
+    "season": "all_seasons",
+    "images": [
+      60,
+      61
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 20,
+  "fields": {
+    "name": "Heather Grey Oversized Hoodie Dress",
+    "description": "Ultra‑soft cotton‑blend sweatshirt cut into a relaxed hoodie dress silhouette. Features dropped shoulders, a roomy kangaroo pocket, ribbed cuffs & hem, and a generous hood—perfect for casual days or layering over leggings.",
+    "price": "899.00",
+    "category": 3,
+    "brand": 1,
+    "stock": 74,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 20,
+    "season": "all_seasons",
+    "images": [
+      62,
+      63,
+      64
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "product.product",
+  "pk": 21,
+  "fields": {
+    "name": "Aqua Oversized Tee Dress",
+    "description": "Ultra‑soft ring‑spun cotton tee cut into a versatile oversized dress silhouette. Features a clean crew neckline, dropped shoulders, and side slits at the hem for easy movement. Perfect for warm days or layered over leggings.",
+    "price": "649.00",
+    "category": 7,
+    "brand": 1,
+    "stock": 96,
+    "on_sale": true,
+    "percentage": "3.0",
+    "bulk_sale": true,
+    "discount_percentage": 10,
+    "season": "all_seasons",
+    "images": [
+      65,
+      66,
+      67,
+      68
+    ],
+    "sizes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 9,
+  "fields": {
+    "user": 2,
+    "total_price": "13730.34",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "coupon": null,
+    "discount_amount": "0.00",
+    "payment_method": "payfast",
+    "status": "Completed",
+    "order_type": "delivery",
+    "created_at": "2025-04-17T01:17:15.244Z",
+    "updated_at": "2025-04-17T06:50:37.565Z",
+    "reward_applied": "275.00",
+    "reward_granted": true,
+    "delivery_fee": "284.76",
+    "vat_amount": "2275.60",
+    "invoice": "invoices/invoices/order_9_hvkNQYx.pdf",
+    "pin_code": null,
+    "is_dispatched": false
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 10,
+  "fields": {
+    "user": 2,
+    "total_price": "9735.34",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "coupon": null,
+    "discount_amount": "0.00",
+    "payment_method": "payfast",
+    "status": "Completed",
+    "order_type": "delivery",
+    "created_at": "2025-04-17T01:20:00.917Z",
+    "updated_at": "2025-04-17T06:50:52.585Z",
+    "reward_applied": "0.00",
+    "reward_granted": true,
+    "delivery_fee": "184.76",
+    "vat_amount": "1505.98",
+    "invoice": "invoices/invoices/order_10_EsaJe1A.pdf",
+    "pin_code": null,
+    "is_dispatched": false
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 11,
+  "fields": {
+    "user": 2,
+    "total_price": "10332.89",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "coupon": null,
+    "discount_amount": "0.00",
+    "payment_method": "payfast",
+    "status": "Completed",
+    "order_type": "delivery",
+    "created_at": "2025-04-17T01:24:22.286Z",
+    "updated_at": "2025-04-17T07:30:43.817Z",
+    "reward_applied": "0.00",
+    "reward_granted": true,
+    "delivery_fee": "184.76",
+    "vat_amount": "1600.70",
+    "invoice": "invoices/invoices/order_11.pdf",
+    "pin_code": null,
+    "is_dispatched": false
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 12,
+  "fields": {
+    "user": 2,
+    "total_price": "10332.89",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "coupon": null,
+    "discount_amount": "0.00",
+    "payment_method": "payfast",
+    "status": "Processing",
+    "order_type": "delivery",
+    "created_at": "2025-04-17T01:24:55.053Z",
+    "updated_at": "2025-04-17T01:25:42.160Z",
+    "reward_applied": "0.00",
+    "reward_granted": false,
+    "delivery_fee": "184.76",
+    "vat_amount": "1600.70",
+    "invoice": "invoices/invoices/order_12.pdf",
+    "pin_code": null,
+    "is_dispatched": false
+  }
+},
+{
+  "model": "orders.order",
+  "pk": 13,
+  "fields": {
+    "user": 1,
+    "total_price": "4177.67",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "coupon": null,
+    "discount_amount": "0.00",
+    "payment_method": "payfast",
+    "status": "Processing",
+    "order_type": "delivery",
+    "created_at": "2025-04-17T01:29:12.015Z",
+    "updated_at": "2025-04-17T01:29:55.797Z",
+    "reward_applied": "0.00",
+    "reward_granted": false,
+    "delivery_fee": "84.76",
+    "vat_amount": "647.32",
+    "invoice": "invoices/invoices/order_13.pdf",
+    "pin_code": null,
+    "is_dispatched": false
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 9,
+  "fields": {
+    "order": 9,
+    "product": 19,
+    "quantity": 1,
+    "price": "1054.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 10,
+  "fields": {
+    "order": 9,
+    "product": 18,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 11,
+  "fields": {
+    "order": 9,
+    "product": 17,
+    "quantity": 1,
+    "price": "500.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 12,
+  "fields": {
+    "order": 9,
+    "product": 16,
+    "quantity": 1,
+    "price": "1260.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 13,
+  "fields": {
+    "order": 9,
+    "product": 15,
+    "quantity": 1,
+    "price": "639.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 14,
+  "fields": {
+    "order": 9,
+    "product": 14,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 15,
+  "fields": {
+    "order": 9,
+    "product": 13,
+    "quantity": 1,
+    "price": "910.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 16,
+  "fields": {
+    "order": 9,
+    "product": 12,
+    "quantity": 1,
+    "price": "699.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 17,
+  "fields": {
+    "order": 9,
+    "product": 7,
+    "quantity": 1,
+    "price": "1049.25",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 18,
+  "fields": {
+    "order": 9,
+    "product": 21,
+    "quantity": 1,
+    "price": "584.10",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 19,
+  "fields": {
+    "order": 9,
+    "product": 10,
+    "quantity": 1,
+    "price": "1245.27",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 20,
+  "fields": {
+    "order": 9,
+    "product": 20,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 21,
+  "fields": {
+    "order": 9,
+    "product": 5,
+    "quantity": 1,
+    "price": "440.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 22,
+  "fields": {
+    "order": 9,
+    "product": 6,
+    "quantity": 1,
+    "price": "615.12",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 23,
+  "fields": {
+    "order": 9,
+    "product": 8,
+    "quantity": 1,
+    "price": "899.00",
+    "selected_size": "XS"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 24,
+  "fields": {
+    "order": 9,
+    "product": 9,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "L"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 25,
+  "fields": {
+    "order": 9,
+    "product": 11,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "XXL"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 26,
+  "fields": {
+    "order": 10,
+    "product": 6,
+    "quantity": 1,
+    "price": "615.12",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 27,
+  "fields": {
+    "order": 10,
+    "product": 13,
+    "quantity": 1,
+    "price": "910.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 28,
+  "fields": {
+    "order": 10,
+    "product": 7,
+    "quantity": 1,
+    "price": "1049.25",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 29,
+  "fields": {
+    "order": 10,
+    "product": 21,
+    "quantity": 1,
+    "price": "584.10",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 30,
+  "fields": {
+    "order": 10,
+    "product": 10,
+    "quantity": 1,
+    "price": "1245.27",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 31,
+  "fields": {
+    "order": 10,
+    "product": 20,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 32,
+  "fields": {
+    "order": 10,
+    "product": 19,
+    "quantity": 1,
+    "price": "1054.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 33,
+  "fields": {
+    "order": 10,
+    "product": 17,
+    "quantity": 1,
+    "price": "500.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 34,
+  "fields": {
+    "order": 10,
+    "product": 16,
+    "quantity": 1,
+    "price": "1260.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 35,
+  "fields": {
+    "order": 10,
+    "product": 15,
+    "quantity": 1,
+    "price": "639.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 36,
+  "fields": {
+    "order": 10,
+    "product": 14,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 37,
+  "fields": {
+    "order": 10,
+    "product": 5,
+    "quantity": 1,
+    "price": "440.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 38,
+  "fields": {
+    "order": 11,
+    "product": 21,
+    "quantity": 1,
+    "price": "584.10",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 39,
+  "fields": {
+    "order": 11,
+    "product": 8,
+    "quantity": 1,
+    "price": "899.00",
+    "selected_size": "XS"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 40,
+  "fields": {
+    "order": 11,
+    "product": 10,
+    "quantity": 1,
+    "price": "1245.27",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 41,
+  "fields": {
+    "order": 11,
+    "product": 12,
+    "quantity": 1,
+    "price": "699.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 42,
+  "fields": {
+    "order": 11,
+    "product": 20,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 43,
+  "fields": {
+    "order": 11,
+    "product": 14,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 44,
+  "fields": {
+    "order": 11,
+    "product": 5,
+    "quantity": 1,
+    "price": "440.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 45,
+  "fields": {
+    "order": 11,
+    "product": 9,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "L"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 46,
+  "fields": {
+    "order": 11,
+    "product": 11,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "XXL"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 47,
+  "fields": {
+    "order": 11,
+    "product": 19,
+    "quantity": 1,
+    "price": "1054.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 48,
+  "fields": {
+    "order": 11,
+    "product": 6,
+    "quantity": 1,
+    "price": "615.12",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 49,
+  "fields": {
+    "order": 11,
+    "product": 17,
+    "quantity": 1,
+    "price": "500.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 50,
+  "fields": {
+    "order": 11,
+    "product": 16,
+    "quantity": 1,
+    "price": "1260.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 51,
+  "fields": {
+    "order": 12,
+    "product": 21,
+    "quantity": 1,
+    "price": "584.10",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 52,
+  "fields": {
+    "order": 12,
+    "product": 8,
+    "quantity": 1,
+    "price": "899.00",
+    "selected_size": "XS"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 53,
+  "fields": {
+    "order": 12,
+    "product": 10,
+    "quantity": 1,
+    "price": "1245.27",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 54,
+  "fields": {
+    "order": 12,
+    "product": 12,
+    "quantity": 1,
+    "price": "699.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 55,
+  "fields": {
+    "order": 12,
+    "product": 20,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 56,
+  "fields": {
+    "order": 12,
+    "product": 14,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 57,
+  "fields": {
+    "order": 12,
+    "product": 5,
+    "quantity": 1,
+    "price": "440.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 58,
+  "fields": {
+    "order": 12,
+    "product": 9,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "L"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 59,
+  "fields": {
+    "order": 12,
+    "product": 11,
+    "quantity": 1,
+    "price": "799.00",
+    "selected_size": "XXL"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 60,
+  "fields": {
+    "order": 12,
+    "product": 19,
+    "quantity": 1,
+    "price": "1054.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 61,
+  "fields": {
+    "order": 12,
+    "product": 6,
+    "quantity": 1,
+    "price": "615.12",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 62,
+  "fields": {
+    "order": 12,
+    "product": 17,
+    "quantity": 1,
+    "price": "500.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 63,
+  "fields": {
+    "order": 12,
+    "product": 16,
+    "quantity": 1,
+    "price": "1260.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 64,
+  "fields": {
+    "order": 13,
+    "product": 10,
+    "quantity": 1,
+    "price": "1245.27",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 65,
+  "fields": {
+    "order": 13,
+    "product": 20,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 66,
+  "fields": {
+    "order": 13,
+    "product": 5,
+    "quantity": 1,
+    "price": "440.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 67,
+  "fields": {
+    "order": 13,
+    "product": 19,
+    "quantity": 1,
+    "price": "1054.00",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.orderitem",
+  "pk": 68,
+  "fields": {
+    "order": 13,
+    "product": 14,
+    "quantity": 1,
+    "price": "719.20",
+    "selected_size": "M"
+  }
+},
+{
+  "model": "orders.bulkorder",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "total_price": "0.00",
+    "product": null,
+    "quantity": 5,
+    "brand_logo": "",
+    "custom_design": "",
+    "designer": null,
+    "delivery_fee": "284.76",
+    "order_type": "delivery",
+    "vat_amount": "2275.60",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "status": "Processing",
+    "pin_code": null,
+    "is_dispatched": false,
+    "created_at": "2025-04-17T01:17:22.258Z"
+  }
+},
+{
+  "model": "orders.bulkorder",
+  "pk": 3,
+  "fields": {
+    "user": 2,
+    "total_price": "10540.00",
+    "product": 19,
+    "quantity": 11,
+    "brand_logo": "",
+    "custom_design": "",
+    "designer": null,
+    "delivery_fee": "184.76",
+    "order_type": "delivery",
+    "vat_amount": "2656.50",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "status": "Completed",
+    "pin_code": null,
+    "is_dispatched": false,
+    "created_at": "2025-04-17T07:49:50.949Z"
+  }
+},
+{
+  "model": "orders.bulkorder",
+  "pk": 4,
+  "fields": {
+    "user": 2,
+    "total_price": "10540.00",
+    "product": 19,
+    "quantity": 11,
+    "brand_logo": "",
+    "custom_design": "",
+    "designer": null,
+    "delivery_fee": "184.76",
+    "order_type": "delivery",
+    "vat_amount": "2656.50",
+    "address": "21 Royal Road",
+    "city": "Cape Town",
+    "postal_code": "7405",
+    "country": "South Africa",
+    "status": "Processing",
+    "pin_code": null,
+    "is_dispatched": false,
+    "created_at": "2025-04-17T08:38:56.804Z"
+  }
+},
+{
+  "model": "orders.bulkorderitem",
+  "pk": 3,
+  "fields": {
+    "bulk_order": 2,
+    "product": null,
+    "quantity": 5,
+    "brand_logo": "",
+    "custom_design": "bulk_order_designs/custom_design.png",
+    "price": "0.00",
+    "selected_size": "",
+    "designer": null
+  }
+},
+{
+  "model": "orders.bulkorderitem",
+  "pk": 4,
+  "fields": {
+    "bulk_order": 3,
+    "product": 19,
+    "quantity": 10,
+    "brand_logo": "",
+    "custom_design": "",
+    "price": "1054.00",
+    "selected_size": "XL",
+    "designer": null
+  }
+},
+{
+  "model": "orders.bulkorderitem",
+  "pk": 5,
+  "fields": {
+    "bulk_order": 3,
+    "product": null,
+    "quantity": 1,
+    "brand_logo": "",
+    "custom_design": "bulk_order_designs/custom_design_4s1AGLY.png",
+    "price": "0.00",
+    "selected_size": "",
+    "designer": null
+  }
+},
+{
+  "model": "orders.bulkorderitem",
+  "pk": 6,
+  "fields": {
+    "bulk_order": 4,
+    "product": 19,
+    "quantity": 10,
+    "brand_logo": "",
+    "custom_design": "",
+    "price": "1054.00",
+    "selected_size": "XL",
+    "designer": null
+  }
+},
+{
+  "model": "orders.bulkorderitem",
+  "pk": 7,
+  "fields": {
+    "bulk_order": 4,
+    "product": null,
+    "quantity": 1,
+    "brand_logo": "",
+    "custom_design": "bulk_order_designs/custom_design_8oqmuOZ.png",
+    "price": "0.00",
+    "selected_size": "",
+    "designer": null
+  }
+},
+{
+  "model": "home.appversion",
+  "pk": 1,
+  "fields": {
+    "platform": "android",
+    "latest_version": "1.0.1",
+    "store_url": "https://play.google.com/store/apps/details?id=com.ludmil.ghanadudemobile",
+    "force_update": true,
+    "updated_at": "2025-04-16T00:20:46.466Z"
+  }
+},
+{
+  "model": "home.sitesetting",
+  "pk": 1,
+  "fields": {
+    "brand_price": "150.00",
+    "custom_price": "200.00",
+    "delivery_fee": "25.00",
+    "estimatedWeight": "100.00",
+    "internationalRate": "70.00",
+    "vat_percentage": "15.00",
+    "address": "205 Victoria Rd, Woodstock, Cape Town, 7925",
+    "country": "South Africa"
+  }
+}
+]
