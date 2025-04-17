@@ -121,6 +121,8 @@ class BulkOrder(models.Model):
         max_length=20, choices=ORDER_TYPE_CHOICES, default="delivery"
     )
     vat_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    reward_applied = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    reward_granted = models.BooleanField(default=False)
     address = models.CharField(max_length=255)
     city = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=20)

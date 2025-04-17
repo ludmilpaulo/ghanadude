@@ -55,9 +55,12 @@ export interface BulkOrder {
   product_name: string; // still the representative product
   designer_name: string;
   quantity: number;
+  total_price: string;
   status: OrderStatus;
   created_at: string;
   brand_logo_url?: string;
+  reward_applied: string;
+  reward_granted: boolean;
   custom_design_url?: string;
   delivery_fee: string;
   vat_amount: string;

@@ -37,6 +37,11 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
               <div className="mb-4 space-y-1 text-sm text-gray-700">
                 <p><strong>User:</strong> {order.user}</p>
                 <p><strong>Total:</strong> R{order.total_price}</p>
+                {order.reward_applied && parseFloat(order.reward_applied) > 0 && (
+                  <p>
+                    <strong>Reward Applied:</strong> -R{parseFloat(order.reward_applied).toFixed(2)}
+                  </p>
+                )}
                 <p><strong>Status:</strong> {order.status}</p>
                 <p><strong>Payment:</strong> {order.payment_method}</p>
                 <p>

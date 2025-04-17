@@ -7,13 +7,13 @@ from product.models import Product, Image, Category
 from datetime import datetime
 from rest_framework.decorators import action
 
-
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import permission_classes
-from .models import Order, OrderItem
+from .models import BulkOrder, Order, OrderItem
 from .serializers import OrderItemSerializer, OrderSerializer
 
 
@@ -125,8 +125,7 @@ def location_statistics(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
-# ✅ PayFast Webhook
+@csrf_exempt
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def payfast_notify(request):
@@ -134,8 +133,20 @@ def payfast_notify(request):
     m_payment_id = data.get("m_payment_id")
     payment_status = data.get("payment_status")
 
+    print("🔔 Received PayFast Notify:", m_payment_id, payment_status)
+
     try:
-        order = Order.objects.get(pk=m_payment_id)
+        if m_payment_id.startswith("ORDER_"):
+            order_id = int(m_payment_id.replace("ORDER_", ""))
+            order = Order.objects.get(pk=order_id)
+        elif m_payment_id.startswith("BULKORDER_"):
+            order_id = int(m_payment_id.replace("BULKORDER_", ""))
+            order = BulkOrder.objects.get(pk=order_id)
+        else:
+            print("❌ Invalid m_payment_id format:", m_payment_id)
+            return HttpResponse("Invalid m_payment_id", status=400)
+
+        # ✅ Update status
         if payment_status == "COMPLETE":
             order.status = "completed"
         elif payment_status == "CANCELLED":
@@ -144,9 +155,13 @@ def payfast_notify(request):
             order.status = "pending"
 
         order.save()
-        print(f"🔔 PayFast updated Order {order.id} to {order.status}")
-        return HttpResponse(status=200)
+        print(f"✅ PayFast updated {order.__class__.__name__} {order.id} to {order.status}")
+        return HttpResponse("OK", status=200)
 
-    except Order.DoesNotExist:
+    except (Order.DoesNotExist, BulkOrder.DoesNotExist):
         print("❌ PayFast notify: Order not found")
-        return HttpResponse(status=400)
+        return HttpResponse("Order not found", status=404)
+
+    except Exception as e:
+        print("❌ Server error:", str(e))
+        return HttpResponse("Internal server error", status=500)

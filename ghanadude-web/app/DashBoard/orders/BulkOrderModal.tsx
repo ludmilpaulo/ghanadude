@@ -49,41 +49,53 @@ const BulkOrderModal: React.FC<Props> = ({ order, onClose }) => {
               <div className="mb-4">
                 <h4 className="font-semibold mb-2">📦 Items</h4>
                 <ul className="space-y-2">
-                {order.items.map((item, idx) => (
-  <li key={idx} className="text-sm border-b pb-2">
-    <p><strong>Product:</strong> {item.product_name || 'Design/Logo'}</p>
-    <p><strong>Size:</strong> {item.selected_size || 'N/A'}</p> {/* 👈 display selected size */}
-    <p><strong>Quantity:</strong> {item.quantity}</p>
-    <p><strong>Price:</strong> R{item.price}</p>
+                  {order.items.map((item, idx) => (
+                    <li key={idx} className="text-sm border-b pb-2">
+                      <p><strong>Product:</strong> {item.product_name || 'Design/Logo'}</p>
+                      <p><strong>Size:</strong> {item.selected_size || 'N/A'}</p>
+                      <p><strong>Quantity:</strong> {item.quantity}</p>
+                      <p><strong>Price:</strong> R{parseFloat(item.price).toFixed(2)}</p>
 
-    {(item.brand_logo_url || item.custom_design_url) && (
-      <div className="flex gap-3 mt-2">
-        {item.brand_logo_url && (
-          <div className="relative w-16 h-16 rounded overflow-hidden border">
-            <Image
-              src={item.brand_logo_url}
-              alt="Logo"
-              layout="fill"
-              objectFit="cover"
-            />
-          </div>
-        )}
-        {item.custom_design_url && (
-          <div className="relative w-16 h-16 rounded overflow-hidden border">
-            <Image
-              src={item.custom_design_url}
-              alt="Design"
-              layout="fill"
-              objectFit="cover"
-            />
-          </div>
-        )}
-      </div>
-    )}
-  </li>
-))}
-
+                      {(item.brand_logo_url || item.custom_design_url) && (
+                        <div className="flex gap-3 mt-2">
+                          {item.brand_logo_url && (
+                            <div className="relative w-16 h-16 rounded overflow-hidden border">
+                              <Image
+                                src={item.brand_logo_url}
+                                alt="Logo"
+                                layout="fill"
+                                objectFit="cover"
+                              />
+                            </div>
+                          )}
+                          {item.custom_design_url && (
+                            <div className="relative w-16 h-16 rounded overflow-hidden border">
+                              <Image
+                                src={item.custom_design_url}
+                                alt="Design"
+                                layout="fill"
+                                objectFit="cover"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  ))}
                 </ul>
+              </div>
+
+              <div className="mb-4 text-sm text-gray-700 space-y-1">
+                <p><strong>Total:</strong> R{parseFloat(order.total_price).toFixed(2)}</p>
+                {order.reward_applied && parseFloat(order.reward_applied) > 0 && (
+                  <p><strong>Reward Applied:</strong> -R{parseFloat(order.reward_applied).toFixed(2)}</p>
+                )}
+                {order.vat_amount && parseFloat(order.vat_amount) > 0 && (
+                  <p><strong>VAT:</strong> R{parseFloat(order.vat_amount).toFixed(2)}</p>
+                )}
+                {order.delivery_fee && parseFloat(order.delivery_fee) > 0 && (
+                  <p><strong>Delivery Fee:</strong> R{parseFloat(order.delivery_fee).toFixed(2)}</p>
+                )}
               </div>
 
               <div className="mt-6 text-right">

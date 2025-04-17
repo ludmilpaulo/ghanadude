@@ -147,6 +147,7 @@ def checkout(request):
             user=user,
             total_price=regular_total,
             reward_applied=reward_applied,
+            reward_granted=bool(reward_applied > 0),
             address=data.get("address", ""),
             city=data.get("city", ""),
             postal_code=data.get("postal_code", ""),
@@ -180,6 +181,8 @@ def checkout(request):
         bulk_order = BulkOrder.objects.create(
             user=user,
             total_price=bulk_total,
+            reward_applied=reward_applied,
+            reward_granted=bool(reward_applied > 0),
             quantity=bulk_quantity,
             product=bulk_order_product,
             address=data.get("address", ""),
