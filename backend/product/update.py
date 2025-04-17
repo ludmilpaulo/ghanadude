@@ -83,8 +83,8 @@ def product_detail(request, pk):
         # ✅ Ensure brand is present
         if "brand" not in data:
             brand, _ = Brand.objects.get_or_create(name="ghanadude")
-            data["brand"] = brand.id
-            print(f"🧬 Default brand set to ID: {brand.id}")
+            data["brand"] = brand.name
+            print(f"🧬 Default brand set to ID: {brand.name}")
 
         # Serialize and validate
         serializer = ProductSerializer(product, data=data, context={"request": request})

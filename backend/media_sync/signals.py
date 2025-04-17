@@ -1,42 +1,27 @@
 import os
-from django.apps import apps
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.db.models import FileField, ImageField
+from django.conf import settings
+
 from .upload_file_to_supabase import upload_file_to_supabase
 
-
-def sync_all_model_media_files():
-    env = os.environ.get("DJANGO_ENV")
-    if env != "prod":
-        print("🛑 Not syncing media files outside of production.")
+@receiver(post_save)
+def upload_media_to_supabase(sender, instance, **kwargs):
+    # only in production
+    if os.getenv("DJANGO_ENV") != "prod":
         return
 
-    print("🔄 Scanning all model media files...")
+    # skip built‑in or Django internals
+    if sender._meta.app_label in ("contenttypes", "auth", "admin", "sessions"):
+        return
 
-    for model in apps.get_models():
-        if model._meta.app_label == "contenttypes":
-            continue  # skip built-in models
-
-        file_fields = [
-            f for f in model._meta.fields if isinstance(f, (FileField, ImageField))
-        ]
-        if not file_fields:
-            continue
-
-        try:
-            instances = model.objects.all()
-        except Exception as e:
-            print(f"⚠️ Could not fetch instances of {model.__name__}: {e}")
-            continue
-
-        for instance in instances:
-            for field in file_fields:
-                file = getattr(instance, field.name)
-                if file and hasattr(file, "path"):
-                    local_path = file.path
-                    remote_path = file.name
-                    if os.path.exists(local_path):
-                        print(f"⬆️ Syncing: {remote_path}")
-                        try:
-                            upload_file_to_supabase(local_path, remote_path)
-                        except Exception as e:
-                            print(f"❌ Failed to upload {remote_path}: {e}")
+    # for every FileField or ImageField on this model
+    for field in sender._meta.fields:
+        if isinstance(field, (FileField, ImageField)):
+            file_field = getattr(instance, field.name)
+            if file_field and hasattr(file_field, "path"):
+                local_path = file_field.path
+                remote_path = file_field.name
+                if os.path.exists(local_path):
+                    upload_file_to_supabase(local_path, remote_path)
