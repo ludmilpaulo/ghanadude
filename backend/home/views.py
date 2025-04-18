@@ -11,6 +11,11 @@ from .serializers import SiteSettingSerializer
 from .models import AppVersion, SiteSetting
 
 
+from django.shortcuts import render
+
+def privacy_policy_view(request):
+    return render(request, "privacy.html")
+
 def app_redirect_view(request: HttpRequest):
     user_agent = request.META.get("HTTP_USER_AGENT", "").lower()
 

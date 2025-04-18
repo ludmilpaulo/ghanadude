@@ -20,7 +20,6 @@ import { setWishlistCount } from "../redux/slices/wishlistSlice";
 
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
-import * as Linking from 'expo-linking';
 
 import { API_BASE_URL } from '../services/AuthService';
 import { getWishlist, addToWishlist, removeFromWishlist } from '../services/WishlistService';

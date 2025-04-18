@@ -22,7 +22,7 @@ import { fetchUserProfile, fetchRewards, updateUserProfile } from '../services/U
 import { fetchSiteSettings, SiteSetting } from '../services/SiteSettingService';
 import { getLatLngFromAddress, haversineDistance } from '../utils/geoUtils';
 import { appendImageToFormData, RNImageFile } from '../utils/formDataUtils';
-
+import { getCountryCallingCode } from 'libphonenumber-js';
 import { selectUser } from '../redux/slices/authSlice';
 import { selectCartItems, clearCart } from '../redux/slices/basketSlice';
 import { selectDesign, clearDesign } from '../redux/slices/designSlice';
@@ -350,6 +350,7 @@ const CheckoutScreen: React.FC = () => {
     }
   };
 
+
   const autofillFromCurrentLocation = async () => {
     setLocationLoading(true);
     try {
@@ -358,16 +359,35 @@ const CheckoutScreen: React.FC = () => {
         Alert.alert('Permission Denied', 'Location access is required.');
         return;
       }
+  
       const location = await Location.getCurrentPositionAsync({});
       const geocode = await Location.reverseGeocodeAsync(location.coords);
       const first = geocode[0];
+  
       if (first) {
+        const country = first.country || '';
+        const city = first.city || '';
+        const postal_code = first.postalCode || '';
+        const address = `${first.streetNumber || first.name || ''} ${first.street || ''}`.trim();
+        const isoCode = first.isoCountryCode || '';
+  
+        let cleanedNumber = form.phone_number.replace(/[^0-9]/g, '').replace(/^0+/, '');
+        const dialCode = getCountryCallingCode(isoCode);
+  
+        // Prepend country code if not already there
+        if (!form.phone_number.startsWith('+')) {
+          cleanedNumber = `+${dialCode}${cleanedNumber}`;
+        } else {
+          cleanedNumber = form.phone_number; // don't overwrite if user already typed +...
+        }
+  
         setForm((prev) => ({
           ...prev,
-          address: `${first.streetNumber || first.name || ''} ${first.street || ''}`.trim(),
-          city: first.city || '',
-          postal_code: first.postalCode || '',
-          country: first.country || '',
+          address,
+          city,
+          postal_code,
+          country,
+          phone_number: cleanedNumber,
         }));
       }
     } catch {
