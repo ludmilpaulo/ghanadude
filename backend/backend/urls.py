@@ -8,8 +8,8 @@ from home.views import app_redirect_view, privacy_policy_view
 
 
 urlpatterns = [
-    path("app/", app_redirect_view, name="app-redirect"),
-    path("", privacy_policy_view, name="privacy"),
+    path("", app_redirect_view, name="app-redirect"),
+    path("privacy/", privacy_policy_view, name="privacy"),
     path('deeplink/product/<int:product_id>/', deep_link_redirect, name='deep_link_product'),
     path("api/", include("home.urls")),
     path(
