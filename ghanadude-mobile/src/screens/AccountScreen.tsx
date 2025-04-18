@@ -41,6 +41,7 @@ const AccountScreen: React.FC = () => {
   const [rewards, setRewards] = useState<Rewards | null>(null);
   const [profileModalVisible, setProfileModalVisible] = useState(false);
   const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(false); // 🆕
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     name: '',
     first_name: '',
@@ -84,6 +85,7 @@ const AccountScreen: React.FC = () => {
     const auth = ensureAuth();
     if (!auth) return;
 
+    setLoadingProfile(true); // 🆕
     try {
       const res = await fetchUserProfile(auth.user.user_id);
       const { first_name, last_name, email, profile } = res;
@@ -111,6 +113,8 @@ const AccountScreen: React.FC = () => {
       setProfileModalVisible(true);
     } catch {
       Alert.alert('Error', 'Could not load profile');
+    } finally {
+      setLoadingProfile(false); // 🆕
     }
   };
 
@@ -162,7 +166,6 @@ const AccountScreen: React.FC = () => {
           <ActivityIndicator size="small" color="#4A5568" />
         )}
 
-        {/* View Orders CTA */}
         <TouchableOpacity
           onPress={() => navigation.navigate('OrderHistory')}
           style={tw`mt-4 bg-blue-700 py-3 rounded-xl`}
@@ -198,17 +201,25 @@ const AccountScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Spinner while loading profile */}
+      {loadingProfile && (
+        <View style={tw`absolute inset-0 z-50`}>
+          <BlurView intensity={50} tint="light" style={tw`absolute inset-0`} />
+          <View style={tw`flex-1 justify-center items-center`}>
+            <ActivityIndicator size="large" color="#2563EB" />
+          </View>
+        </View>
+      )}
+
       {/* Profile Modal */}
       <Modal visible={profileModalVisible} animationType="fade" transparent>
-  <View style={tw`flex-1 justify-center items-center`}>
-    {/* Blurred Background */}
-    <BlurView intensity={60} tint="light" style={tw`absolute inset-0`} />
+        <View style={tw`flex-1 justify-center items-center`}>
+          <BlurView intensity={60} tint="light" style={tw`absolute inset-0`} />
 
-    {/* Modal Content */}
-    <View style={tw`bg-white w-11/12 p-6 rounded-2xl shadow-2xl z-10`}>
-      <Text style={tw`text-2xl font-bold mb-4 text-center`}>Edit Profile</Text>
+          <View style={tw`bg-white w-11/12 p-6 rounded-2xl shadow-2xl z-10`}>
+            <Text style={tw`text-2xl font-bold mb-4 text-center`}>Edit Profile</Text>
 
-      <TextInput
+            <TextInput
         style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
         placeholder="First Name"
         value={profileForm.first_name}
@@ -257,28 +268,27 @@ const AccountScreen: React.FC = () => {
         onChangeText={(text) => setProfileForm((prev) => ({ ...prev, country: text }))}
       />
 
-      <TouchableOpacity
-        style={tw`bg-blue-600 py-3 rounded-lg mb-2`}
-        onPress={handleProfileUpdate}
-      >
-        <Text style={tw`text-white text-center font-bold`}>Save</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => setProfileModalVisible(false)} style={tw`py-2`}>
-        <Text style={tw`text-center text-blue-600`}>Cancel</Text>
-      </TouchableOpacity>
 
-      {/* Spinner Overlay */}
-      {updatingProfile && (
-        <View style={tw`absolute inset-0 z-50 bg-black/30 justify-center items-center rounded-2xl`}>
-          <View style={tw`bg-white p-4 rounded-full shadow-lg`}>
-            <ActivityIndicator size="large" color="#2563EB" />
+            <TouchableOpacity
+              style={tw`bg-blue-600 py-3 rounded-lg mb-2`}
+              onPress={handleProfileUpdate}
+            >
+              <Text style={tw`text-white text-center font-bold`}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setProfileModalVisible(false)} style={tw`py-2`}>
+              <Text style={tw`text-center text-blue-600`}>Cancel</Text>
+            </TouchableOpacity>
+
+            {updatingProfile && (
+              <View style={tw`absolute inset-0 z-50 bg-black/30 justify-center items-center rounded-2xl`}>
+                <View style={tw`bg-white p-4 rounded-full shadow-lg`}>
+                  <ActivityIndicator size="large" color="#2563EB" />
+                </View>
+              </View>
+            )}
           </View>
         </View>
-      )}
-    </View>
-  </View>
-</Modal>
-
+      </Modal>
     </ScrollView>
   );
 };
