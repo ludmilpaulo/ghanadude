@@ -14,6 +14,7 @@ export interface ProductImage {
     brand: number;
     stock: number;
     on_sale: boolean;
+    grid?: boolean;
     discount_percentage: number;
     season: 'summer' | 'winter' | 'all_seasons';
     images: ProductImage[];

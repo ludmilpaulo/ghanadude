@@ -1,4 +1,7 @@
-// types.ts
+// utils/string.ts
+export const normalize = (str: string): string =>
+  str?.trim().toLowerCase().replace(/\s+/g, " ");
+
 
 
   // src/utils/types.ts

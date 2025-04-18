@@ -155,31 +155,33 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
     products = allProducts
   ) => {
     let updated = [...products];
-
-    if (category.toLowerCase() !== "all") {
+  
+    if (category !== "all") {
       updated = updated.filter(
-        (product) => product.category.toLowerCase() === category.toLowerCase()
+        (product) =>
+          product.category?.toLowerCase() === category.toLowerCase()
       );
     }
-
+  
     if (query) {
       updated = updated.filter((product) =>
         product.name.toLowerCase().includes(query.toLowerCase())
       );
     }
-
+  
     return updated;
   };
 
   const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category);
+    const normalizedCategory = category.toLowerCase();
+    setSelectedCategory(normalizedCategory);
     setSearchQuery("");
-    const updated = filterProducts(category, "", allProducts);
+    const updated = filterProducts(normalizedCategory, "", allProducts);
     setFilteredProducts(updated);
     setNotFound(updated.length === 0);
   };
 
-  const onSaleProducts = filteredProducts.filter((product) => product.on_sale);
+  const onSaleProducts = allProducts.filter((product) => product.on_sale);
 
   const promoBanners = onSaleProducts.slice(0, 5).map((product) => ({
     id: product.id,
@@ -231,34 +233,47 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
 
         {/* 🧭 Category Chips */}
         <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>Browse Categories</Text>
-<ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`pl-4 pt-4 pb-2`}>
-  {categories.map((cat, index) => (
-    <Animatable.View
-      key={cat.id}
-      animation="fadeInRight"
-      delay={index * 100}
-      useNativeDriver
-      style={tw`mr-3`}
-    >
-      <TouchableOpacity
-        onPress={() => handleCategorySelect(cat.name)}
-        activeOpacity={0.8}
-        style={[
-          tw`px-4 py-2 rounded-full shadow-sm border`,
-          selectedCategory === cat.name
-            ? tw`bg-blue-600 border-blue-600`
-            : tw`bg-white border-gray-300`,
-        ]}
-      >
-        <Text
-          style={tw`${selectedCategory === cat.name ? "text-white" : "text-gray-800"} text-sm font-semibold`}
+        <View style={tw`mt-4`}>
+  <ScrollView
+    horizontal
+    showsHorizontalScrollIndicator={false}
+    contentContainerStyle={tw`pl-4 pr-2 pb-2`}
+  >
+    {categories.map((cat, index) => {
+      const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
+      return (
+        <Animatable.View
+          key={`${cat.id}-${cat.name}`}
+          animation="fadeInRight"
+          delay={index * 100}
+          useNativeDriver
+          style={tw`mr-3`}
         >
-          {cat.name}
-        </Text>
-      </TouchableOpacity>
-    </Animatable.View>
-  ))}
-</ScrollView>
+          <TouchableOpacity
+            onPress={() => handleCategorySelect(cat.name)}
+            activeOpacity={0.8}
+            style={[
+              tw`px-4 py-2 rounded-full shadow-sm border`,
+              isSelected
+                ? { backgroundColor: "#fcd116", borderColor: "#fcd116" } // Ghana yellow
+                : tw`bg-white border-gray-300`,
+            ]}
+          >
+            <Text
+              style={[
+                tw`text-sm font-semibold`,
+                isSelected ? { color: "#000" } : tw`text-gray-800`,
+              ]}
+            >
+              {cat.name}
+            </Text>
+          </TouchableOpacity>
+        </Animatable.View>
+      );
+    })}
+  </ScrollView>
+</View>
+
 
 
         {/* Product Grid */}

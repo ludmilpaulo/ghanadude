@@ -190,7 +190,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
   const handleShare = async () => {
     try {
-      const universalLink = `https://ghanadude.co.za/deeplink/product/${id}`;
+      const universalLink = `${API_BASE_URL}/deeplink/product/${id}`;
       const imageUrl = product?.images?.[0]?.image || null;
       const shareMessage = `🛍️ Check out this product on Ghanadude!\n\n${product?.name}\n${universalLink}`;
   

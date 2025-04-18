@@ -4,7 +4,7 @@ import { API_BASE_URL } from "./AuthService";
 const ProductService = {
   async getProducts(filters = {}) {
     try {
-      console.log("Fetching products with filters:", filters);
+      //console.log("Fetching products with filters:", filters);
       const response = await axios.get(`${API_BASE_URL}/product/products/`, {
         params: filters,
       });

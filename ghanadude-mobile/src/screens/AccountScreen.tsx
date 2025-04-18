@@ -23,6 +23,8 @@ import { fetchAndPrefillLocation } from '../services/LocationService';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { HomeStackParamList } from '../navigation/HomeNavigator';
+import { BlurView } from 'expo-blur';
+
 
 type NavigationProp = StackNavigationProp<HomeStackParamList>;
 
@@ -197,77 +199,86 @@ const AccountScreen: React.FC = () => {
       </View>
 
       {/* Profile Modal */}
-      <Modal visible={profileModalVisible} animationType="slide" transparent>
-        <View style={tw`flex-1 bg-white p-6 justify-center`}>
-          <Text style={tw`text-2xl font-bold mb-4`}>Edit Profile</Text>
+      <Modal visible={profileModalVisible} animationType="fade" transparent>
+  <View style={tw`flex-1 justify-center items-center`}>
+    {/* Blurred Background */}
+    <BlurView intensity={60} tint="light" style={tw`absolute inset-0`} />
 
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="First Name"
-            value={profileForm.first_name}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, first_name: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="Last Name"
-            value={profileForm.last_name}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, last_name: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="Email"
-            value={profileForm.email}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, email: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="Phone Number"
-            value={profileForm.phone_number}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, phone_number: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="Address"
-            value={profileForm.address}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, address: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="City"
-            value={profileForm.city}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, city: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="Postal Code"
-            value={profileForm.postal_code}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, postal_code: text }))}
-          />
-          <TextInput
-            style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
-            placeholder="Country"
-            value={profileForm.country}
-            onChangeText={(text) => setProfileForm((prev) => ({ ...prev, country: text }))}
-          />
+    {/* Modal Content */}
+    <View style={tw`bg-white w-11/12 p-6 rounded-2xl shadow-2xl z-10`}>
+      <Text style={tw`text-2xl font-bold mb-4 text-center`}>Edit Profile</Text>
 
-          <TouchableOpacity
-            style={tw`bg-blue-600 py-3 rounded-lg mb-2`}
-            onPress={handleProfileUpdate}
-          >
-            <Text style={tw`text-white text-center font-bold`}>Save</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setProfileModalVisible(false)} style={tw`py-2`}>
-            <Text style={tw`text-center text-blue-600`}>Cancel</Text>
-          </TouchableOpacity>
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="First Name"
+        value={profileForm.first_name}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, first_name: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="Last Name"
+        value={profileForm.last_name}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, last_name: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="Email"
+        value={profileForm.email}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, email: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="Phone Number"
+        value={profileForm.phone_number}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, phone_number: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="Address"
+        value={profileForm.address}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, address: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="City"
+        value={profileForm.city}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, city: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="Postal Code"
+        value={profileForm.postal_code}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, postal_code: text }))}
+      />
+      <TextInput
+        style={tw`border border-gray-300 p-3 rounded-lg mb-3`}
+        placeholder="Country"
+        value={profileForm.country}
+        onChangeText={(text) => setProfileForm((prev) => ({ ...prev, country: text }))}
+      />
 
-          {/* Spinner Overlay */}
-          {updatingProfile && (
-            <View style={tw`absolute top-0 left-0 right-0 bottom-0 bg-white/70 justify-center items-center`}>
-              <ActivityIndicator size="large" color="#2563EB" />
-            </View>
-          )}
+      <TouchableOpacity
+        style={tw`bg-blue-600 py-3 rounded-lg mb-2`}
+        onPress={handleProfileUpdate}
+      >
+        <Text style={tw`text-white text-center font-bold`}>Save</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => setProfileModalVisible(false)} style={tw`py-2`}>
+        <Text style={tw`text-center text-blue-600`}>Cancel</Text>
+      </TouchableOpacity>
+
+      {/* Spinner Overlay */}
+      {updatingProfile && (
+        <View style={tw`absolute inset-0 z-50 bg-black/30 justify-center items-center rounded-2xl`}>
+          <View style={tw`bg-white p-4 rounded-full shadow-lg`}>
+            <ActivityIndicator size="large" color="#2563EB" />
+          </View>
         </View>
-      </Modal>
+      )}
+    </View>
+  </View>
+</Modal>
+
     </ScrollView>
   );
 };
