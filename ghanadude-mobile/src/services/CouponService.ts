@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { API_BASE_URL } from './AuthService';
+import axios from "axios";
+import { API_BASE_URL } from "./AuthService";
 
 // Define the Coupon type based on what your backend returns
 export interface Coupon {

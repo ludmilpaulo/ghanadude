@@ -42,7 +42,6 @@ const Login = () => {
           console.log("Redirecting to /");
           router.push("/");
         }
-        
       }
     } catch (err: unknown) {
       if (axios.isAxiosError(err) && err.response?.data?.error) {
@@ -60,9 +59,9 @@ const Login = () => {
 
   return (
     <div
-  className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-gray-200 to-white 
+      className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-gray-200 to-white 
   shadow-md"
->
+    >
       <Transition
         show={loading}
         enter="transition-opacity duration-300"

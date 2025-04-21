@@ -1,7 +1,7 @@
-import React from 'react';
-import DatePicker from 'react-datepicker';
-import { Transition } from '@headlessui/react';
-import 'react-datepicker/dist/react-datepicker.css';
+import React from "react";
+import DatePicker from "react-datepicker";
+import { Transition } from "@headlessui/react";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface Props {
   startDate: Date;
@@ -16,7 +16,13 @@ interface Props {
   loading: boolean;
 }
 
-const orderStatuses = ['All', 'Pending', 'Processing', 'Completed', 'Cancelled'];
+const orderStatuses = [
+  "All",
+  "Pending",
+  "Processing",
+  "Completed",
+  "Cancelled",
+];
 
 const RevenueFilters: React.FC<Props> = ({
   startDate,
@@ -30,14 +36,14 @@ const RevenueFilters: React.FC<Props> = ({
   categoryOptions,
   loading,
 }) => {
-  const applyQuickRange = (range: 'thisMonth' | 'last30') => {
+  const applyQuickRange = (range: "thisMonth" | "last30") => {
     const now = new Date();
-    if (range === 'thisMonth') {
+    if (range === "thisMonth") {
       const first = new Date(now.getFullYear(), now.getMonth(), 1);
       const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
       setStartDate(first);
       setEndDate(last);
-    } else if (range === 'last30') {
+    } else if (range === "last30") {
       const end = new Date();
       const start = new Date();
       start.setDate(end.getDate() - 30);
@@ -49,8 +55,8 @@ const RevenueFilters: React.FC<Props> = ({
   const resetFilters = () => {
     setStartDate(new Date(new Date().getFullYear(), 0, 1));
     setEndDate(new Date());
-    setStatus('All');
-    setCategory('');
+    setStatus("All");
+    setCategory("");
   };
 
   return (
@@ -103,13 +109,13 @@ const RevenueFilters: React.FC<Props> = ({
         </div>
         <div className="flex flex-col justify-between">
           <button
-            onClick={() => applyQuickRange('thisMonth')}
+            onClick={() => applyQuickRange("thisMonth")}
             className="mb-2 bg-blue-600 text-white py-2 px-3 rounded hover:bg-blue-700 transition"
           >
             This Month
           </button>
           <button
-            onClick={() => applyQuickRange('last30')}
+            onClick={() => applyQuickRange("last30")}
             className="mb-2 bg-indigo-600 text-white py-2 px-3 rounded hover:bg-indigo-700 transition"
           >
             Last 30 Days

@@ -5,7 +5,7 @@ import basketReducer from "./slices/basketSlice";
 import designReducer from "./slices/designSlice";
 import wishlistReducer from "./slices/wishlistSlice"; // ✅ Import wishlist slice
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { persistReducer, persistStore } from "redux-persist";
 
 const rootPersistConfig = {

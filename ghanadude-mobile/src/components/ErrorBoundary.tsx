@@ -21,8 +21,6 @@ class ErrorBoundary extends Component<Props, State> {
     const transformedErrorInfo = {
       componentStack: errorInfo.componentStack,
     };
-
-   
   }
 
   render() {

@@ -15,7 +15,10 @@ const persistConfig: PersistConfig<RootReducerType> = {
   whitelist: ["auth"],
 };
 
-const persistedReducer = persistReducer<RootReducerType>(persistConfig, rootReducer);
+const persistedReducer = persistReducer<RootReducerType>(
+  persistConfig,
+  rootReducer,
+);
 
 export const store = configureStore({
   reducer: persistedReducer,

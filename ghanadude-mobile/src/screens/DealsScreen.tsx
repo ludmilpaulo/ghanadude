@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,23 +7,23 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-} from 'react-native';
-import tw from 'twrnc';
-import { FontAwesome } from '@expo/vector-icons';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
-import { StackNavigationProp } from '@react-navigation/stack';
+} from "react-native";
+import tw from "twrnc";
+import { FontAwesome } from "@expo/vector-icons";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
+import { Picker } from "@react-native-picker/picker";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-import ProductService from '../services/ProductService';
-import { updateBasket, selectCartItems } from '../redux/slices/basketSlice';
+import ProductService from "../services/ProductService";
+import { updateBasket, selectCartItems } from "../redux/slices/basketSlice";
 import {
   setBrandLogo,
   setCustomDesign,
   selectDesign,
-} from '../redux/slices/designSlice';
-import { HomeStackParamList } from '../navigation/HomeNavigator';
-import ImageUploadButton from '../components/ImageUploadButton';
+} from "../redux/slices/designSlice";
+import { HomeStackParamList } from "../navigation/HomeNavigator";
+import ImageUploadButton from "../components/ImageUploadButton";
 
 interface ProductImage {
   id: number;
@@ -41,7 +41,7 @@ interface Product {
 
 type DealsScreenNavigationProp = StackNavigationProp<
   HomeStackParamList,
-  'DealsScreen'
+  "DealsScreen"
 >;
 
 const DealsScreen = () => {
@@ -51,8 +51,12 @@ const DealsScreen = () => {
   const { brandLogo, customDesign } = useSelector(selectDesign);
 
   const [products, setProducts] = useState<Product[]>([]);
-  const [bulkQuantities, setBulkQuantities] = useState<Record<number, number>>({});
-  const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>({});
+  const [bulkQuantities, setBulkQuantities] = useState<Record<number, number>>(
+    {},
+  );
+  const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>(
+    {},
+  );
 
   useEffect(() => {
     fetchBulkProducts();
@@ -63,7 +67,7 @@ const DealsScreen = () => {
       const allProducts: Product[] = await ProductService.getProducts();
       setProducts(allProducts.filter((p) => p.bulk_sale));
     } catch {
-      Alert.alert('Error', 'Unable to load products.');
+      Alert.alert("Error", "Unable to load products.");
     }
   };
 
@@ -87,12 +91,12 @@ const DealsScreen = () => {
     const selectedSize = selectedSizes[product.id];
 
     if (!selectedSize) {
-      Alert.alert('Size Required', 'Please select a size.');
+      Alert.alert("Size Required", "Please select a size.");
       return;
     }
 
     if (isProductInCart(product.id, selectedSize)) {
-      navigation.navigate('Cart');
+      navigation.navigate("Cart");
       return;
     }
 
@@ -112,7 +116,7 @@ const DealsScreen = () => {
       }),
     );
 
-    Alert.alert('Success', 'Product added to cart.');
+    Alert.alert("Success", "Product added to cart.");
   };
 
   return (
@@ -136,36 +140,47 @@ const DealsScreen = () => {
       />
 
       <ScrollView>
-        {products.map(product => (
+        {products.map((product) => (
           <View key={product.id} style={tw`bg-gray-100 p-4 rounded-lg mb-4`}>
-            <Image source={{ uri: product.images[0]?.image }} style={tw`h-40 rounded-lg mb-2`} />
+            <Image
+              source={{ uri: product.images[0]?.image }}
+              style={tw`h-40 rounded-lg mb-2`}
+            />
             <Text style={tw`text-lg font-semibold`}>{product.name}</Text>
             <Text style={tw`text-gray-500`}>R{product.price}</Text>
 
             <Picker
               selectedValue={selectedSizes[product.id]}
-              onValueChange={val => setSelectedSizes(prev => ({ ...prev, [product.id]: val }))}
+              onValueChange={(val) =>
+                setSelectedSizes((prev) => ({ ...prev, [product.id]: val }))
+              }
             >
               <Picker.Item label="Select Size" value="" />
-              {product.sizes.map(size => (
+              {product.sizes.map((size) => (
                 <Picker.Item key={size} label={size} value={size} />
               ))}
             </Picker>
 
             <View style={tw`flex-row items-center justify-center my-2`}>
-              <TouchableOpacity onPress={() => handleQuantityChange(product.id, false)}>
+              <TouchableOpacity
+                onPress={() => handleQuantityChange(product.id, false)}
+              >
                 <FontAwesome name="minus-circle" size={24} />
               </TouchableOpacity>
               <TextInput
                 keyboardType="numeric"
                 style={tw`mx-3 text-center border p-2 w-16 rounded`}
                 value={(bulkQuantities[product.id] || 10).toString()}
-                onChangeText={text => setBulkQuantities(prev => ({
-                  ...prev,
-                  [product.id]: Math.max(10, parseInt(text, 10) || 10),
-                }))}
+                onChangeText={(text) =>
+                  setBulkQuantities((prev) => ({
+                    ...prev,
+                    [product.id]: Math.max(10, parseInt(text, 10) || 10),
+                  }))
+                }
               />
-              <TouchableOpacity onPress={() => handleQuantityChange(product.id, true)}>
+              <TouchableOpacity
+                onPress={() => handleQuantityChange(product.id, true)}
+              >
                 <FontAwesome name="plus-circle" size={24} />
               </TouchableOpacity>
             </View>
@@ -175,12 +190,16 @@ const DealsScreen = () => {
               style={tw`bg-green-600 py-2 rounded-lg my-2`}
             >
               <Text style={tw`text-white text-center`}>
-                {isProductInCart(product.id, selectedSizes[product.id]) ? 'Go to Cart' : 'Add to Cart'}
+                {isProductInCart(product.id, selectedSizes[product.id])
+                  ? "Go to Cart"
+                  : "Add to Cart"}
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => navigation.navigate('ProductDetail', { id: product.id })}
+              onPress={() =>
+                navigation.navigate("ProductDetail", { id: product.id })
+              }
               style={tw`bg-blue-600 py-2 rounded-lg`}
             >
               <Text style={tw`text-white text-center`}>View Product</Text>

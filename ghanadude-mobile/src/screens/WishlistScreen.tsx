@@ -53,7 +53,9 @@ const WishlistScreen = () => {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [itemState, setItemState] = useState<Record<number, { size: string | null; quantity: number }>>({});
+  const [itemState, setItemState] = useState<
+    Record<number, { size: string | null; quantity: number }>
+  >({});
   const user = useSelector(selectUser);
   const userId = user?.user_id;
   const dispatch = useDispatch();
@@ -65,9 +67,9 @@ const WishlistScreen = () => {
         setLoading(true);
         fetchWishlist();
       }
-    }, [userId])
+    }, [userId]),
   );
-  
+
   const fetchWishlist = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/product/wishlist/`, {
@@ -93,10 +95,10 @@ const WishlistScreen = () => {
     try {
       await axios.delete(
         `${API_BASE_URL}/product/wishlist/remove/${productId}/`,
-        { params: { user_id: userId } }
+        { params: { user_id: userId } },
       );
       setWishlist((prev) =>
-        prev.filter((item) => item.product.id !== productId)
+        prev.filter((item) => item.product.id !== productId),
       );
       const newCount = await fetchWishlistCount(userId!);
       dispatch(setWishlistCount(newCount));
@@ -128,7 +130,7 @@ const WishlistScreen = () => {
       name: product.name,
       selectedSize: state.size,
       quantity: state.quantity,
-      image: product.images?.[0]?.image || '',
+      image: product.images?.[0]?.image || "",
       price: parseFloat(finalPrice.toFixed(2)),
       originalPrice: Number(product.price),
       stock: product.stock,
@@ -229,7 +231,9 @@ const WishlistScreen = () => {
                         <Text style={tw`text-xs line-through text-gray-400`}>
                           R{price.toFixed(2)}
                         </Text>
-                        <View style={tw`ml-2 px-2 py-1 bg-red-200 rounded-full`}>
+                        <View
+                          style={tw`ml-2 px-2 py-1 bg-red-200 rounded-full`}
+                        >
                           <Text style={tw`text-xs text-red-700 font-bold`}>
                             -{product.discount_percentage}%
                           </Text>
@@ -250,40 +254,41 @@ const WishlistScreen = () => {
                     </Text>
 
                     {/* Size Selector */}
-                    {Array.isArray(product.sizes) && product.sizes.length > 0 && (
-                      <View style={tw`flex-row flex-wrap mt-2`}>
-                        {(product.sizes || []).map((size: string) => (
-                          <TouchableOpacity
-                            key={size}
-                            onPress={() =>
-                              setItemState((prev) => ({
-                                ...prev,
-                                [product.id]: {
-                                  ...prev[product.id],
-                                  size,
-                                  quantity: prev[product.id]?.quantity || 1,
-                                },
-                              }))
-                            }
-                            style={tw`mr-2 mb-2 px-3 py-1 border rounded-full ${
-                              itemState[product.id]?.size === size
-                                ? "bg-blue-600 border-blue-600"
-                                : "border-gray-300"
-                            }`}
-                          >
-                            <Text
-                              style={tw`${
+                    {Array.isArray(product.sizes) &&
+                      product.sizes.length > 0 && (
+                        <View style={tw`flex-row flex-wrap mt-2`}>
+                          {(product.sizes || []).map((size: string) => (
+                            <TouchableOpacity
+                              key={size}
+                              onPress={() =>
+                                setItemState((prev) => ({
+                                  ...prev,
+                                  [product.id]: {
+                                    ...prev[product.id],
+                                    size,
+                                    quantity: prev[product.id]?.quantity || 1,
+                                  },
+                                }))
+                              }
+                              style={tw`mr-2 mb-2 px-3 py-1 border rounded-full ${
                                 itemState[product.id]?.size === size
-                                  ? "text-white"
-                                  : "text-gray-700"
-                              } text-xs`}
+                                  ? "bg-blue-600 border-blue-600"
+                                  : "border-gray-300"
+                              }`}
                             >
-                              {size}
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                    )}
+                              <Text
+                                style={tw`${
+                                  itemState[product.id]?.size === size
+                                    ? "text-white"
+                                    : "text-gray-700"
+                                } text-xs`}
+                              >
+                                {size}
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      )}
 
                     {/* Quantity Selector */}
                     <View style={tw`flex-row items-center mt-2`}>
@@ -293,7 +298,10 @@ const WishlistScreen = () => {
                             ...prev,
                             [product.id]: {
                               ...prev[product.id],
-                              quantity: Math.max(1, (prev[product.id]?.quantity || 1) - 1),
+                              quantity: Math.max(
+                                1,
+                                (prev[product.id]?.quantity || 1) - 1,
+                              ),
                               size: prev[product.id]?.size || null,
                             },
                           }))
@@ -313,7 +321,7 @@ const WishlistScreen = () => {
                               ...prev[product.id],
                               quantity: Math.min(
                                 product.stock,
-                                (prev[product.id]?.quantity || 1) + 1
+                                (prev[product.id]?.quantity || 1) + 1,
                               ),
                               size: prev[product.id]?.size || null,
                             },

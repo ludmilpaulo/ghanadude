@@ -41,12 +41,12 @@ export default function LoginScreen() {
       Alert.alert("Missing Fields", "Please fill in all fields.");
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const response = await authService.login(usernameOrEmail, password);
-  
+
       dispatch(
         loginUser({
           user: {
@@ -56,23 +56,40 @@ export default function LoginScreen() {
             is_superuser: response.is_superuser,
           },
           token: response.token,
-        })
+        }),
       );
-  
+
       Alert.alert("Welcome", "Login successful!");
     } catch (err: unknown) {
-      console.log("Login error:", err);
-  
-      if (
-        typeof err === "object" &&
-        err !== null &&
-        "error" in err &&
-        typeof (err as { error: unknown }).error === "string"
-      ) {
-        const message = (err as { error: string }).error;
-        Alert.alert("Login Failed", message);
-      } else if (typeof err === "string") {
-        Alert.alert("Login Failed", err);
+      if (typeof err === "object" && err !== null && "error" in err) {
+        const errorResponse = err as { error: string; user_id?: number };
+
+        if (errorResponse.error === "deleted" && errorResponse.user_id) {
+          Alert.alert(
+            "Account Deleted",
+            "This account was previously deleted. Would you like to restore it?",
+            [
+              { text: "Cancel", style: "cancel" },
+              {
+                text: "Restore",
+                style: "default",
+                onPress: async () => {
+                  try {
+                    await authService.restoreAccount(errorResponse.user_id!);
+                    Alert.alert(
+                      "Success",
+                      "Account restored. Please log in again.",
+                    );
+                  } catch {
+                    Alert.alert("Error", "Failed to restore account.");
+                  }
+                },
+              },
+            ],
+          );
+        } else {
+          Alert.alert("Login Failed", errorResponse.error);
+        }
       } else {
         Alert.alert("Login Failed", "Something went wrong.");
       }
@@ -80,7 +97,6 @@ export default function LoginScreen() {
       setLoading(false);
     }
   };
-  
 
   return (
     <LinearGradient
@@ -97,7 +113,9 @@ export default function LoginScreen() {
             keyboardShouldPersistTaps="handled"
           >
             {/* White Card */}
-            <View style={tw`w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl`}>
+            <View
+              style={tw`w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl`}
+            >
               {/* Logo */}
               <View style={tw`items-center mb-6`}>
                 <Image
@@ -105,7 +123,6 @@ export default function LoginScreen() {
                   style={tw`w-46 h-46`}
                   resizeMode="contain"
                 />
-                
               </View>
 
               {/* Username/Email */}

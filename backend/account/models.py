@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 # models.py
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    is_deleted = models.BooleanField(default=False)  # ✅ Add this field
+    deleted_at = models.DateTimeField(null=True, blank=True)  # O
     phone_number = models.CharField(max_length=20, blank=True)
     address = models.CharField(max_length=255, blank=True)
     reward_balance = models.DecimalField(

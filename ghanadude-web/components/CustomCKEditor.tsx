@@ -6,7 +6,10 @@ interface CustomCKEditorProps {
   setDescription: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const CustomCKEditor: React.FC<CustomCKEditorProps> = ({ description, setDescription }) => {
+const CustomCKEditor: React.FC<CustomCKEditorProps> = ({
+  description,
+  setDescription,
+}) => {
   return (
     <CKEditor
       editor={ClassicEditor}

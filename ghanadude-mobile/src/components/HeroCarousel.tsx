@@ -36,7 +36,9 @@ const HeroCarousel = () => {
             style={tw`w-full h-44`}
             resizeMode="cover"
           />
-          <View style={tw`absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4`}>
+          <View
+            style={tw`absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4`}
+          >
             <Text style={tw`text-white text-lg font-bold`}>{item.title}</Text>
             <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
           </View>

@@ -9,7 +9,7 @@ const ProductService = {
         params: filters,
       });
 
-     // console.log("API Response:", response.data);
+      // console.log("API Response:", response.data);
       return response.data.products || response.data; // Adjust based on API response structure
     } catch (error) {
       console.error("Error fetching products:", error);

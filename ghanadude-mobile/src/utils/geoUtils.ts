@@ -1,5 +1,5 @@
 // utils/geoUtils.ts
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 
 export const getLatLngFromAddress = async (address: string) => {
   try {
@@ -11,14 +11,14 @@ export const getLatLngFromAddress = async (address: string) => {
       };
     }
   } catch (err) {
-    console.error('❌ Failed to geocode address:', err);
+    console.error("❌ Failed to geocode address:", err);
   }
   return null;
 };
 
 export const haversineDistance = (
   coords1: { latitude: number; longitude: number },
-  coords2: { latitude: number; longitude: number }
+  coords2: { latitude: number; longitude: number },
 ) => {
   const toRad = (value: number) => (value * Math.PI) / 180;
   const R = 6371; // Earth's radius in km

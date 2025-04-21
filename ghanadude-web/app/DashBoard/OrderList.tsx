@@ -1,31 +1,33 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Transition } from '@headlessui/react';
+import React, { useEffect, useRef, useState } from "react";
+import { Transition } from "@headlessui/react";
 import {
   fetchBulkOrders,
   fetchOrders,
   updateBulkOrderStatus,
   updateOrderStatus,
-} from '@/services/adminService';
-import { Order, BulkOrder } from './orders/types';
-import OrderTable from './orders/OrderTable';
-import BulkOrderTable from './orders/BulkOrderTable';
-import OrderModal from './orders/OrderModal';
-import BulkOrderModal from './orders/BulkOrderModal';
-import ExportButtons from './orders/ExportButtons';
-import SearchSortBar from './orders/SearchSortBar';
+} from "@/services/adminService";
+import { Order, BulkOrder } from "./orders/types";
+import OrderTable from "./orders/OrderTable";
+import BulkOrderTable from "./orders/BulkOrderTable";
+import OrderModal from "./orders/OrderModal";
+import BulkOrderModal from "./orders/BulkOrderModal";
+import ExportButtons from "./orders/ExportButtons";
+import SearchSortBar from "./orders/SearchSortBar";
 
 const OrderList: React.FC = () => {
   const [regularOrders, setRegularOrders] = useState<Order[]>([]);
   const [bulkOrders, setBulkOrders] = useState<BulkOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState<string | null>(null);
-  const [viewingOrder, setViewingOrder] = useState<Order | BulkOrder | null>(null);
-  const [statusFilter, setStatusFilter] = useState('');
-  const [userFilter, setUserFilter] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
-  const [activeTab, setActiveTab] = useState<'regular' | 'bulk'>('regular');
+  const [viewingOrder, setViewingOrder] = useState<Order | BulkOrder | null>(
+    null,
+  );
+  const [statusFilter, setStatusFilter] = useState("");
+  const [userFilter, setUserFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+  const [activeTab, setActiveTab] = useState<"regular" | "bulk">("regular");
   const [currentPage, setCurrentPage] = useState(1);
   const printRef = useRef<HTMLDivElement>(null);
   const ordersPerPage = 10;
@@ -34,12 +36,12 @@ const OrderList: React.FC = () => {
     const loadOrders = async () => {
       setLoading(true);
       try {
-        if (activeTab === 'regular') {
+        if (activeTab === "regular") {
           const data = await fetchOrders();
           setRegularOrders(data);
         } else {
           const data = await fetchBulkOrders();
-          console.log("bulk order", data)
+          console.log("bulk order", data);
           setBulkOrders(data);
         }
       } catch (err) {
@@ -54,44 +56,48 @@ const OrderList: React.FC = () => {
   }, [activeTab]);
 
   const handleStatusChange = async (orderId: number, newStatus: string) => {
-    const isRegular = activeTab === 'regular';
+    const isRegular = activeTab === "regular";
     const orders = isRegular ? regularOrders : bulkOrders;
     const target = orders.find((o) => o.id === orderId);
-  
-    if (!target || ['Completed', 'Cancelled'].includes(target.status)) {
-      setAlert('Cannot update status. Order already completed or cancelled.');
+
+    if (!target || ["Completed", "Cancelled"].includes(target.status)) {
+      setAlert("Cannot update status. Order already completed or cancelled.");
       return;
     }
-  
+
     try {
       setLoading(true);
       if (isRegular) {
         await updateOrderStatus(orderId, { status: newStatus });
         setRegularOrders((prev: Order[]) =>
           prev.map((o: Order) =>
-            o.id === orderId ? { ...o, status: newStatus as Order['status'] } : o
-          )
+            o.id === orderId
+              ? { ...o, status: newStatus as Order["status"] }
+              : o,
+          ),
         );
       } else {
         await updateBulkOrderStatus(orderId, { status: newStatus });
         setBulkOrders((prev: BulkOrder[]) =>
           prev.map((o: BulkOrder) =>
-            o.id === orderId ? { ...o, status: newStatus as BulkOrder['status'] } : o
-          )
+            o.id === orderId
+              ? { ...o, status: newStatus as BulkOrder["status"] }
+              : o,
+          ),
         );
       }
-  
-      setAlert('✅ Order status updated.');
+
+      setAlert("✅ Order status updated.");
     } catch {
-      setAlert('❌ Failed to update order.');
+      setAlert("❌ Failed to update order.");
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
-  const filtered = (activeTab === 'regular' ? regularOrders : bulkOrders).filter((order) => {
+  const filtered = (
+    activeTab === "regular" ? regularOrders : bulkOrders
+  ).filter((order) => {
     const isStatusMatch = statusFilter ? order.status === statusFilter : true;
     const isUserMatch = userFilter
       ? order.user.toLowerCase().includes(userFilter.toLowerCase())
@@ -116,20 +122,20 @@ const OrderList: React.FC = () => {
 
       {/* Tabs */}
       <div className="flex space-x-3 mb-4">
-        {(['regular', 'bulk'] as const).map((tab) => (
+        {(["regular", "bulk"] as const).map((tab) => (
           <button
             key={tab}
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               activeTab === tab
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
             onClick={() => {
               setActiveTab(tab);
               setCurrentPage(1);
             }}
           >
-            {tab === 'regular' ? '🧾 Regular Orders' : '📦 Bulk Orders'}
+            {tab === "regular" ? "🧾 Regular Orders" : "📦 Bulk Orders"}
           </button>
         ))}
       </div>
@@ -143,7 +149,7 @@ const OrderList: React.FC = () => {
         setDateFilter={setDateFilter}
       />
 
-      {activeTab === 'regular' && (
+      {activeTab === "regular" && (
         <div className="flex justify-end gap-4 mb-4">
           <ExportButtons orders={regularOrders} printRef={printRef} />
         </div>
@@ -151,7 +157,7 @@ const OrderList: React.FC = () => {
 
       {/* Table */}
       <div ref={printRef}>
-        {activeTab === 'regular' ? (
+        {activeTab === "regular" ? (
           <OrderTable
             orders={currentOrders as Order[]}
             onStatusChange={handleStatusChange}
@@ -192,13 +198,13 @@ const OrderList: React.FC = () => {
       )}
 
       {/* Modal */}
-      {viewingOrder && activeTab === 'regular' && (
+      {viewingOrder && activeTab === "regular" && (
         <OrderModal
           order={viewingOrder as Order}
           onClose={() => setViewingOrder(null)}
         />
       )}
-      {viewingOrder && activeTab === 'bulk' && (
+      {viewingOrder && activeTab === "bulk" && (
         <BulkOrderModal
           order={viewingOrder as BulkOrder}
           onClose={() => setViewingOrder(null)}

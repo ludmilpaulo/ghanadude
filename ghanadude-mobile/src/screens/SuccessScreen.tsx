@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ActivityIndicator,
   Animated,
-} from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { HomeStackParamList } from '../navigation/HomeNavigator';
-import tw from 'twrnc';
-import { StackNavigationProp } from '@react-navigation/stack';
+} from "react-native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { HomeStackParamList } from "../navigation/HomeNavigator";
+import tw from "twrnc";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-type SuccessScreenRouteProp = RouteProp<HomeStackParamList, 'SuccessScreen'>;
-type NavigationProp = StackNavigationProp<HomeStackParamList, 'SuccessScreen'>;
+type SuccessScreenRouteProp = RouteProp<HomeStackParamList, "SuccessScreen">;
+type NavigationProp = StackNavigationProp<HomeStackParamList, "SuccessScreen">;
 
 const SuccessScreen = () => {
   const navigation = useNavigation<NavigationProp>();
@@ -35,7 +35,7 @@ const SuccessScreen = () => {
     setTimeout(() => {
       navigation.reset({
         index: 0,
-        routes: [{ name: 'HomeScreen' }],
+        routes: [{ name: "HomeScreen" }],
       });
     }, 500);
   };
@@ -85,7 +85,7 @@ const SuccessScreen = () => {
 
       <TouchableOpacity
         style={tw`bg-blue-600 w-full py-3 rounded-full mt-4 ${
-          loading ? 'opacity-50' : ''
+          loading ? "opacity-50" : ""
         }`}
         onPress={handleContinue}
         disabled={loading}

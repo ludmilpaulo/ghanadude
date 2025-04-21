@@ -33,11 +33,14 @@ const basketSlice = createSlice({
         (item) =>
           item.id === action.payload.id &&
           item.selectedSize === action.payload.selectedSize &&
-          item.isBulk === action.payload.isBulk
+          item.isBulk === action.payload.isBulk,
       );
 
       if (index >= 0) {
-        if (state.items[index].quantity + action.payload.quantity <= state.items[index].stock) {
+        if (
+          state.items[index].quantity + action.payload.quantity <=
+          state.items[index].stock
+        ) {
           state.items[index].quantity += action.payload.quantity;
         } else {
           state.items[index].quantity = state.items[index].stock;
@@ -49,13 +52,17 @@ const basketSlice = createSlice({
 
     decreaseBasket: (
       state,
-      action: PayloadAction<{ id: number; selectedSize: string; isBulk?: boolean }>
+      action: PayloadAction<{
+        id: number;
+        selectedSize: string;
+        isBulk?: boolean;
+      }>,
     ) => {
       const index = state.items.findIndex(
         (item) =>
           item.id === action.payload.id &&
           item.selectedSize === action.payload.selectedSize &&
-          item.isBulk === action.payload.isBulk
+          item.isBulk === action.payload.isBulk,
       );
 
       if (index >= 0 && state.items[index].quantity > 1) {
@@ -65,20 +72,24 @@ const basketSlice = createSlice({
           (item) =>
             item.id !== action.payload.id ||
             item.selectedSize !== action.payload.selectedSize ||
-            item.isBulk !== action.payload.isBulk
+            item.isBulk !== action.payload.isBulk,
         );
       }
     },
 
     removeFromBasket: (
       state,
-      action: PayloadAction<{ id: number; selectedSize: string; isBulk?: boolean }>
+      action: PayloadAction<{
+        id: number;
+        selectedSize: string;
+        isBulk?: boolean;
+      }>,
     ) => {
       state.items = state.items.filter(
         (item) =>
           item.id !== action.payload.id ||
           item.selectedSize !== action.payload.selectedSize ||
-          item.isBulk !== action.payload.isBulk
+          item.isBulk !== action.payload.isBulk,
       );
     },
 
@@ -90,5 +101,6 @@ const basketSlice = createSlice({
 
 export const selectCartItems = (state: RootState) => state.basket.items;
 
-export const { updateBasket, decreaseBasket, removeFromBasket, clearCart } = basketSlice.actions;
+export const { updateBasket, decreaseBasket, removeFromBasket, clearCart } =
+  basketSlice.actions;
 export default basketSlice.reducer;

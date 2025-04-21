@@ -1,11 +1,6 @@
-import React, { useState } from 'react';
-import {
-  View,
-  TextInput,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
-import tw from 'twrnc';
+import React, { useState } from "react";
+import { View, TextInput, Text, TouchableOpacity } from "react-native";
+import tw from "twrnc";
 
 export interface FormFields {
   first_name: string;
@@ -26,14 +21,14 @@ interface Props {
 }
 
 const fieldLabels: Record<keyof FormFields, string> = {
-  first_name: 'First Name',
-  last_name: 'Last Name',
-  email: 'Email Address',
-  phone_number: 'Phone Number',
-  address: 'Street Address',
-  city: 'City',
-  postal_code: 'Postal Code',
-  country: 'Country',
+  first_name: "First Name",
+  last_name: "Last Name",
+  email: "Email Address",
+  phone_number: "Phone Number",
+  address: "Street Address",
+  city: "City",
+  postal_code: "Postal Code",
+  country: "Country",
 };
 
 const CheckoutForm: React.FC<Props> = ({
@@ -42,16 +37,21 @@ const CheckoutForm: React.FC<Props> = ({
   editableFields,
   onUseCurrentLocation,
 }) => {
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormFields, string>>>({});
+  const [formErrors, setFormErrors] = useState<
+    Partial<Record<keyof FormFields, string>>
+  >({});
 
   const handleChange = (field: keyof FormFields, value: string) => {
     setForm({ [field]: value });
 
     // Live validation
-    if (value.trim() === '') {
-      setFormErrors(prev => ({ ...prev, [field]: `${fieldLabels[field]} is required.` }));
+    if (value.trim() === "") {
+      setFormErrors((prev) => ({
+        ...prev,
+        [field]: `${fieldLabels[field]} is required.`,
+      }));
     } else {
-      setFormErrors(prev => {
+      setFormErrors((prev) => {
         const { [field]: _, ...rest } = prev;
         return rest;
       });

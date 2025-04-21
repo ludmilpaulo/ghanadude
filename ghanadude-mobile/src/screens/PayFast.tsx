@@ -1,19 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, SafeAreaView, View, Button } from 'react-native';
-import { WebView, WebViewNavigation } from 'react-native-webview';
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Modal,
+  SafeAreaView,
+  View,
+  Button,
+} from "react-native";
+import { WebView, WebViewNavigation } from "react-native-webview";
 
-import { PayFastMerchantDetails, PayFastTransactionDetails } from './types';
-import { buildQueryString, generateMD5, removeUndefined } from './Helpers';
+import { PayFastMerchantDetails, PayFastTransactionDetails } from "./types";
+import { buildQueryString, generateMD5, removeUndefined } from "./Helpers";
 
 type Props = PayFastMerchantDetails & {
-  paymentMethod?: 'ef' | 'cc' | 'dc' | 'mp' | 'mc' | 'sc' | 'ss' | 'zp' | 'mt' | 'rcs';
+  paymentMethod?:
+    | "ef"
+    | "cc"
+    | "dc"
+    | "mp"
+    | "mc"
+    | "sc"
+    | "ss"
+    | "zp"
+    | "mt"
+    | "rcs";
   transactionDetails: PayFastTransactionDetails;
   isVisible: boolean;
   onClose: (reference?: string) => void;
 };
 
 const PayFast = ({
-  paymentMethod = 'cc',
+  paymentMethod = "cc",
   isVisible,
   onClose,
   sandbox,
@@ -25,11 +41,11 @@ const PayFast = ({
   passPhrase,
 }: Props) => {
   const [showWeb, setShowWeb] = useState(false);
-  const [postBody, setPostBody] = useState('');
+  const [postBody, setPostBody] = useState("");
 
   const uri = sandbox
-    ? 'https://sandbox.payfast.co.za/eng/process'
-    : 'https://www.payfast.co.za/eng/process';
+    ? "https://sandbox.payfast.co.za/eng/process"
+    : "https://www.payfast.co.za/eng/process";
 
   const CUSTOMER_DATA = {
     name_first: transactionDetails.customerFirstName,
@@ -83,8 +99,11 @@ const PayFast = ({
 
   const handleNavigationChange = (event: WebViewNavigation) => {
     console.log("🌐 WebView navigation change:", event.url);
-    if (event.url.includes('finish')) {
-      console.log("✅ Payment completed! Closing modal with ref:", TRANSACTION_DETAILS.m_payment_id);
+    if (event.url.includes("finish")) {
+      console.log(
+        "✅ Payment completed! Closing modal with ref:",
+        TRANSACTION_DETAILS.m_payment_id,
+      );
       setShowWeb(false);
       onClose(TRANSACTION_DETAILS.m_payment_id);
     }
@@ -103,7 +122,13 @@ const PayFast = ({
             onNavigationStateChange={handleNavigationChange}
             startInLoadingState
             renderLoading={() => (
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 <ActivityIndicator size="large" />
                 <Button title="Cancel" onPress={handleCancel} />
               </View>
@@ -111,10 +136,10 @@ const PayFast = ({
             source={{
               uri,
               headers: {
-                Accept: '*/*',
-                'Content-Type': 'application/x-www-form-urlencoded',
+                Accept: "*/*",
+                "Content-Type": "application/x-www-form-urlencoded",
               },
-              method: 'POST',
+              method: "POST",
               body: postBody,
             }}
             onError={(syntheticEvent) => {
@@ -122,11 +147,17 @@ const PayFast = ({
               console.log("❌ WebView error:", nativeEvent);
             }}
             onHttpError={({ nativeEvent }) => {
-              console.log("❌ HTTP error:", nativeEvent.statusCode, nativeEvent.description);
+              console.log(
+                "❌ HTTP error:",
+                nativeEvent.statusCode,
+                nativeEvent.description,
+              );
             }}
           />
         ) : (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
             <ActivityIndicator size="large" />
             <Button title="Cancel" onPress={handleCancel} />
           </View>

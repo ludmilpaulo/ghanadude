@@ -19,9 +19,9 @@ export interface Order {
   discount_amount: string;
   delivery_fee: string;
   vat_amount: string;
-  payment_method: 'card' | 'delivery' | 'eft';
-  status: 'Pending' | 'Processing' | 'Completed' | 'Cancelled';
-  order_type: 'delivery' | 'collection';
+  payment_method: "card" | "delivery" | "eft";
+  status: "Pending" | "Processing" | "Completed" | "Cancelled";
+  order_type: "delivery" | "collection";
   reward_applied: string;
   reward_granted: boolean;
   created_at: string;
@@ -33,11 +33,10 @@ export interface Order {
   is_dispatched: boolean;
 }
 
-
 // app/DashBoard/orders/types.ts
 
-export type OrderStatus = 'Pending' | 'Processing' | 'Completed' | 'Cancelled';
-export type OrderType = 'delivery' | 'collection';
+export type OrderStatus = "Pending" | "Processing" | "Completed" | "Cancelled";
+export type OrderType = "delivery" | "collection";
 
 export interface BulkOrderItem {
   id: number;

@@ -4,7 +4,7 @@ from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-
+from django.utils.timezone import now
 from .models import UserProfile
 from .serializers import UserProfileSerializer, UserSerializer
 from rest_framework.views import APIView
@@ -97,6 +97,13 @@ class UserLoginView(APIView):
                     {"error": "User name don't exist"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+                
+        # Detect soft-deleted user
+        if hasattr(user, 'profile') and user.profile.is_deleted:
+            return Response(
+                {"error": "deleted", "user_id": user.id},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         user = authenticate(username=user.username, password=password)
         if user is not None:
@@ -218,3 +225,55 @@ def get_user_profile(request, user_id):
     except User.DoesNotExist:
         logger.error(f"User with id {user_id} not found")
         return Response({"error": "User not found"}, status=404)
+    
+    
+    
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def delete_account_by_user_id(request):
+    user_id = request.data.get('user_id')
+    if not user_id:
+        return Response({"error": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(id=user_id)
+        user.is_active = False  # Disable login
+        user.save()
+
+        if hasattr(user, 'profile'):
+            user.profile.is_deleted = True
+            user.profile.deleted_at = now()
+            user.profile.save()
+
+        return Response({"detail": "User account marked as deleted."}, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Optional: restrict to IsAdminUser if only admin should do this
+def restore_user_account(request):
+    user_id = request.data.get('user_id')
+    if not user_id:
+        return Response({"error": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = User.objects.get(id=user_id)
+        user.is_active = True
+        user.save()
+
+        if hasattr(user, 'profile'):
+            user.profile.is_deleted = False
+            user.profile.deleted_at = None
+            user.profile.save()
+
+        return Response({"detail": "User account restored successfully."}, status=status.HTTP_200_OK)
+
+    except User.DoesNotExist:
+        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+

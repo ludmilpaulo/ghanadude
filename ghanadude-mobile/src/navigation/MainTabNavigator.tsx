@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Feather, AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import {
+  Feather,
+  AntDesign,
+  MaterialIcons,
+  FontAwesome,
+} from "@expo/vector-icons";
 
 import { View, Text, SafeAreaView } from "react-native";
 import { BottomTabBar } from "@react-navigation/bottom-tabs";
@@ -12,14 +17,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchWishlistCount } from "../services/WishlistService";
 import { setWishlistCount } from "../redux/slices/wishlistSlice";
 
-
-
 import { RootState } from "../redux/store";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
 import { selectUser } from "../redux/slices/authSlice";
-
-
 
 const Tab = createBottomTabNavigator();
 
@@ -32,14 +33,14 @@ const MainTabNavigator = () => {
 
   const user = useSelector(selectUser);
   const userId = user?.user_id;
-  
+
   useEffect(() => {
     if (userId) {
-      fetchWishlistCount(userId).then((count) => dispatch(setWishlistCount(count)));
+      fetchWishlistCount(userId).then((count) =>
+        dispatch(setWishlistCount(count)),
+      );
     }
   }, [userId]);
-  
-
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -58,11 +59,11 @@ const MainTabNavigator = () => {
         tabBar={(props) => (
           <View>
             <LinearGradient
-            colors={["#e60000", "#ffcc00", "#008000"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ height: 75 }}
-          >
+              colors={["#e60000", "#ffcc00", "#008000"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ height: 75 }}
+            >
               <BottomTabBar {...props} />
             </LinearGradient>
           </View>
@@ -72,7 +73,9 @@ const MainTabNavigator = () => {
           name="Home"
           component={HomeScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <AntDesign name="home" color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => (
+              <AntDesign name="home" color={color} size={size} />
+            ),
           }}
         />
 
@@ -88,36 +91,41 @@ const MainTabNavigator = () => {
 
         {cartCount > 0 && (
           <Tab.Screen
-          name="Cart"
-          component={CartScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <View>
-                <FontAwesome name="shopping-cart" color={color} size={size} />
-                {cartCount > 0 && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: -5,
-                      right: -10,
-                      backgroundColor: "red",
-                      borderRadius: 10,
-                      width: 18,
-                      height: 18,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
-                      {cartCount}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            ),
-          }}
-        />
-        
+            name="Cart"
+            component={CartScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <View>
+                  <FontAwesome name="shopping-cart" color={color} size={size} />
+                  {cartCount > 0 && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: -5,
+                        right: -10,
+                        backgroundColor: "red",
+                        borderRadius: 10,
+                        width: 18,
+                        height: 18,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "white",
+                          fontSize: 12,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {cartCount}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              ),
+            }}
+          />
         )}
 
         <Tab.Screen
@@ -141,7 +149,13 @@ const MainTabNavigator = () => {
                       alignItems: "center",
                     }}
                   >
-                    <Text style={{ color: "white", fontSize: 12, fontWeight: "bold" }}>
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                      }}
+                    >
                       {wishlistCount}
                     </Text>
                   </View>
@@ -155,7 +169,9 @@ const MainTabNavigator = () => {
           name="Account"
           component={AccountScreen}
           options={{
-            tabBarIcon: ({ color, size }) => <Feather name="user" color={color} size={size} />,
+            tabBarIcon: ({ color, size }) => (
+              <Feather name="user" color={color} size={size} />
+            ),
           }}
         />
       </Tab.Navigator>

@@ -1,5 +1,10 @@
 import React from "react";
-import { Text, Linking, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  Text,
+  Linking,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 import { TailwindProvider } from "tailwindcss-react-native";
@@ -26,10 +31,15 @@ export default function App() {
 
   if (!isCompatible) {
     return (
-      <SafeAreaView style={tw`flex-1 justify-center items-center bg-white px-8`}>
-        <Text style={tw`text-xl font-bold text-red-600 text-center mb-4`}>⚠️ Update Required</Text>
+      <SafeAreaView
+        style={tw`flex-1 justify-center items-center bg-white px-8`}
+      >
+        <Text style={tw`text-xl font-bold text-red-600 text-center mb-4`}>
+          ⚠️ Update Required
+        </Text>
         <Text style={tw`text-center text-gray-700 mb-6`}>
-          A new version of the app is available. Please update to continue using the app.
+          A new version of the app is available. Please update to continue using
+          the app.
         </Text>
         <TouchableOpacity
           onPress={() => Linking.openURL(storeUrl)}

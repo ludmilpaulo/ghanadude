@@ -14,7 +14,10 @@ interface SidebarProps {
   activeComponent: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ setActiveComponent, activeComponent }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  setActiveComponent,
+  activeComponent,
+}) => {
   const menuItems = [
     { id: "users", label: "Users", icon: <FiUsers /> },
     { id: "orders", label: "Orders", icon: <FiShoppingBag /> },

@@ -7,7 +7,11 @@ interface Props {
   onPageChange: (page: number) => void;
 }
 
-const PaginationControls: React.FC<Props> = ({ currentPage, totalPages, onPageChange }) => {
+const PaginationControls: React.FC<Props> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) => {
   return (
     <div className="flex justify-center gap-3 mt-6">
       <button

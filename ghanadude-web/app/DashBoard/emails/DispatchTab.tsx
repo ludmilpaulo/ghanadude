@@ -24,7 +24,7 @@ const DispatchTab: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<'regular' | 'bulk'>('regular');
+  const [activeTab, setActiveTab] = useState<"regular" | "bulk">("regular");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 5;
@@ -33,7 +33,7 @@ const DispatchTab: React.FC = () => {
     const loadOrders = async () => {
       setLoading(true);
       try {
-        if (activeTab === 'regular') {
+        if (activeTab === "regular") {
           const data = await fetchOrders();
           setRegularOrders(data);
         } else {
@@ -68,31 +68,39 @@ const DispatchTab: React.FC = () => {
     }
   };
 
-  const filteredOrders = (activeTab === 'regular' ? regularOrders : bulkOrders).filter(order =>
-    order.id.toString().includes(searchQuery) ||
-    order.user.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredOrders = (
+    activeTab === "regular" ? regularOrders : bulkOrders
+  ).filter(
+    (order) =>
+      order.id.toString().includes(searchQuery) ||
+      order.user.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const indexOfLastOrder = currentPage * ordersPerPage;
   const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const currentOrders = filteredOrders.slice(
+    indexOfFirstOrder,
+    indexOfLastOrder,
+  );
   const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   return (
     <div className="p-6 bg-gray-100 rounded-lg shadow-md">
-      <h3 className="text-2xl font-bold mb-6 text-gray-800">🚚 Dispatch Orders</h3>
+      <h3 className="text-2xl font-bold mb-6 text-gray-800">
+        🚚 Dispatch Orders
+      </h3>
 
       {/* Tabs */}
       <div className="flex space-x-4 mb-6">
         <Button
-          onClick={() => setActiveTab('regular')}
-          className={`w-36 ${activeTab === 'regular' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveTab("regular")}
+          className={`w-36 ${activeTab === "regular" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
         >
           Regular Orders
         </Button>
         <Button
-          onClick={() => setActiveTab('bulk')}
-          className={`w-36 ${activeTab === 'bulk' ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveTab("bulk")}
+          className={`w-36 ${activeTab === "bulk" ? "bg-blue-600 text-white" : "bg-gray-200"}`}
         >
           Bulk Orders
         </Button>
@@ -129,14 +137,19 @@ const DispatchTab: React.FC = () => {
               )}
 
               <div className="flex flex-col">
-                <h4 className="text-xl font-semibold text-gray-800">Order #{order.id}</h4>
+                <h4 className="text-xl font-semibold text-gray-800">
+                  Order #{order.id}
+                </h4>
                 <p className="text-sm text-gray-500 mt-1">
                   <strong>User:</strong> {order.user}
                 </p>
                 <p className="text-sm text-gray-500">
-                  <strong>Address:</strong> {order.address}, {order.city}, {order.country}
+                  <strong>Address:</strong> {order.address}, {order.city},{" "}
+                  {order.country}
                 </p>
-                <p className={`mt-2 text-sm ${order.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'}`}>
+                <p
+                  className={`mt-2 text-sm ${order.status === "Completed" ? "text-green-600" : "text-yellow-600"}`}
+                >
                   <strong>Status:</strong> {order.status}
                 </p>
 

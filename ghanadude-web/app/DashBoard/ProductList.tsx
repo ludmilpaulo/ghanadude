@@ -29,10 +29,12 @@ const ProductList: React.FC = () => {
     setLoading(true);
     try {
       const productsData = await fetchProducts();
-      console.log("product data", productsData)
+      console.log("product data", productsData);
       setProducts(productsData);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An unknown error occurred.");
+      setError(
+        error instanceof Error ? error.message : "An unknown error occurred.",
+      );
     } finally {
       setLoading(false);
     }
@@ -54,14 +56,15 @@ const ProductList: React.FC = () => {
     loadProducts();
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * PRODUCTS_PER_PAGE,
-    currentPage * PRODUCTS_PER_PAGE
+    currentPage * PRODUCTS_PER_PAGE,
   );
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
@@ -113,7 +116,7 @@ const ProductList: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedProducts.map(product => (
+            {paginatedProducts.map((product) => (
               <tr key={product.id} className="even:bg-gray-50">
                 <td className="px-4 py-3">
                   {product.images?.[0] ? (
@@ -163,26 +166,37 @@ const ProductList: React.FC = () => {
 
       {/* Pagination Controls */}
       <div className="flex justify-center items-center gap-2 mt-6">
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-          <button
-            key={page}
-            className={`px-3 py-1 border rounded shadow-sm text-sm font-medium transition ${
-              currentPage === page ? 'bg-blue-600 text-white' : 'bg-white text-gray-800 hover:bg-blue-100'
-            }`}
-            onClick={() => setCurrentPage(page)}
-          >
-            {page}
-          </button>
-        ))}
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+          (page) => (
+            <button
+              key={page}
+              className={`px-3 py-1 border rounded shadow-sm text-sm font-medium transition ${
+                currentPage === page
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-800 hover:bg-blue-100"
+              }`}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </button>
+          ),
+        )}
       </div>
 
       {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 overflow-auto">
           <div className="bg-white p-8 rounded shadow-md w-11/12 sm:w-2/3 lg:w-1/2 max-h-screen overflow-y-auto">
-            <button className="bg-red-500 text-white px-4 py-2 rounded mb-4" onClick={closeModal}>
+            <button
+              className="bg-red-500 text-white px-4 py-2 rounded mb-4"
+              onClick={closeModal}
+            >
               Close
             </button>
-            <ProductForm product={currentProduct} onClose={closeModal} loadProducts={loadProducts} />
+            <ProductForm
+              product={currentProduct}
+              onClose={closeModal}
+              loadProducts={loadProducts}
+            />
           </div>
         </div>
       )}

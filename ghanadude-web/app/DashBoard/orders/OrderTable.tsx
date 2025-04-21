@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Order } from './types';
+import React from "react";
+import { Order } from "./types";
 
 interface Props {
   orders: Order[];
@@ -9,7 +9,11 @@ interface Props {
   onViewOrder: (order: Order) => void;
 }
 
-const OrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) => {
+const OrderTable: React.FC<Props> = ({
+  orders,
+  onStatusChange,
+  onViewOrder,
+}) => {
   return (
     <table className="min-w-full bg-white divide-y divide-gray-200 shadow rounded">
       <thead className="bg-gray-100 text-sm font-semibold text-gray-600">
@@ -41,22 +45,24 @@ const OrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) =>
             <td className="px-4 py-2">
               <select
                 className={`px-2 py-1 text-xs rounded-full border ${
-                  order.status === 'Completed'
-                    ? 'bg-green-100 text-green-800'
-                    : order.status === 'Pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : order.status === 'Processing'
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-red-100 text-red-800'
+                  order.status === "Completed"
+                    ? "bg-green-100 text-green-800"
+                    : order.status === "Pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : order.status === "Processing"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-red-100 text-red-800"
                 }`}
                 value={order.status}
                 onChange={(e) => onStatusChange(order.id, e.target.value)}
               >
-                {['Pending', 'Processing', 'Completed', 'Cancelled'].map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
+                {["Pending", "Processing", "Completed", "Cancelled"].map(
+                  (s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ),
+                )}
               </select>
             </td>
             <td className="px-4 py-2">

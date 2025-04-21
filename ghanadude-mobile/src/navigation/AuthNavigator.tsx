@@ -14,7 +14,6 @@ export default function AuthNavigator() {
         headerShown: false,
       }}
     >
-    
       <Stack.Screen name="UserLogin" component={LoginScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="SignupScreen" component={SignUpScreen} />

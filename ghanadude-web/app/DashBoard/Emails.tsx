@@ -31,7 +31,9 @@ const Emails: React.FC = () => {
 
   return (
     <div className="p-6 bg-white shadow-md rounded-xl">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Email Notifications</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+        Email Notifications
+      </h2>
 
       <div className="flex space-x-4 border-b pb-2 mb-6">
         {tabConfig.map((tab) => (

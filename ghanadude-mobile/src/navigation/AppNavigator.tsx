@@ -39,7 +39,7 @@ export default function AppNavigator() {
               onPress: () => setPermissionChecked(true),
               style: "cancel",
             },
-          ]
+          ],
         );
       } else {
         setPermissionChecked(true);
@@ -50,10 +50,10 @@ export default function AppNavigator() {
   }, [user]);
 
   const linking = {
-    prefixes: ['ghanadude://'],
+    prefixes: ["ghanadude://"],
     config: {
       screens: {
-        ProductDetail: 'product/:id',
+        ProductDetail: "product/:id",
         // add others if needed
       },
     },

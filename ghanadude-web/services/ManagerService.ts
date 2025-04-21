@@ -32,7 +32,9 @@ export interface AppVersionFormData {
 // ========== SITE SETTINGS ==========
 export const getSiteSettings = async (): Promise<SiteSettings> => {
   try {
-    const response = await axios.get<SiteSettings>(`${baseAPI}/api/settings/site/`);
+    const response = await axios.get<SiteSettings>(
+      `${baseAPI}/api/settings/site/`,
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to fetch site settings", error);
@@ -40,9 +42,14 @@ export const getSiteSettings = async (): Promise<SiteSettings> => {
   }
 };
 
-export const updateSiteSettings = async (data: SiteSettings): Promise<SiteSettings> => {
+export const updateSiteSettings = async (
+  data: SiteSettings,
+): Promise<SiteSettings> => {
   try {
-    const response = await axios.put<SiteSettings>(`${baseAPI}/api/settings/site/`, data);
+    const response = await axios.put<SiteSettings>(
+      `${baseAPI}/api/settings/site/`,
+      data,
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to update site settings", error);
@@ -53,7 +60,9 @@ export const updateSiteSettings = async (data: SiteSettings): Promise<SiteSettin
 // ========== APP VERSIONS ==========
 export const getAppVersions = async (): Promise<AppVersion[]> => {
   try {
-    const response = await axios.get<AppVersion[]>(`${baseAPI}/api/settings/app-versions/`);
+    const response = await axios.get<AppVersion[]>(
+      `${baseAPI}/api/settings/app-versions/`,
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to fetch app versions", error);
@@ -61,13 +70,20 @@ export const getAppVersions = async (): Promise<AppVersion[]> => {
   }
 };
 
-export const updateAppVersion = async (id: number, data: FormData): Promise<AppVersion> => {
+export const updateAppVersion = async (
+  id: number,
+  data: FormData,
+): Promise<AppVersion> => {
   try {
-    const response = await axios.put<AppVersion>(`${baseAPI}/api/settings/app-versions/${id}/`, data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
+    const response = await axios.put<AppVersion>(
+      `${baseAPI}/api/settings/app-versions/${id}/`,
+      data,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
-    });
+    );
     return response.data;
   } catch (error) {
     console.error("Failed to update app version", error);

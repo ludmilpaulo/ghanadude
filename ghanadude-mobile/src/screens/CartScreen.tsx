@@ -37,14 +37,17 @@ type NavigationProp = StackNavigationProp<RootStackParamList, "CartScreen">;
 const getImageUrl = (image?: string | null): string | undefined => {
   if (!image) return undefined;
   if (image.startsWith("http") || image.startsWith("file://")) return image;
-  return encodeURI(`${API_BASE_URL.replace(/\/$/, "")}/${image.replace(/^\//, "")}`);
+  return encodeURI(
+    `${API_BASE_URL.replace(/\/$/, "")}/${image.replace(/^\//, "")}`,
+  );
 };
 
 const CartScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<NavigationProp>();
   const cartItems = useSelector((state: RootState) => state.basket.items);
-  const { brandLogo, customDesign, brandLogoQty, customDesignQty } = useSelector(selectDesign);
+  const { brandLogo, customDesign, brandLogoQty, customDesignQty } =
+    useSelector(selectDesign);
   const [siteSettings, setSiteSettings] = useState<SiteSetting | null>(null);
 
   const safeBrandQty = brandLogoQty ?? 1;
@@ -64,10 +67,19 @@ const CartScreen = () => {
 
   const handleDecrease = (item: CartItem) => {
     if (item.isBulk && item.quantity <= 10) {
-      Alert.alert("Minimum Bulk Quantity", "Bulk orders cannot have less than 10 items.");
+      Alert.alert(
+        "Minimum Bulk Quantity",
+        "Bulk orders cannot have less than 10 items.",
+      );
       return;
     }
-    dispatch(decreaseBasket({ id: item.id, selectedSize: item.selectedSize, isBulk: item.isBulk }));
+    dispatch(
+      decreaseBasket({
+        id: item.id,
+        selectedSize: item.selectedSize,
+        isBulk: item.isBulk,
+      }),
+    );
   };
 
   const handleIncrease = (item: CartItem) => {
@@ -75,39 +87,56 @@ const CartScreen = () => {
   };
 
   const handleDelete = (item: CartItem) => {
-    Alert.alert("Remove Item", `Remove ${item.name} (${item.selectedSize}) from your cart?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Remove",
-        style: "destructive",
-        onPress: () => {
-          dispatch(removeFromBasket({ id: item.id, selectedSize: item.selectedSize, isBulk: item.isBulk }));
+    Alert.alert(
+      "Remove Item",
+      `Remove ${item.name} (${item.selectedSize}) from your cart?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: () => {
+            dispatch(
+              removeFromBasket({
+                id: item.id,
+                selectedSize: item.selectedSize,
+                isBulk: item.isBulk,
+              }),
+            );
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const handleDeleteDesign = (type: "logo" | "custom") => {
-    Alert.alert("Remove Image", `Remove the ${type === "logo" ? "Brand Logo" : "Custom Design"}?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Remove",
-        style: "destructive",
-        onPress: () => {
-          if (type === "logo") {
-            dispatch(setBrandLogo(null));
-            dispatch(setBrandLogoQty(1));
-          }
-          if (type === "custom") {
-            dispatch(setCustomDesign(null));
-            dispatch(setCustomDesignQty(1));
-          }
+    Alert.alert(
+      "Remove Image",
+      `Remove the ${type === "logo" ? "Brand Logo" : "Custom Design"}?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: () => {
+            if (type === "logo") {
+              dispatch(setBrandLogo(null));
+              dispatch(setBrandLogoQty(1));
+            }
+            if (type === "custom") {
+              dispatch(setCustomDesign(null));
+              dispatch(setCustomDesignQty(1));
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
-  const baseTotal = cartItems.reduce((total, item) => total + Number(item.price) * item.quantity, 0);
+  const baseTotal = cartItems.reduce(
+    (total, item) => total + Number(item.price) * item.quantity,
+    0,
+  );
   const brand_price = siteSettings?.brand_price || 0;
   const custom_price = siteSettings?.custom_price || 0;
   const logoTotal = brandLogo ? brand_price * safeBrandQty : 0;
@@ -136,7 +165,9 @@ const CartScreen = () => {
               onPress={() => navigation.goBack()}
               style={tw`mt-6 bg-blue-600 px-6 py-3 rounded-full shadow`}
             >
-              <Text style={tw`text-white font-bold text-base`}>Browse Products</Text>
+              <Text style={tw`text-white font-bold text-base`}>
+                Browse Products
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -144,36 +175,72 @@ const CartScreen = () => {
             {cartItems.map((item) => {
               const imageUrl = getImageUrl(item.image);
               return (
-                <View key={`${item.id}-${item.selectedSize}`} style={tw`bg-gray-100 p-4 rounded-xl mb-4 shadow-lg`}>
+                <View
+                  key={`${item.id}-${item.selectedSize}`}
+                  style={tw`bg-gray-100 p-4 rounded-xl mb-4 shadow-lg`}
+                >
                   <View style={tw`flex-row items-center`}>
                     {imageUrl ? (
-                      <Image source={{ uri: imageUrl }} style={tw`w-20 h-20 rounded-lg mr-4`} />
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={tw`w-20 h-20 rounded-lg mr-4`}
+                      />
                     ) : (
-                      <View style={tw`w-20 h-20 bg-gray-300 rounded-lg mr-4 justify-center items-center`}>
+                      <View
+                        style={tw`w-20 h-20 bg-gray-300 rounded-lg mr-4 justify-center items-center`}
+                      >
                         <FontAwesome name="image" size={20} color="gray" />
                       </View>
                     )}
                     <View style={tw`flex-1`}>
-                      <Text style={tw`text-lg font-bold text-gray-800`} numberOfLines={1}>
+                      <Text
+                        style={tw`text-lg font-bold text-gray-800`}
+                        numberOfLines={1}
+                      >
                         {item.name}
                       </Text>
                       <Text style={tw`text-gray-600 text-sm mb-1`}>
-                        Size: {item.selectedSize} {item.isBulk && "(Bulk Order ✨)"}
+                        Size: {item.selectedSize}{" "}
+                        {item.isBulk && "(Bulk Order ✨)"}
                       </Text>
                       <Text style={tw`text-blue-700 font-bold`}>
-                        R{Number(item.price).toFixed(2)} × {item.quantity} = R{(Number(item.price) * item.quantity).toFixed(2)}
+                        R{Number(item.price).toFixed(2)} × {item.quantity} = R
+                        {(Number(item.price) * item.quantity).toFixed(2)}
                       </Text>
                       <View style={tw`flex-row items-center mt-2`}>
-                        <TouchableOpacity onPress={() => handleDecrease(item)} style={tw`p-1`}>
-                          <FontAwesome name="minus-circle" size={22} color={item.isBulk && item.quantity <= 10 ? "gray" : "black"} />
+                        <TouchableOpacity
+                          onPress={() => handleDecrease(item)}
+                          style={tw`p-1`}
+                        >
+                          <FontAwesome
+                            name="minus-circle"
+                            size={22}
+                            color={
+                              item.isBulk && item.quantity <= 10
+                                ? "gray"
+                                : "black"
+                            }
+                          />
                         </TouchableOpacity>
-                        <Text style={tw`mx-3 text-lg font-semibold`}>{item.quantity}</Text>
-                        <TouchableOpacity onPress={() => handleIncrease(item)} style={tw`p-1`}>
-                          <FontAwesome name="plus-circle" size={22} color="black" />
+                        <Text style={tw`mx-3 text-lg font-semibold`}>
+                          {item.quantity}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => handleIncrease(item)}
+                          style={tw`p-1`}
+                        >
+                          <FontAwesome
+                            name="plus-circle"
+                            size={22}
+                            color="black"
+                          />
                         </TouchableOpacity>
                       </View>
                     </View>
-                    <TouchableOpacity onPress={() => handleDelete(item)} style={tw`ml-3`}>
+                    <TouchableOpacity
+                      onPress={() => handleDelete(item)}
+                      style={tw`ml-3`}
+                    >
                       <FontAwesome name="trash" size={22} color="red" />
                     </TouchableOpacity>
                   </View>
@@ -184,7 +251,9 @@ const CartScreen = () => {
             {brandLogo && (
               <View style={tw`bg-white border rounded-xl p-4 mb-4 shadow`}>
                 <View style={tw`flex-row justify-between items-center mb-2`}>
-                  <Text style={tw`text-lg font-bold text-gray-800`}>Brand Logo</Text>
+                  <Text style={tw`text-lg font-bold text-gray-800`}>
+                    Brand Logo
+                  </Text>
                   <TouchableOpacity onPress={() => handleDeleteDesign("logo")}>
                     <FontAwesome name="trash" size={20} color="red" />
                   </TouchableOpacity>
@@ -195,16 +264,21 @@ const CartScreen = () => {
                   resizeMode="contain"
                 />
                 <Text style={tw`text-gray-700 font-semibold mt-2`}>
-                  R{brand_price} × {safeBrandQty} = R{(brand_price * safeBrandQty).toFixed(2)}
+                  R{brand_price} × {safeBrandQty} = R
+                  {(brand_price * safeBrandQty).toFixed(2)}
                 </Text>
                 <View style={tw`flex-row justify-center mt-2`}>
                   <TouchableOpacity
-                    onPress={() => dispatch(setBrandLogoQty(Math.max(1, safeBrandQty - 1)))}
+                    onPress={() =>
+                      dispatch(setBrandLogoQty(Math.max(1, safeBrandQty - 1)))
+                    }
                     style={tw`p-1`}
                   >
                     <FontAwesome name="minus-circle" size={22} />
                   </TouchableOpacity>
-                  <Text style={tw`mx-3 text-lg font-semibold`}>{safeBrandQty}</Text>
+                  <Text style={tw`mx-3 text-lg font-semibold`}>
+                    {safeBrandQty}
+                  </Text>
                   <TouchableOpacity
                     onPress={() => dispatch(setBrandLogoQty(safeBrandQty + 1))}
                     style={tw`p-1`}
@@ -218,8 +292,12 @@ const CartScreen = () => {
             {customDesign && (
               <View style={tw`bg-white border rounded-xl p-4 mb-4 shadow`}>
                 <View style={tw`flex-row justify-between items-center mb-2`}>
-                  <Text style={tw`text-lg font-bold text-gray-800`}>Custom Design</Text>
-                  <TouchableOpacity onPress={() => handleDeleteDesign("custom")}> 
+                  <Text style={tw`text-lg font-bold text-gray-800`}>
+                    Custom Design
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteDesign("custom")}
+                  >
                     <FontAwesome name="trash" size={20} color="red" />
                   </TouchableOpacity>
                 </View>
@@ -229,18 +307,27 @@ const CartScreen = () => {
                   resizeMode="contain"
                 />
                 <Text style={tw`text-gray-700 font-semibold mt-2`}>
-                  R{custom_price} × {safeDesignQty} = R{(custom_price * safeDesignQty).toFixed(2)}
+                  R{custom_price} × {safeDesignQty} = R
+                  {(custom_price * safeDesignQty).toFixed(2)}
                 </Text>
                 <View style={tw`flex-row justify-center mt-2`}>
                   <TouchableOpacity
-                    onPress={() => dispatch(setCustomDesignQty(Math.max(1, safeDesignQty - 1)))}
+                    onPress={() =>
+                      dispatch(
+                        setCustomDesignQty(Math.max(1, safeDesignQty - 1)),
+                      )
+                    }
                     style={tw`p-1`}
                   >
                     <FontAwesome name="minus-circle" size={22} />
                   </TouchableOpacity>
-                  <Text style={tw`mx-3 text-lg font-semibold`}>{safeDesignQty}</Text>
+                  <Text style={tw`mx-3 text-lg font-semibold`}>
+                    {safeDesignQty}
+                  </Text>
                   <TouchableOpacity
-                    onPress={() => dispatch(setCustomDesignQty(safeDesignQty + 1))}
+                    onPress={() =>
+                      dispatch(setCustomDesignQty(safeDesignQty + 1))
+                    }
                     style={tw`p-1`}
                   >
                     <FontAwesome name="plus-circle" size={22} />
@@ -255,10 +342,10 @@ const CartScreen = () => {
       {(cartItems.length > 0 || brandLogo || customDesign) && (
         <View style={tw`border-t border-gray-200 pt-5 mt-4`}>
           <View style={tw`border-t border-gray-200 pt-5 mt-4`}>
-          <Text style={tw`text-xl font-bold mb-3 text-right`}>
-            Total: R{totalPrice.toFixed(2)}
-          </Text>
-        </View>
+            <Text style={tw`text-xl font-bold mb-3 text-right`}>
+              Total: R{totalPrice.toFixed(2)}
+            </Text>
+          </View>
 
           <TouchableOpacity
             style={tw`bg-green-600 py-4 rounded-xl shadow-lg`}

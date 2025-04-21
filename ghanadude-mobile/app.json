@@ -3,7 +3,7 @@
     "name": "Ghanadude Clothing Co",
     "slug": "ghanadude-mobile",
     "version": "1.0.0",
-    "scheme": "ghanadude", 
+    "scheme": "ghanadude",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,19 +22,17 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.ludmil.ghanadudemobile",
-      "label": "Ghanadude Clothing Co" 
+      "label": "Ghanadude Clothing Co"
     },
     "android": {
-      "permissions": [
-        "ACCESS_FINE_LOCATION"
-      ],
+      "permissions": ["ACCESS_FINE_LOCATION"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.ludmil.ghanadudemobile",
       "versionCode": 9,
-      "label": "Ghanadude Clothing Co" 
+      "label": "Ghanadude Clothing Co"
     },
     "web": {
       "favicon": "./assets/favicon.png"

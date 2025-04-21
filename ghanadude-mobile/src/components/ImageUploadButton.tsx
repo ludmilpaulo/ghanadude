@@ -1,7 +1,7 @@
-import React from 'react';
-import { Alert, TouchableOpacity, Text, Image, View } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import tw from 'twrnc';
+import React from "react";
+import { Alert, TouchableOpacity, Text, Image, View } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import tw from "twrnc";
 
 interface ImageUploadButtonProps {
   label: string;
@@ -17,7 +17,7 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
   currentUri,
   onImageSelected,
   pngOnly = false,
-  color = 'blue-500',
+  color = "blue-500",
   showPreview = true,
 }) => {
   const pickFromGallery = async () => {
@@ -28,24 +28,24 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
     });
 
     if (result.canceled) {
-      console.log('❌ Image picker canceled.');
+      console.log("❌ Image picker canceled.");
       return;
     }
 
     const uri = result.assets?.[0]?.uri;
     if (!uri) return;
 
-    if (pngOnly && !uri.toLowerCase().endsWith('.png')) {
-      Alert.alert('Invalid Image', 'Image must be a PNG file.');
+    if (pngOnly && !uri.toLowerCase().endsWith(".png")) {
+      Alert.alert("Invalid Image", "Image must be a PNG file.");
       return;
     }
 
     Image.getSize(
       uri,
       (width, height) => {
-        Alert.alert('Image Selected', `Dimensions: ${width} x ${height}`);
+        Alert.alert("Image Selected", `Dimensions: ${width} x ${height}`);
       },
-      (err) => console.log('Error getting dimensions:', err)
+      (err) => console.log("Error getting dimensions:", err),
     );
 
     onImageSelected(uri);
@@ -59,24 +59,24 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
     });
 
     if (result.canceled) {
-      console.log('❌ Camera canceled.');
+      console.log("❌ Camera canceled.");
       return;
     }
 
     const uri = result.assets?.[0]?.uri;
     if (!uri) return;
 
-    if (pngOnly && !uri.toLowerCase().endsWith('.png')) {
-      Alert.alert('Invalid Image', 'Image must be a PNG file.');
+    if (pngOnly && !uri.toLowerCase().endsWith(".png")) {
+      Alert.alert("Invalid Image", "Image must be a PNG file.");
       return;
     }
 
     Image.getSize(
       uri,
       (width, height) => {
-        Alert.alert('Photo Captured', `Dimensions: ${width} x ${height}`);
+        Alert.alert("Photo Captured", `Dimensions: ${width} x ${height}`);
       },
-      (err) => console.log('Error getting dimensions:', err)
+      (err) => console.log("Error getting dimensions:", err),
     );
 
     onImageSelected(uri);
@@ -84,14 +84,14 @@ const ImageUploadButton: React.FC<ImageUploadButtonProps> = ({
 
   const handleImageSelect = () => {
     Alert.alert(
-      'Upload Image',
-      'Choose an option',
+      "Upload Image",
+      "Choose an option",
       [
-        { text: 'Camera', onPress: takePhoto },
-        { text: 'Gallery', onPress: pickFromGallery },
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Camera", onPress: takePhoto },
+        { text: "Gallery", onPress: pickFromGallery },
+        { text: "Cancel", style: "cancel" },
       ],
-      { cancelable: true }
+      { cancelable: true },
     );
   };
 

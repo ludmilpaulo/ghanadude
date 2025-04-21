@@ -40,18 +40,18 @@ export default function SignUpScreen() {
       setError("Please fill in all fields.");
       return;
     }
-  
+
     if (!isEmailValid) {
       setError("Please enter a valid email.");
       return;
     }
-  
+
     setLoading(true);
     setError("");
-  
+
     try {
       const response = await AuthService.signup(username, email, password);
-  
+
       dispatch(
         loginUser({
           user: {
@@ -61,16 +61,16 @@ export default function SignUpScreen() {
             is_superuser: response.is_superuser,
           },
           token: response.token,
-        })
+        }),
       );
-  
+
       Alert.alert("Success", "Your account has been created!");
       setEmail("");
       setPassword("");
       setUserName("");
     } catch (err: unknown) {
       console.log("Signup error:", err);
-  
+
       if (typeof err === "string") {
         setError(err);
       } else if (
@@ -87,8 +87,6 @@ export default function SignUpScreen() {
       setLoading(false);
     }
   };
-  
-  
 
   return (
     <LinearGradient
@@ -104,9 +102,13 @@ export default function SignUpScreen() {
             contentContainerStyle={tw`flex-grow items-center justify-center px-6 py-10`}
             keyboardShouldPersistTaps="handled"
           >
-            <View style={tw`w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl`}>
+            <View
+              style={tw`w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl`}
+            >
               {/* Header */}
-              <Text style={tw`text-3xl font-bold text-center text-gray-900 mb-1`}>
+              <Text
+                style={tw`text-3xl font-bold text-center text-gray-900 mb-1`}
+              >
                 Create Account
               </Text>
               <Text style={tw`text-base text-gray-600 text-center mb-6`}>
@@ -115,7 +117,9 @@ export default function SignUpScreen() {
 
               {/* Email Input */}
               <View style={tw`mb-5`}>
-                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>Email</Text>
+                <Text style={tw`text-sm font-medium text-gray-700 mb-1`}>
+                  Email
+                </Text>
                 <TextInput
                   style={tw`border border-gray-300 bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-800`}
                   placeholder="you@example.com"
@@ -176,7 +180,9 @@ export default function SignUpScreen() {
 
               {/* Error Message */}
               {error ? (
-                <Text style={tw`text-red-600 text-center mt-1 mb-2`}>{error}</Text>
+                <Text style={tw`text-red-600 text-center mt-1 mb-2`}>
+                  {error}
+                </Text>
               ) : null}
 
               {/* Sign Up Button */}

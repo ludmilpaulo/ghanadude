@@ -18,8 +18,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/types";
 import { FontAwesome } from "@expo/vector-icons";
 
-
-
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -29,7 +27,8 @@ export default function ForgotPasswordScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [step, setStep] = useState<"request" | "reset">("request");
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const handleEmailSubmit = async () => {
     setLoading(true);
@@ -128,7 +127,8 @@ export default function ForgotPasswordScreen() {
             {step === "reset" && (
               <>
                 <Text style={tw`text-center text-gray-600 mb-4`}>
-                  Hello <Text style={tw`font-bold`}>{username}</Text>, please enter your new password.
+                  Hello <Text style={tw`font-bold`}>{username}</Text>, please
+                  enter your new password.
                 </Text>
 
                 <View style={tw`relative`}>

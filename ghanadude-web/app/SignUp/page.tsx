@@ -36,7 +36,7 @@ const SignUp = () => {
         alert("Signup successful. Please log in.");
         router.push("/DashBoard");
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       setError("Failed to sign up. Please try again.");
       alert("Failed to sign up. Please try again."); // Display generic error message

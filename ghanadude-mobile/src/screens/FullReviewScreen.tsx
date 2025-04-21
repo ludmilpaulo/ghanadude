@@ -1,14 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  View, Text, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator
-} from 'react-native';
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
-import tw from 'twrnc';
-import { FontAwesome } from '@expo/vector-icons';
-import { API_BASE_URL } from '../services/AuthService';
+import tw from "twrnc";
+import { FontAwesome } from "@expo/vector-icons";
+import { API_BASE_URL } from "../services/AuthService";
 
-type ScreenRouteProp = RouteProp<HomeStackParamList, 'FullReview'>;
+type ScreenRouteProp = RouteProp<HomeStackParamList, "FullReview">;
 
 const FullReviewScreen = () => {
   const route = useRoute<ScreenRouteProp>();
@@ -48,9 +53,11 @@ const FullReviewScreen = () => {
             <TouchableOpacity
               key={s}
               onPress={() => setStars(stars === s ? null : s)}
-              style={tw`mr-2 px-3 py-1 rounded-full border ${stars === s ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}
+              style={tw`mr-2 px-3 py-1 rounded-full border ${stars === s ? "bg-blue-600 border-blue-600" : "border-gray-300"}`}
             >
-              <Text style={tw`${stars === s ? 'text-white' : 'text-gray-800'}`}>{s}★</Text>
+              <Text style={tw`${stars === s ? "text-white" : "text-gray-800"}`}>
+                {s}★
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -67,7 +74,7 @@ const FullReviewScreen = () => {
                 {[...Array(5)].map((_, i) => (
                   <FontAwesome
                     key={i}
-                    name={i < review.rating ? 'star' : 'star-o'}
+                    name={i < review.rating ? "star" : "star-o"}
                     size={16}
                     color="#fbbf24"
                   />
@@ -83,14 +90,14 @@ const FullReviewScreen = () => {
         {/* Pagination */}
         <View style={tw`flex-row justify-between mt-4`}>
           <TouchableOpacity
-            onPress={() => setPage(p => Math.max(1, p - 1))}
+            onPress={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            style={tw`px-4 py-2 bg-gray-200 rounded ${page === 1 ? 'opacity-50' : ''}`}
+            style={tw`px-4 py-2 bg-gray-200 rounded ${page === 1 ? "opacity-50" : ""}`}
           >
             <Text>Previous</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setPage(p => p + 1)}
+            onPress={() => setPage((p) => p + 1)}
             style={tw`px-4 py-2 bg-gray-200 rounded`}
           >
             <Text>Next</Text>

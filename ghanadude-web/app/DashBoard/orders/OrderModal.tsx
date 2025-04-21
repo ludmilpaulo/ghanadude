@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { Order } from './types';
+import React from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { Order } from "./types";
 
 interface Props {
   order: Order | null;
@@ -35,21 +35,36 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
               </Dialog.Title>
 
               <div className="mb-4 space-y-1 text-sm text-gray-700">
-                <p><strong>User:</strong> {order.user}</p>
-                <p><strong>Total:</strong> R{order.total_price}</p>
-                {order.reward_applied && parseFloat(order.reward_applied) > 0 && (
-                  <p>
-                    <strong>Reward Applied:</strong> -R{parseFloat(order.reward_applied).toFixed(2)}
-                  </p>
-                )}
-                <p><strong>Status:</strong> {order.status}</p>
-                <p><strong>Payment:</strong> {order.payment_method}</p>
                 <p>
-                  <strong>Shipping:</strong> {order.address}, {order.city}, {order.country},{' '}
-                  {order.postal_code}
+                  <strong>User:</strong> {order.user}
                 </p>
-                <p><strong>PIN Code:</strong> {order.pin_code || 'N/A'}</p>
-                <p><strong>Dispatched:</strong> {order.is_dispatched ? 'Yes' : 'No'}</p>
+                <p>
+                  <strong>Total:</strong> R{order.total_price}
+                </p>
+                {order.reward_applied &&
+                  parseFloat(order.reward_applied) > 0 && (
+                    <p>
+                      <strong>Reward Applied:</strong> -R
+                      {parseFloat(order.reward_applied).toFixed(2)}
+                    </p>
+                  )}
+                <p>
+                  <strong>Status:</strong> {order.status}
+                </p>
+                <p>
+                  <strong>Payment:</strong> {order.payment_method}
+                </p>
+                <p>
+                  <strong>Shipping:</strong> {order.address}, {order.city},{" "}
+                  {order.country}, {order.postal_code}
+                </p>
+                <p>
+                  <strong>PIN Code:</strong> {order.pin_code || "N/A"}
+                </p>
+                <p>
+                  <strong>Dispatched:</strong>{" "}
+                  {order.is_dispatched ? "Yes" : "No"}
+                </p>
 
                 {order.invoice && (
                   <a
@@ -66,16 +81,26 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
               <div>
                 <h4 className="font-semibold text-sm mb-2">🛍️ Items</h4>
                 {order.items.length === 0 ? (
-                  <p className="text-gray-500 text-sm">No items in this order.</p>
+                  <p className="text-gray-500 text-sm">
+                    No items in this order.
+                  </p>
                 ) : (
                   <ul className="space-y-2">
                     {order.items.map((item) => (
-                      <li key={item.id} className="text-sm text-gray-700 border-b pb-1">
+                      <li
+                        key={item.id}
+                        className="text-sm text-gray-700 border-b pb-1"
+                      >
                         <p>
-                          <span className="font-medium">{item.product_name}</span>{' '}
-                          ({item.selected_size || 'N/A'}) × {item.quantity} ={' '}
+                          <span className="font-medium">
+                            {item.product_name}
+                          </span>{" "}
+                          ({item.selected_size || "N/A"}) × {item.quantity} ={" "}
                           <span className="font-semibold">
-                            R{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                            R
+                            {(parseFloat(item.price) * item.quantity).toFixed(
+                              2,
+                            )}
                           </span>
                         </p>
                       </li>

@@ -1,6 +1,6 @@
 // services/SiteSettingService.ts
-import axios from 'axios';
-import { API_BASE_URL } from './AuthService';
+import axios from "axios";
+import { API_BASE_URL } from "./AuthService";
 
 export interface SiteSetting {
   brand_price: number;
@@ -12,7 +12,6 @@ export interface SiteSetting {
   address: string;
   country: string;
 }
-
 
 export const fetchSiteSettings = async (): Promise<SiteSetting> => {
   const res = await axios.get(`${API_BASE_URL}/api/site-settings/`);
@@ -29,6 +28,3 @@ export const fetchSiteSettings = async (): Promise<SiteSetting> => {
     country: settings.country,
   };
 };
-
-
-

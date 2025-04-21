@@ -1,4 +1,4 @@
-import React, {  } from "react";
+import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import MainTabNavigator from "./MainTabNavigator";
 import HomeScreen from "../screens/HomeScreen";
@@ -13,7 +13,6 @@ import OrderHistory from "../screens/OrderHistory";
 import InvoiceHistoryScreen from "../screens/InvoiceHistoryScreen";
 import FullReviewScreen from "../screens/FullReviewScreen";
 import { Order } from "../services/OrderService";
-
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
@@ -35,12 +34,9 @@ export type HomeStackParamList = {
   OrderDetail: { order: Order };
 };
 
-
-
 const Stack = createStackNavigator<HomeStackParamList>();
 
 export default function HomeNavigator() {
-
   return (
     <>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -53,7 +49,10 @@ export default function HomeNavigator() {
         <Stack.Screen name="SuccessScreen" component={SuccessScreen} />
         <Stack.Screen name="MyCouponsScreen" component={MyCouponsScreen} />
         <Stack.Screen name="OrderHistory" component={OrderHistory} />
-        <Stack.Screen name="InvoiceHistoryScreen" component={InvoiceHistoryScreen} />
+        <Stack.Screen
+          name="InvoiceHistoryScreen"
+          component={InvoiceHistoryScreen}
+        />
         <Stack.Screen name="FullReview" component={FullReviewScreen} />
         <Stack.Screen
           name="ProductDetail"
@@ -61,8 +60,6 @@ export default function HomeNavigator() {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-
-     
     </>
   );
 }

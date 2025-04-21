@@ -43,9 +43,13 @@ const UserCard: React.FC<Props> = ({ user, onClick }) => {
         </div>
       </td>
       <td className="px-6 py-4">{user.email}</td>
-      <td className="px-6 py-4">{user.first_name} {user.last_name}</td>
+      <td className="px-6 py-4">
+        {user.first_name} {user.last_name}
+      </td>
       <td className="px-6 py-4">{user.profile?.phone_number || "-"}</td>
-      <td className="px-6 py-4">{user.profile?.city}, {user.profile?.address}</td>
+      <td className="px-6 py-4">
+        {user.profile?.city}, {user.profile?.address}
+      </td>
       <td className="px-6 py-4">{user.profile?.country}</td>
       <td className="px-6 py-4">
         {user.is_staff ? (

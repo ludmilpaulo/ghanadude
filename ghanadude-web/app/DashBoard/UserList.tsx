@@ -5,7 +5,6 @@ import PaginationControls from "./user/PaginationControls";
 import UserCard, { User } from "./user/UserCard";
 import UserModal from "./user/UserModal";
 
-
 const USERS_PER_PAGE = 10;
 
 const UserList: React.FC = () => {
@@ -24,14 +23,18 @@ const UserList: React.FC = () => {
   }, []);
 
   const filteredUsers = useMemo(() => {
-    return users.filter(user =>
-      [user.username, user.email, user.first_name, user.last_name]
-        .some(field => field?.toLowerCase().includes(searchQuery.toLowerCase()))
+    return users.filter((user) =>
+      [user.username, user.email, user.first_name, user.last_name].some(
+        (field) => field?.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
     );
   }, [users, searchQuery]);
 
   const totalPages = Math.ceil(filteredUsers.length / USERS_PER_PAGE);
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * USERS_PER_PAGE, currentPage * USERS_PER_PAGE);
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * USERS_PER_PAGE,
+    currentPage * USERS_PER_PAGE,
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

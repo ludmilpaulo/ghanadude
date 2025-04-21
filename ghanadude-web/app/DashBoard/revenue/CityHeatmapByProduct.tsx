@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import { fetchProducts, fetchCitySalesByProduct } from "@/services/adminService";
+import {
+  fetchProducts,
+  fetchCitySalesByProduct,
+} from "@/services/adminService";
 
 interface CityStat {
   city: string;
@@ -54,7 +57,9 @@ const CityHeatmapByProduct: React.FC = () => {
       {selectedProduct ? (
         <Bar data={data} />
       ) : (
-        <p className="text-gray-600 italic">Please select a product to view stats.</p>
+        <p className="text-gray-600 italic">
+          Please select a product to view stats.
+        </p>
       )}
     </div>
   );

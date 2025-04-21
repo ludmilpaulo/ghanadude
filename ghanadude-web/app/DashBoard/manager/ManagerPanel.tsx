@@ -62,7 +62,7 @@ const ManagerPanel: React.FC = () => {
   const handleVersionTextChange = (
     index: number,
     field: "platform" | "latest_version" | "store_url",
-    value: string
+    value: string,
   ) => {
     const updated = [...versions];
     updated[index] = { ...updated[index], [field]: value };
@@ -141,7 +141,7 @@ const ManagerPanel: React.FC = () => {
                   placeholder={key}
                 />
               </div>
-            )
+            ),
           )}
         </div>
       )}
@@ -161,7 +161,9 @@ const ManagerPanel: React.FC = () => {
         {versions.map((ver, index) => (
           <div key={ver.id} className="border p-4 rounded shadow space-y-3">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Platform</label>
+              <label className="text-sm font-medium text-gray-700">
+                Platform
+              </label>
               <Input
                 value={ver.platform}
                 onChange={(e) =>
@@ -176,12 +178,18 @@ const ManagerPanel: React.FC = () => {
               <Input
                 value={ver.latest_version}
                 onChange={(e) =>
-                  handleVersionTextChange(index, "latest_version", e.target.value)
+                  handleVersionTextChange(
+                    index,
+                    "latest_version",
+                    e.target.value,
+                  )
                 }
               />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-gray-700">Store URL</label>
+              <label className="text-sm font-medium text-gray-700">
+                Store URL
+              </label>
               <Input
                 value={ver.store_url}
                 onChange={(e) =>
@@ -196,7 +204,9 @@ const ManagerPanel: React.FC = () => {
               <input
                 type="checkbox"
                 checked={ver.force_update}
-                onChange={(e) => handleForceUpdateChange(index, e.target.checked)}
+                onChange={(e) =>
+                  handleForceUpdateChange(index, e.target.checked)
+                }
               />
             </div>
             <div className="space-y-1">
@@ -221,7 +231,10 @@ const ManagerPanel: React.FC = () => {
                 />
               </div>
             </div>
-            <Button onClick={() => saveAppVersion(ver)} disabled={savingVersions === ver.id}>
+            <Button
+              onClick={() => saveAppVersion(ver)}
+              disabled={savingVersions === ver.id}
+            >
               {savingVersions === ver.id ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="animate-spin w-4 h-4" />

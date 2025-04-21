@@ -10,7 +10,6 @@ import { Earnings, DevPayment } from "./manager/types";
 import PaymentModal from "./manager/PaymentModal";
 import ManagerPanel from "./manager/ManagerPanel";
 
-
 const Management: React.FC = () => {
   const [earnings, setEarnings] = useState<Earnings | null>(null);
 
@@ -36,18 +35,30 @@ const Management: React.FC = () => {
   }, [loadEarnings, loadPayments]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="p-8"
+    >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">💼 Developer Earnings Summary</h2>
-        <ManagementNav filter={filter} setFilter={setFilter} exportCSV={() => { /* use previous export logic */ }} />
+        <ManagementNav
+          filter={filter}
+          setFilter={setFilter}
+          exportCSV={() => {
+            /* use previous export logic */
+          }}
+        />
       </div>
 
       <Tab.Group>
         <Tab.List className="mb-4">
-        {["Earnings Summary", "Payment History", "Manager"].map((tab) =>(
+          {["Earnings Summary", "Payment History", "Manager"].map((tab) => (
             <Tab key={tab} as={Fragment}>
               {({ selected }) => (
-                <button className={`px-4 py-2 rounded ${selected ? "bg-gray-200" : ""}`}>
+                <button
+                  className={`px-4 py-2 rounded ${selected ? "bg-gray-200" : ""}`}
+                >
                   {tab}
                 </button>
               )}
@@ -57,8 +68,17 @@ const Management: React.FC = () => {
 
         <Tab.Panels>
           <Tab.Panel>
-            {loading ? <p>Loading...</p> : <EarningsSummary earnings={earnings} />}
-            <button onClick={() => setModalOpen(true)} className="mt-4 bg-green-500 text-white py-2 px-4 rounded shadow">Record Payment</button>
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <EarningsSummary earnings={earnings} />
+            )}
+            <button
+              onClick={() => setModalOpen(true)}
+              className="mt-4 bg-green-500 text-white py-2 px-4 rounded shadow"
+            >
+              Record Payment
+            </button>
           </Tab.Panel>
           <Tab.Panel>
             <PaymentHistory payments={payments} />
@@ -67,14 +87,16 @@ const Management: React.FC = () => {
             <ManagerPanel />
           </Tab.Panel>
         </Tab.Panels>
-
       </Tab.Group>
 
-      <PaymentModal isOpen={modalOpen} onClose={() => {
-        setModalOpen(false);
-        loadPayments();
-        loadEarnings();
-      }} />
+      <PaymentModal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          loadPayments();
+          loadEarnings();
+        }}
+      />
     </motion.div>
   );
 };

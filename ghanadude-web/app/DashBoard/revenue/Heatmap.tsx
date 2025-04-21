@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
-import { fetchLocationStatistics } from '@/services/adminService';
-import { Transition } from '@headlessui/react';
+import React, { useEffect, useState } from "react";
+import { Bar } from "react-chartjs-2";
+import { fetchLocationStatistics } from "@/services/adminService";
+import { Transition } from "@headlessui/react";
 
 interface Point {
   name: string;
@@ -19,7 +19,7 @@ interface Threshold {
 }
 
 const Heatmap: React.FC = () => {
-  const [region, setRegion] = useState<'city' | 'country'>('country');
+  const [region, setRegion] = useState<"city" | "country">("country");
   const [points, setPoints] = useState<Point[]>([]);
   const [thresholds, setThresholds] = useState<Threshold[]>([]);
   const [loading, setLoading] = useState(false);
@@ -45,14 +45,16 @@ const Heatmap: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h2 className="text-3xl font-bold text-gray-800">
-            📍 Sales by {region === 'city' ? 'City' : 'Country'}
+            📍 Sales by {region === "city" ? "City" : "Country"}
           </h2>
-          <p className="text-gray-500 text-sm">Total Revenue: <strong>R{totalSales.toLocaleString()}</strong></p>
+          <p className="text-gray-500 text-sm">
+            Total Revenue: <strong>R{totalSales.toLocaleString()}</strong>
+          </p>
         </div>
 
         <select
           value={region}
-          onChange={(e) => setRegion(e.target.value as 'city' | 'country')}
+          onChange={(e) => setRegion(e.target.value as "city" | "country")}
           className="border px-4 py-2 rounded-md shadow-sm text-sm"
         >
           <option value="country">🌍 Country</option>
@@ -84,7 +86,7 @@ const Heatmap: React.FC = () => {
               {
                 label: `Sales (${region})`,
                 data: values,
-                backgroundColor: '#3b82f6',
+                backgroundColor: "#3b82f6",
               },
             ],
           }}
@@ -92,7 +94,7 @@ const Heatmap: React.FC = () => {
             responsive: true,
             animation: {
               duration: 1000,
-              easing: 'easeOutQuart',
+              easing: "easeOutQuart",
             },
             plugins: {
               tooltip: {

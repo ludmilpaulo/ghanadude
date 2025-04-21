@@ -28,14 +28,15 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 const handleError = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     console.error("Axios error:", error.response?.data || error.message);
     throw new Error(
-      error.response?.data?.message || "An error occurred while making the request."
+      error.response?.data?.message ||
+        "An error occurred while making the request.",
     );
   } else {
     console.error("Unexpected error:", error);
@@ -61,7 +62,7 @@ export const createProduct = async (productData: FormData) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -87,7 +88,7 @@ export const updateProduct = async (id: number, productData: FormData) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   } catch (error) {
@@ -97,13 +98,14 @@ export const updateProduct = async (id: number, productData: FormData) => {
 
 export const deleteProduct = async (id: number) => {
   try {
-    const response = await axios.delete(`${baseAPI}/product/products/detail/${id}/`);
+    const response = await axios.delete(
+      `${baseAPI}/product/products/detail/${id}/`,
+    );
     return response.data;
   } catch (error) {
     handleError(error);
   }
 };
-
 
 export const createOrder = async (orderData: OrderData) => {
   try {
@@ -124,7 +126,6 @@ export const fetchOrders = async () => {
     return [];
   }
 };
-
 
 export const updateOrderStatus = async (
   orderId: number,
@@ -156,7 +157,6 @@ export const updateBulkOrderStatus = async (
   }
 };
 
-
 export const fetchSalesSummary = async () => {
   try {
     const response = await axios.get(`${baseAPI}/order/sales-summary/`);
@@ -177,7 +177,7 @@ export const fetchUserStatistics = async () => {
 };
 
 export const fetchLocationStatistics = async (
-  region: 'country' | 'city' = 'country'
+  region: "country" | "city" = "country",
 ): Promise<{
   points: { name: string; lat: number; lng: number; total_sales: number }[];
   thresholds: { min: number; max: number; color: string }[];
@@ -192,8 +192,6 @@ export const fetchLocationStatistics = async (
     return { points: [], thresholds: [] };
   }
 };
-
-
 
 export const fetchUsers = async () => {
   try {
@@ -216,9 +214,6 @@ export const fetchSizes = async (): Promise<Size[]> => {
   return res.json();
 };
 
-
-
-
 export const fetchBulkOrders = async () => {
   const res = await axios.get(`${baseAPI}/order/admin/bulk-orders/`);
   return res.data;
@@ -234,12 +229,11 @@ export const fetchSalesInRange = async (start: Date, end: Date) => {
   return res.data;
 };
 
-
 export const fetchTopProductsPerMonth = async (
   start: Date,
   end: Date,
   status: string = "All",
-  category?: string
+  category?: string,
 ) => {
   const res = await axios.get(`${baseAPI}/reward/top_products_by_month/`, {
     params: {
@@ -252,12 +246,10 @@ export const fetchTopProductsPerMonth = async (
   return res.data;
 };
 
-
 export const fetchTopUsers = async () => {
   const res = await axios.get(`${baseAPI}/reward/user/top-spenders/`);
   return res.data;
 };
-
 
 export const fetchCitySalesByProduct = async (productId: number) => {
   const res = await axios.get(`${baseAPI}/reward/city-sales-by-product/`, {
@@ -265,6 +257,3 @@ export const fetchCitySalesByProduct = async (productId: number) => {
   });
   return res.data;
 };
-
-
-

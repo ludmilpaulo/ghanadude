@@ -1,12 +1,12 @@
 // app/DashBoard/orders/ExportButtons.tsx
-'use client';
+"use client";
 
-import { FC } from 'react';
-import { CSVLink } from 'react-csv';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { useReactToPrint } from 'react-to-print';
-import { Order } from './types';
+import { FC } from "react";
+import { CSVLink } from "react-csv";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useReactToPrint } from "react-to-print";
+import { Order } from "./types";
 
 interface Props {
   orders: Order[];
@@ -17,7 +17,7 @@ const ExportButtons: FC<Props> = ({ orders, printRef }) => {
   const exportPDF = () => {
     const doc = new jsPDF();
     autoTable(doc, {
-      head: [['ID', 'User', 'Total', 'Status', 'Date', 'Address']],
+      head: [["ID", "User", "Total", "Status", "Date", "Address"]],
       body: orders.map((o) => [
         o.id,
         o.user,
@@ -27,7 +27,7 @@ const ExportButtons: FC<Props> = ({ orders, printRef }) => {
         `${o.address}, ${o.city}, ${o.postal_code}, ${o.country}`,
       ]),
     });
-    doc.save('orders.pdf');
+    doc.save("orders.pdf");
   };
 
   const handlePrint = useReactToPrint({
@@ -44,11 +44,17 @@ const ExportButtons: FC<Props> = ({ orders, printRef }) => {
         Export CSV
       </CSVLink>
 
-      <button onClick={exportPDF} className="bg-red-600 text-white px-4 py-2 rounded text-sm">
+      <button
+        onClick={exportPDF}
+        className="bg-red-600 text-white px-4 py-2 rounded text-sm"
+      >
         Export PDF
       </button>
 
-      <button onClick={() => handlePrint?.()} className="bg-indigo-600 text-white px-4 py-2 rounded text-sm">
+      <button
+        onClick={() => handlePrint?.()}
+        className="bg-indigo-600 text-white px-4 py-2 rounded text-sm"
+      >
         Print
       </button>
     </>

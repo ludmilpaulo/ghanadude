@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { 
-  View, Text, TextInput, ScrollView, TouchableOpacity, 
-  Image, SafeAreaView, ActivityIndicator, Animated 
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  ActivityIndicator,
+  Animated,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
@@ -84,7 +91,9 @@ const ProductScreen = () => {
     <SafeAreaView style={tw`flex-1 bg-gray-100 px-4`}>
       <View style={tw`py-4`}>
         {/* Search Input */}
-        <View style={tw`flex-row items-center bg-white p-3 rounded-lg shadow-md mb-4`}>
+        <View
+          style={tw`flex-row items-center bg-white p-3 rounded-lg shadow-md mb-4`}
+        >
           <Ionicons name="search" size={20} color="gray" />
           <TextInput
             style={tw`flex-1 ml-2 text-base`}
@@ -95,7 +104,9 @@ const ProductScreen = () => {
         </View>
 
         {/* Category Picker */}
-        <View style={tw`bg-white p-3 rounded-lg shadow-md mb-4 flex-row items-center`}>
+        <View
+          style={tw`bg-white p-3 rounded-lg shadow-md mb-4 flex-row items-center`}
+        >
           <Ionicons name="list" size={20} color="gray" style={tw`mr-2`} />
           <Picker
             selectedValue={selectedCategory}
@@ -104,7 +115,11 @@ const ProductScreen = () => {
           >
             <Picker.Item label="All Categories" value="" />
             {categories.map((cat) => (
-              <Picker.Item key={cat.id} label={cat.name} value={cat.id.toString()} />
+              <Picker.Item
+                key={cat.id}
+                label={cat.name}
+                value={cat.id.toString()}
+              />
             ))}
           </Picker>
         </View>
@@ -115,27 +130,37 @@ const ProductScreen = () => {
             <ActivityIndicator size="large" color="#3B82F6" />
           </View>
         ) : (
-          <ScrollView contentContainerStyle={tw`flex-row flex-wrap justify-between`}>
+          <ScrollView
+            contentContainerStyle={tw`flex-row flex-wrap justify-between`}
+          >
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
-                <Animated.View key={product.id} style={[tw`w-1/2 p-2`, { opacity: fadeAnim }]}>
+                <Animated.View
+                  key={product.id}
+                  style={[tw`w-1/2 p-2`, { opacity: fadeAnim }]}
+                >
                   <View style={tw`bg-white p-3 rounded-lg shadow-lg relative`}>
                     <Image
                       source={{
-                        uri: product.images.length > 0
-                          ? product.images[0].image
-                          : "https://via.placeholder.com/150"
+                        uri:
+                          product.images.length > 0
+                            ? product.images[0].image
+                            : "https://via.placeholder.com/150",
                       }}
                       style={tw`h-44 w-full rounded-lg`}
                     />
-                    <Text style={tw`text-lg font-bold mt-2`}>{product.name}</Text>
+                    <Text style={tw`text-lg font-bold mt-2`}>
+                      {product.name}
+                    </Text>
                     <Text style={tw`text-gray-500 text-sm`}>
                       R{Number(product.price || 0).toFixed(2)}
                     </Text>
 
                     {/* Sale Badge */}
                     {product.onSale && (
-                      <View style={tw`absolute top-2 left-2 bg-red-500 px-2 py-1 rounded-full`}>
+                      <View
+                        style={tw`absolute top-2 left-2 bg-red-500 px-2 py-1 rounded-full`}
+                      >
                         <Text style={tw`text-white text-xs font-semibold`}>
                           -{product.discountPercentage}%
                         </Text>
@@ -144,11 +169,24 @@ const ProductScreen = () => {
 
                     {/* Action Buttons */}
                     <View style={tw`flex-row justify-between mt-2`}>
-                      <TouchableOpacity style={tw`bg-blue-500 p-2 rounded-lg flex-1 mr-1`}>
-                        <Text style={tw`text-white text-center text-sm font-semibold`}>View</Text>
+                      <TouchableOpacity
+                        style={tw`bg-blue-500 p-2 rounded-lg flex-1 mr-1`}
+                      >
+                        <Text
+                          style={tw`text-white text-center text-sm font-semibold`}
+                        >
+                          View
+                        </Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={tw`bg-green-500 p-2 rounded-lg flex-1 ml-1`}>
-                        <Ionicons name="cart" size={16} color="white" style={tw`text-center`} />
+                      <TouchableOpacity
+                        style={tw`bg-green-500 p-2 rounded-lg flex-1 ml-1`}
+                      >
+                        <Ionicons
+                          name="cart"
+                          size={16}
+                          color="white"
+                          style={tw`text-center`}
+                        />
                       </TouchableOpacity>
                     </View>
                   </View>

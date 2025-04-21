@@ -1,6 +1,6 @@
 // services/OrderService.ts
-import axios from 'axios';
-import { API_BASE_URL } from './AuthService';
+import axios from "axios";
+import { API_BASE_URL } from "./AuthService";
 
 export interface ProductImage {
   image: string;
@@ -11,11 +11,6 @@ export interface Product {
   name: string;
   images: ProductImage[];
 }
-
-
-
-
-
 
 export interface OrderItem {
   id: number;
@@ -34,7 +29,7 @@ export interface Order {
   created_at: string;
   status: string;
   total_price: number;
-  type: 'regular' | 'bulk';
+  type: "regular" | "bulk";
   items: OrderItem[];
   reward_applied?: number; // ✅ optional to prevent TS error if missing
   reward_granted?: boolean;
@@ -42,10 +37,9 @@ export interface Order {
   coupon_code?: string;
   bulk_file?: string;
   invoice?: string;
-  is_dispatched :boolean;
-  pin_code : number;
+  is_dispatched: boolean;
+  pin_code: number;
 }
-
 
 export interface PaginatedOrderResponse {
   count: number;
@@ -57,19 +51,18 @@ export interface PaginatedOrderResponse {
 export const fetchUserOrders = async (
   user_id: number,
   token: string,
-  status: string
+  status: string,
 ): Promise<PaginatedOrderResponse> => {
   const res = await axios.post(
     `${API_BASE_URL}/order/orders/user/`,
     { user_id, status },
     {
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
-  console.log('✅ Orders full response:', res.data);
+  console.log("✅ Orders full response:", res.data);
   return res.data;
 };
-
 
 export const fetchOrderDetail = async (orderId: number, token: string) => {
   const res = await axios.get(`${API_BASE_URL}/order/orders/${orderId}/`, {
@@ -77,4 +70,3 @@ export const fetchOrderDetail = async (orderId: number, token: string) => {
   });
   return res.data;
 };
-

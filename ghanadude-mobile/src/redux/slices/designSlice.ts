@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../store';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "../store";
 
 interface DesignState {
   brandLogo: string | null;
@@ -18,7 +18,7 @@ const initialState: DesignState = {
 };
 
 const designSlice = createSlice({
-  name: 'design',
+  name: "design",
   initialState,
   reducers: {
     setBrandLogo: (state, action: PayloadAction<string | null>) => {

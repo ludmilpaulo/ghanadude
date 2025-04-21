@@ -71,7 +71,10 @@ const DashBoard: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar setActiveComponent={setActiveComponent} activeComponent={activeComponent} />
+      <Sidebar
+        setActiveComponent={setActiveComponent}
+        activeComponent={activeComponent}
+      />
       <main className="flex-1 p-6 bg-gradient-to-br from-gray-50 to-gray-200 shadow-inner min-h-screen">
         <div className="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow-md transition-all">
           {componentToRender}

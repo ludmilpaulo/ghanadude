@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
-import tw from 'twrnc';
-import InfoTooltip from '../InfoTooltip';
+import React from "react";
+import { View, Text, ActivityIndicator } from "react-native";
+import tw from "twrnc";
+import InfoTooltip from "../InfoTooltip";
 
 interface CheckoutSummaryProps {
   cartItems: { quantity: number; price: number; name: string }[];
@@ -17,11 +17,10 @@ interface CheckoutSummaryProps {
   } | null;
   brandLogoQty?: number;
   customDesignQty?: number;
-  orderType: 'delivery' | 'collection';
+  orderType: "delivery" | "collection";
   deliveryFee: number;
   deliveryFeeLoading?: boolean;
 }
-
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   cartItems,
@@ -39,15 +38,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   const cartSubtotal = cartItems.reduce(
     (sum, item) => sum + item.quantity * item.price,
-    0
+    0,
   );
 
-  const designSubtotal = brand_price * brandLogoQty + custom_price * customDesignQty;
+  const designSubtotal =
+    brand_price * brandLogoQty + custom_price * customDesignQty;
   const subtotal = cartSubtotal + designSubtotal;
 
   const vatRate = siteSettings ? siteSettings.vat_percentage : 0;
   const vatAmount = parseFloat(((subtotal * vatRate) / 100).toFixed(2));
-  const total = subtotal + vatAmount + (orderType === 'delivery' ? deliveryFee : 0) - rewardApplied;
+  const total =
+    subtotal +
+    vatAmount +
+    (orderType === "delivery" ? deliveryFee : 0) -
+    rewardApplied;
 
   return (
     <View style={tw`bg-white shadow-md p-4 rounded-lg mt-4`}>
@@ -61,7 +65,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       <View style={tw`flex-row justify-between mb-1 items-center`}>
         <Text>📦 Delivery</Text>
         <View style={tw`flex-row items-center`}>
-          {orderType === 'collection' ? (
+          {orderType === "collection" ? (
             <Text>R0.00</Text>
           ) : deliveryFeeLoading ? (
             <ActivityIndicator size="small" color="#888" />
@@ -85,7 +89,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           <Text>🎁 Reward Used</Text>
           <View style={tw`flex-row items-center`}>
             <Text style={tw`text-green-700`}>-R{rewardApplied.toFixed(2)}</Text>
-            <InfoTooltip text={`You've used R${rewardApplied.toFixed(2)} of your R${rewardBalance.toFixed(2)} reward balance.`} />
+            <InfoTooltip
+              text={`You've used R${rewardApplied.toFixed(2)} of your R${rewardBalance.toFixed(2)} reward balance.`}
+            />
           </View>
         </View>
       )}

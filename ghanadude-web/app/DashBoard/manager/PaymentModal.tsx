@@ -3,7 +3,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { motion } from "framer-motion";
 import { createPayment } from "@/services/EarningsService";
 
-
 interface Props {
   isOpen: boolean;
   onClose: () => void;

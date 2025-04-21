@@ -28,7 +28,9 @@ const PromotionsTab: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,7 +43,9 @@ const PromotionsTab: React.FC = () => {
       setProducts(productsData);
       setFilteredProducts(productsData);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "An unknown error occurred.");
+      setError(
+        error instanceof Error ? error.message : "An unknown error occurred.",
+      );
     } finally {
       setLoading(false);
     }
@@ -55,7 +59,7 @@ const PromotionsTab: React.FC = () => {
     const delayDebounce = setTimeout(() => {
       const lower = search.toLowerCase();
       setFilteredProducts(
-        products.filter((p) => p.name.toLowerCase().includes(lower))
+        products.filter((p) => p.name.toLowerCase().includes(lower)),
       );
     }, 300);
 
@@ -67,7 +71,9 @@ const PromotionsTab: React.FC = () => {
     setSending(true);
     setMessage("");
     try {
-      await axios.post(`${baseAPI}/api/send-promotional-email/`, { product_id: selectedProductId });
+      await axios.post(`${baseAPI}/api/send-promotional-email/`, {
+        product_id: selectedProductId,
+      });
       setMessage("✅ Promotional emails sent successfully!");
     } catch {
       setMessage("❌ Failed to send promotional emails.");
@@ -79,7 +85,9 @@ const PromotionsTab: React.FC = () => {
   return (
     <div className="p-4 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-bold text-gray-800">📢 Send Product Promotion</h3>
+        <h3 className="text-2xl font-bold text-gray-800">
+          📢 Send Product Promotion
+        </h3>
         <div className="relative w-full max-w-sm">
           <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
           <input
@@ -108,7 +116,9 @@ const PromotionsTab: React.FC = () => {
               <motion.div
                 key={product.id}
                 className={`relative border rounded-2xl p-4 bg-white shadow-sm cursor-pointer transition duration-300 ${
-                  isSelected ? "border-blue-600 ring-2 ring-blue-300" : "hover:shadow-md"
+                  isSelected
+                    ? "border-blue-600 ring-2 ring-blue-300"
+                    : "hover:shadow-md"
                 }`}
                 onClick={() => setSelectedProductId(product.id)}
                 whileHover={{ scale: 1.02 }}
@@ -130,7 +140,9 @@ const PromotionsTab: React.FC = () => {
                   </div>
                 )}
                 <div className="mt-4">
-                  <h4 className="text-lg font-semibold text-gray-900 truncate">{product.name}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 truncate">
+                    {product.name}
+                  </h4>
                   <p className="text-sm text-gray-500">R{product.price}</p>
                 </div>
               </motion.div>

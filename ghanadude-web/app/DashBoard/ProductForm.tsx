@@ -1,7 +1,12 @@
-import { fetchCategories, fetchSizes, updateProduct, createProduct } from '@/services/adminService';
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { Transition } from '@headlessui/react';
+import {
+  fetchCategories,
+  fetchSizes,
+  updateProduct,
+  createProduct,
+} from "@/services/adminService";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Transition } from "@headlessui/react";
 
 interface Size {
   id: number;
@@ -29,9 +34,9 @@ interface Category {
 }
 
 const SEASON_CHOICES = [
-  { value: 'summer', label: 'Summer' },
-  { value: 'winter', label: 'Winter' },
-  { value: 'all_seasons', label: 'All Seasons' },
+  { value: "summer", label: "Summer" },
+  { value: "winter", label: "Winter" },
+  { value: "all_seasons", label: "All Seasons" },
 ];
 
 interface ProductFormProps {
@@ -40,15 +45,19 @@ interface ProductFormProps {
   loadProducts: () => void;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProducts }) => {
+const ProductForm: React.FC<ProductFormProps> = ({
+  product,
+  onClose,
+  loadProducts,
+}) => {
   const { register, handleSubmit, watch, reset } = useForm<Product>();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [sizes, setSizes] = useState<Size[]>([]);
-  const [existingImages, setExistingImages] = useState<Product['images']>([]);
+  const [existingImages, setExistingImages] = useState<Product["images"]>([]);
   const [newImages, setNewImages] = useState<FileList | null>(null);
-  const [newCategory, setNewCategory] = useState('');
-  const [newSize, setNewSize] = useState('');
+  const [newCategory, setNewCategory] = useState("");
+  const [newSize, setNewSize] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -62,7 +71,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
         setCategories(fetchedCategories);
         setSizes(fetchedSizes);
       } catch (error) {
-        console.error('Error loading categories or sizes:', error);
+        console.error("Error loading categories or sizes:", error);
       } finally {
         setLoading(false);
       }
@@ -86,27 +95,34 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
     setLoading(true);
 
     try {
-      formData.append('name', data.name.trim());
-      formData.append('category', newCategory.trim() || data.category.trim());
-      formData.append('description', data.description?.trim() || '');
-      formData.append('price', data.price.toString());
-      formData.append('stock', data.stock.toString());
-      formData.append('season', data.season || '');
-      formData.append('on_sale', data.on_sale ? 'true' : 'false');
-      formData.append('bulk_sale', data.bulk_sale ? 'true' : 'false');
+      formData.append("name", data.name.trim());
+      formData.append("category", newCategory.trim() || data.category.trim());
+      formData.append("description", data.description?.trim() || "");
+      formData.append("price", data.price.toString());
+      formData.append("stock", data.stock.toString());
+      formData.append("season", data.season || "");
+      formData.append("on_sale", data.on_sale ? "true" : "false");
+      formData.append("bulk_sale", data.bulk_sale ? "true" : "false");
 
       if (data.on_sale) {
-        formData.append('discount_percentage', data.discount_percentage?.toString() || '0');
+        formData.append(
+          "discount_percentage",
+          data.discount_percentage?.toString() || "0",
+        );
       }
 
       const combinedSizes = data.sizes || [];
       if (newSize.trim()) combinedSizes.push(newSize.trim());
-      combinedSizes.forEach(size => formData.append('sizes', size));
+      combinedSizes.forEach((size) => formData.append("sizes", size));
 
-      existingImages?.forEach(img => formData.append('existing_images', img.id.toString()));
+      existingImages?.forEach((img) =>
+        formData.append("existing_images", img.id.toString()),
+      );
 
       if (newImages) {
-        Array.from(newImages).forEach(file => formData.append('images', file));
+        Array.from(newImages).forEach((file) =>
+          formData.append("images", file),
+        );
       }
 
       if (product?.id) {
@@ -115,12 +131,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
         await createProduct(formData);
       }
 
-      alert('Product successfully saved.');
+      alert("Product successfully saved.");
       onClose();
       loadProducts();
     } catch (error) {
       console.error(error);
-      alert('Failed to save product. Please try again.');
+      alert("Failed to save product. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -129,15 +145,21 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-6">
       <h2 className="text-2xl font-semibold mb-4">
-        {product ? 'Update Product' : 'Add New Product'}
+        {product ? "Update Product" : "Add New Product"}
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <input {...register('name', { required: true })} className="w-full border rounded p-2" placeholder="Product Name" />
+        <input
+          {...register("name", { required: true })}
+          className="w-full border rounded p-2"
+          placeholder="Product Name"
+        />
 
-        <select {...register('category')} className="w-full border rounded p-2">
+        <select {...register("category")} className="w-full border rounded p-2">
           <option value="">Select a category</option>
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.name}>{cat.name}</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.name}>
+              {cat.name}
+            </option>
           ))}
         </select>
 
@@ -148,33 +170,63 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
           placeholder="Or enter new category name"
         />
 
-        <select {...register('season')} className="w-full border rounded p-2">
+        <select {...register("season")} className="w-full border rounded p-2">
           <option value="">Select Season</option>
-          {SEASON_CHOICES.map(season => (
-            <option key={season.value} value={season.value}>{season.label}</option>
+          {SEASON_CHOICES.map((season) => (
+            <option key={season.value} value={season.value}>
+              {season.label}
+            </option>
           ))}
         </select>
 
-        <textarea {...register('description')} className="w-full border rounded p-2" placeholder="Description" rows={4} />
+        <textarea
+          {...register("description")}
+          className="w-full border rounded p-2"
+          placeholder="Description"
+          rows={4}
+        />
 
-        <input type="number" {...register('price', { required: true })} className="w-full border rounded p-2" placeholder="Price" />
-        <input type="number" {...register('stock', { required: true })} className="w-full border rounded p-2" placeholder="Stock" />
+        <input
+          type="number"
+          {...register("price", { required: true })}
+          className="w-full border rounded p-2"
+          placeholder="Price"
+        />
+        <input
+          type="number"
+          {...register("stock", { required: true })}
+          className="w-full border rounded p-2"
+          placeholder="Stock"
+        />
 
         <div className="flex items-center gap-4">
-          <label><input type="checkbox" {...register('on_sale')} /> On Sale</label>
-          <label><input type="checkbox" {...register('bulk_sale')} /> Bulk Sale</label>
+          <label>
+            <input type="checkbox" {...register("on_sale")} /> On Sale
+          </label>
+          <label>
+            <input type="checkbox" {...register("bulk_sale")} /> Bulk Sale
+          </label>
         </div>
 
-        {watch('on_sale') && (
-          <input type="number" {...register('discount_percentage')} className="w-full border rounded p-2" placeholder="Discount %" />
+        {watch("on_sale") && (
+          <input
+            type="number"
+            {...register("discount_percentage")}
+            className="w-full border rounded p-2"
+            placeholder="Discount %"
+          />
         )}
 
         <div>
           <p className="font-medium">Select Sizes:</p>
           <div className="flex gap-4 flex-wrap">
-            {sizes.map(size => (
+            {sizes.map((size) => (
               <label key={size.id} className="flex gap-1 items-center">
-                <input type="checkbox" value={size.name} {...register('sizes')} />
+                <input
+                  type="checkbox"
+                  value={size.name}
+                  {...register("sizes")}
+                />
                 {size.name}
               </label>
             ))}
@@ -188,14 +240,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onClose, loadProduct
           />
         </div>
 
-        <input type="file" multiple onChange={handleImageChange} className="w-full border rounded p-2" />
+        <input
+          type="file"
+          multiple
+          onChange={handleImageChange}
+          className="w-full border rounded p-2"
+        />
 
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-blue-500 text-white p-2 rounded font-semibold hover:bg-blue-600 disabled:opacity-50"
         >
-          {product ? 'Update' : 'Create'}
+          {product ? "Update" : "Create"}
         </button>
       </form>
 

@@ -1,28 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-  View, Text, Image, ScrollView, ActivityIndicator, SafeAreaView,
-  TouchableOpacity, Alert, Dimensions, Share, Platform
-} from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
-import Animated, { FadeInUp } from 'react-native-reanimated';
-import tw from 'twrnc';
-import { FontAwesome, Feather, AntDesign } from '@expo/vector-icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateBasket } from '../redux/slices/basketSlice';
-import { selectUser } from '../redux/slices/authSlice';
+  View,
+  Text,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+  SafeAreaView,
+  TouchableOpacity,
+  Alert,
+  Dimensions,
+  Share,
+  Platform,
+} from "react-native";
+import Carousel from "react-native-reanimated-carousel";
+import Animated, { FadeInUp } from "react-native-reanimated";
+import tw from "twrnc";
+import { FontAwesome, Feather, AntDesign } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { updateBasket } from "../redux/slices/basketSlice";
+import { selectUser } from "../redux/slices/authSlice";
 import { StackScreenProps } from "@react-navigation/stack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
-import { Product } from './types';
+import { Product } from "./types";
 import { useNavigation } from "@react-navigation/native";
 import { fetchWishlistCount } from "../services/WishlistService";
 import { setWishlistCount } from "../redux/slices/wishlistSlice";
 
-import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
+import * as Sharing from "expo-sharing";
+import * as FileSystem from "expo-file-system";
 
-import { API_BASE_URL } from '../services/AuthService';
-import { getWishlist, addToWishlist, removeFromWishlist } from '../services/WishlistService';
+import { API_BASE_URL } from "../services/AuthService";
+import {
+  getWishlist,
+  addToWishlist,
+  removeFromWishlist,
+} from "../services/WishlistService";
 
 type ProductDetailProps = StackScreenProps<HomeStackParamList, "ProductDetail">;
 const { width } = Dimensions.get("window");
@@ -42,9 +55,13 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   const user = useSelector(selectUser);
   const userId = user?.user_id;
   const cartItems = useSelector((state: any) => state.basket.items);
-  const isInCart = product && selectedSize
-  ? cartItems.some((item: any) => item.id === product.id && item.selectedSize === selectedSize)
-  : false;
+  const isInCart =
+    product && selectedSize
+      ? cartItems.some(
+          (item: any) =>
+            item.id === product.id && item.selectedSize === selectedSize,
+        )
+      : false;
 
   const [isWishlisted, setIsWishlisted] = useState(false);
 
@@ -64,7 +81,9 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
     const checkWishlist = async () => {
       if (!userId) return;
       const wishlist = await getWishlist(userId);
-      const isItemInWishlist = wishlist.some((item: any) => item.product.id === id);
+      const isItemInWishlist = wishlist.some(
+        (item: any) => item.product.id === id,
+      );
       setIsWishlisted(isItemInWishlist);
     };
 
@@ -75,7 +94,9 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   useEffect(() => {
     const fetchRelated = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/product/products/related/${id}/`);
+        const response = await fetch(
+          `${API_BASE_URL}/product/products/related/${id}/`,
+        );
         const data = await response.json();
         console.log("Related products response:", data);
         setRelatedProducts(data);
@@ -89,21 +110,21 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
     const fetchReviews = async () => {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/product/products/${id}/reviews/?user_id=${userId}`
+          `${API_BASE_URL}/product/products/${id}/reviews/?user_id=${userId}`,
         );
         const data = await response.json();
         setReviews(data);
-    
+
         const avg = data.length
-          ? data.reduce((sum: number, r: any) => sum + r.rating, 0) / data.length
+          ? data.reduce((sum: number, r: any) => sum + r.rating, 0) /
+            data.length
           : 0;
-    
+
         setAverageRating(parseFloat(avg.toFixed(1)));
       } catch (error) {
         console.error("Failed to load reviews:", error);
       }
     };
-    
 
     fetchRelated();
     fetchReviews();
@@ -135,7 +156,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       name: product.name,
       selectedSize: selectedSize as string,
       quantity: adjustedQuantity,
-      image: product.images?.[0]?.image || '',
+      image: product.images?.[0]?.image || "",
       price: parseFloat(finalPrice.toFixed(2)),
       originalPrice: Number(product.price),
       stock: product.stock,
@@ -146,7 +167,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
     if (quantity > product.stock) {
       Alert.alert(
         "Quantity Adjusted",
-        `Only ${product.stock} items available in stock. Quantity adjusted to ${product.stock}.`
+        `Only ${product.stock} items available in stock. Quantity adjusted to ${product.stock}.`,
       );
       setQuantity(product.stock);
     } else {
@@ -158,7 +179,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       Alert.alert("Login Required", "Please log in to manage your wishlist.");
       return;
     }
-  
+
     if (isWishlisted) {
       const result = await removeFromWishlist(userId, id);
       if (result) {
@@ -167,32 +188,36 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       }
     } else {
       const wishlist = await getWishlist(userId);
-      const alreadyExists = wishlist.some((item: any) => item.product.id === id);
+      const alreadyExists = wishlist.some(
+        (item: any) => item.product.id === id,
+      );
       if (alreadyExists) {
-        Alert.alert("Already in Wishlist", `${product?.name} is already in your wishlist.`);
+        Alert.alert(
+          "Already in Wishlist",
+          `${product?.name} is already in your wishlist.`,
+        );
         setIsWishlisted(true);
         return;
       }
-  
+
       const result = await addToWishlist(userId, id);
       if (result) {
         setIsWishlisted(true);
         Alert.alert("Added", `${product?.name} added to wishlist.`);
       }
     }
-  
+
     // 👇 Always update count after action
     const newCount = await fetchWishlistCount(userId);
     dispatch(setWishlistCount(newCount));
   };
-  
 
   const handleShare = async () => {
     try {
       const universalLink = `${API_BASE_URL}/deeplink/product/${id}`;
       const imageUrl = product?.images?.[0]?.image || null;
       const shareMessage = `🛍️ Check out this product on Ghanadude!\n\n${product?.name}\n${universalLink}`;
-  
+
       if (!imageUrl) {
         // No image, just share text + link
         await Share.share({
@@ -201,8 +226,8 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         });
         return;
       }
-  
-      if (Platform.OS === 'android') {
+
+      if (Platform.OS === "android") {
         // Android can include image URL in the message
         await Share.share({
           message: `${shareMessage}\n📸 ${imageUrl}`,
@@ -212,29 +237,30 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
         // iOS: download and attach the image
         const localUri = `${FileSystem.cacheDirectory}product.jpg`;
         const download = await FileSystem.downloadAsync(imageUrl, localUri);
-  
+
         const isSharingAvailable = await Sharing.isAvailableAsync();
         if (!isSharingAvailable) {
-          Alert.alert("Sharing not available", "Sharing is not supported on this device.");
+          Alert.alert(
+            "Sharing not available",
+            "Sharing is not supported on this device.",
+          );
           return;
         }
-  
+
         await Sharing.shareAsync(download.uri, {
           dialogTitle: `Check out ${product?.name}`,
-          mimeType: 'image/jpeg',
-          UTI: 'public.jpeg', // iOS specific
+          mimeType: "image/jpeg",
+          UTI: "public.jpeg", // iOS specific
         });
-  
+
         // You may also add a separate Share.share() if you want to combine text + link
         // But iOS does not support both image and message natively
       }
-  
     } catch (error) {
       console.error("Sharing failed", error);
       Alert.alert("Error", "Failed to share this product.");
     }
   };
-  
 
   if (loading) {
     return (
@@ -247,7 +273,9 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   if (!product) {
     return (
       <SafeAreaView style={tw`flex-1 justify-center items-center bg-gray-100`}>
-        <Text style={tw`text-lg font-bold text-gray-700`}>Product not found</Text>
+        <Text style={tw`text-lg font-bold text-gray-700`}>
+          Product not found
+        </Text>
       </SafeAreaView>
     );
   }
@@ -256,13 +284,20 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <ScrollView contentContainerStyle={tw`pb-16`}>
         <View style={tw`flex-row justify-between items-center px-4 pt-4`}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={tw`p-2 bg-gray-200 rounded-full`}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={tw`p-2 bg-gray-200 rounded-full`}
+          >
             <AntDesign name="arrowleft" size={24} />
           </TouchableOpacity>
 
           <View style={tw`flex-row`}>
             <TouchableOpacity onPress={toggleWishlist} style={tw`mr-4`}>
-              <FontAwesome name={isWishlisted ? "heart" : "heart-o"} size={24} color={isWishlisted ? "red" : "black"} />
+              <FontAwesome
+                name={isWishlisted ? "heart" : "heart-o"}
+                size={24}
+                color={isWishlisted ? "red" : "black"}
+              />
             </TouchableOpacity>
             <TouchableOpacity onPress={handleShare}>
               <Feather name="share-2" size={24} />
@@ -292,31 +327,51 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
         {/* Product Details */}
         <Animated.View entering={FadeInUp.delay(100)} style={tw`p-4`}>
-          <Text style={tw`text-3xl font-bold text-gray-900`}>{product.name}</Text>
+          <Text style={tw`text-3xl font-bold text-gray-900`}>
+            {product.name}
+          </Text>
           <Text style={tw`text-xl text-green-700 mt-1`}>R{product.price}</Text>
-          <Text style={tw`text-sm text-gray-500 mt-1`}>Brand: {product.brand}</Text>
+          <Text style={tw`text-sm text-gray-500 mt-1`}>
+            Brand: {product.brand}
+          </Text>
 
           {product.on_sale && (
             <Text style={tw`text-sm text-red-500 mt-1`}>
-              {product.discount_percentage}% OFF – Save R{((Number(product.price) * product.discount_percentage) / 100).toFixed(2)}
+              {product.discount_percentage}% OFF – Save R
+              {(
+                (Number(product.price) * product.discount_percentage) /
+                100
+              ).toFixed(2)}
             </Text>
           )}
-          <Text style={tw`text-sm mt-1 ${product.stock <= 3 ? 'text-red-500' : 'text-green-600'}`}>
-            {product.stock === 0 ? 'Out of Stock' : product.stock <= 3 ? 'Low Stock' : `${product.stock} in stock`}
+          <Text
+            style={tw`text-sm mt-1 ${product.stock <= 3 ? "text-red-500" : "text-green-600"}`}
+          >
+            {product.stock === 0
+              ? "Out of Stock"
+              : product.stock <= 3
+                ? "Low Stock"
+                : `${product.stock} in stock`}
           </Text>
 
           {/* Sizes */}
           {product.sizes?.length > 0 && (
             <View style={tw`mt-6`}>
-              <Text style={tw`text-base font-semibold mb-2 text-gray-800`}>Select Size</Text>
+              <Text style={tw`text-base font-semibold mb-2 text-gray-800`}>
+                Select Size
+              </Text>
               <View style={tw`flex-row flex-wrap`}>
                 {product.sizes.map((size: string) => (
                   <TouchableOpacity
                     key={size}
                     onPress={() => setSelectedSize(size)}
-                    style={tw`mr-2 mb-2 px-4 py-2 border rounded-full ${selectedSize === size ? 'bg-blue-600 border-blue-600' : 'border-gray-300'}`}
+                    style={tw`mr-2 mb-2 px-4 py-2 border rounded-full ${selectedSize === size ? "bg-blue-600 border-blue-600" : "border-gray-300"}`}
                   >
-                    <Text style={tw`${selectedSize === size ? 'text-white' : 'text-gray-800'}`}>{size}</Text>
+                    <Text
+                      style={tw`${selectedSize === size ? "text-white" : "text-gray-800"}`}
+                    >
+                      {size}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -325,21 +380,28 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
           {/* Quantity with Animation */}
           <Animated.View entering={FadeInUp.delay(200)} style={tw`mt-6`}>
-            <Text style={tw`text-base font-semibold mb-2 text-gray-800`}>Quantity</Text>
+            <Text style={tw`text-base font-semibold mb-2 text-gray-800`}>
+              Quantity
+            </Text>
             <View style={tw`flex-row items-center`}>
               <TouchableOpacity
-                onPress={() => setQuantity(q => Math.max(1, q - 1))}
+                onPress={() => setQuantity((q) => Math.max(1, q - 1))}
                 style={tw`px-4 py-2 bg-gray-200 rounded-l`}
               >
                 <Text style={tw`text-xl`}>-</Text>
               </TouchableOpacity>
-              <Text style={tw`px-4 py-2 border-t border-b border-gray-300`}>{quantity}</Text>
+              <Text style={tw`px-4 py-2 border-t border-b border-gray-300`}>
+                {quantity}
+              </Text>
               <TouchableOpacity
                 onPress={() => {
                   if (quantity < product.stock) {
-                    setQuantity(q => q + 1);
+                    setQuantity((q) => q + 1);
                   } else {
-                    Alert.alert("Stock Limit Reached", `Only ${product.stock} items available.`);
+                    Alert.alert(
+                      "Stock Limit Reached",
+                      `Only ${product.stock} items available.`,
+                    );
                   }
                 }}
                 style={tw`px-4 py-2 bg-gray-200 rounded-r`}
@@ -351,7 +413,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
           {/* Add to Cart with Animation */}
           <Animated.View entering={FadeInUp.delay(300)}>
-          <TouchableOpacity
+            <TouchableOpacity
               onPress={() => {
                 if (isInCart) {
                   navigation.navigate("Cart"); // assumes you have a Cart screen in your stack
@@ -361,24 +423,33 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
               }}
               disabled={product.stock === 0}
               style={tw`mt-6 py-4 rounded-xl shadow-lg ${
-                product.stock === 0 ? 'bg-gray-400' : isInCart ? 'bg-blue-600' : 'bg-green-600'
+                product.stock === 0
+                  ? "bg-gray-400"
+                  : isInCart
+                    ? "bg-blue-600"
+                    : "bg-green-600"
               }`}
             >
               <Text style={tw`text-white text-center font-bold text-lg`}>
-                {product.stock === 0 ? 'Out of Stock' : isInCart ? '🛒 Go to Cart' : '🛒 Add to Cart'}
+                {product.stock === 0
+                  ? "Out of Stock"
+                  : isInCart
+                    ? "🛒 Go to Cart"
+                    : "🛒 Add to Cart"}
               </Text>
             </TouchableOpacity>
-
           </Animated.View>
 
           {/* Rating with Animation */}
           <Animated.View entering={FadeInUp.delay(400)} style={tw`mt-10`}>
-            <Text style={tw`text-lg font-bold text-gray-800 mb-2`}>⭐ Rating: {averageRating} / 5</Text>
+            <Text style={tw`text-lg font-bold text-gray-800 mb-2`}>
+              ⭐ Rating: {averageRating} / 5
+            </Text>
             <View style={tw`flex-row items-center`}>
               {[...Array(5)].map((_, i) => (
                 <FontAwesome
                   key={i}
-                  name={i < Math.round(averageRating) ? 'star' : 'star-o'}
+                  name={i < Math.round(averageRating) ? "star" : "star-o"}
                   size={20}
                   color="#fbbf24"
                   style={tw`mr-1`}
@@ -389,25 +460,43 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
 
           {/* Reviews */}
           <Animated.View entering={FadeInUp.delay(500)} style={tw`mt-6`}>
-            <Text style={tw`text-lg font-bold text-gray-800 mb-2`}>Customer Reviews</Text>
+            <Text style={tw`text-lg font-bold text-gray-800 mb-2`}>
+              Customer Reviews
+            </Text>
             {reviews.length === 0 ? (
               <Text style={tw`text-sm text-gray-500`}>No reviews yet.</Text>
-            ) : reviews.map((review) => (
-              <View key={review.id} style={tw`mb-4 bg-gray-100 p-3 rounded-lg`}>
-                <Text style={tw`font-semibold text-gray-700`}>{review.user}</Text>
-                <Text style={tw`text-sm text-gray-600`}>{review.comment}</Text>
-                <Text style={tw`text-xs text-gray-400 mt-1`}>{review.date}</Text>
-              </View>
-            ))}
+            ) : (
+              reviews.map((review) => (
+                <View
+                  key={review.id}
+                  style={tw`mb-4 bg-gray-100 p-3 rounded-lg`}
+                >
+                  <Text style={tw`font-semibold text-gray-700`}>
+                    {review.user}
+                  </Text>
+                  <Text style={tw`text-sm text-gray-600`}>
+                    {review.comment}
+                  </Text>
+                  <Text style={tw`text-xs text-gray-400 mt-1`}>
+                    {review.date}
+                  </Text>
+                </View>
+              ))
+            )}
           </Animated.View>
 
           {/* Related Products */}
           <Animated.View entering={FadeInUp.delay(600)} style={tw`mt-10`}>
-            <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>You May Also Like</Text>
+            <Text style={tw`text-lg font-bold text-gray-800 mb-4`}>
+              You May Also Like
+            </Text>
             {relatedLoading ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {[...Array(3)].map((_, i) => (
-                  <View key={i} style={tw`mr-4 w-40 h-40 bg-gray-200 rounded-xl`} />
+                  <View
+                    key={i}
+                    style={tw`mr-4 w-40 h-40 bg-gray-200 rounded-xl`}
+                  />
                 ))}
               </ScrollView>
             ) : (
@@ -415,24 +504,31 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
                 {relatedProducts.map((item) => (
                   <TouchableOpacity
                     key={item.id}
-                    onPress={() => navigation.push("ProductDetail", { id: item.id })}
+                    onPress={() =>
+                      navigation.push("ProductDetail", { id: item.id })
+                    }
                     style={tw`mr-4 w-40 bg-white rounded-xl shadow p-2`}
                   >
-                   <Image
-                    source={{
-                      uri:
-                        item.images && item.images.length > 0
-                          ? item.images[0].image
-                          : 'https://via.placeholder.com/150',
-                    }}
-                    style={tw`w-full h-28 rounded-lg`}
-                    resizeMode="cover"
-                  />
+                    <Image
+                      source={{
+                        uri:
+                          item.images && item.images.length > 0
+                            ? item.images[0].image
+                            : "https://via.placeholder.com/150",
+                      }}
+                      style={tw`w-full h-28 rounded-lg`}
+                      resizeMode="cover"
+                    />
 
-                    <Text style={tw`mt-2 text-sm font-semibold text-gray-800`} numberOfLines={1}>
+                    <Text
+                      style={tw`mt-2 text-sm font-semibold text-gray-800`}
+                      numberOfLines={1}
+                    >
                       {item.name}
                     </Text>
-                    <Text style={tw`text-xs text-green-700`}>R{Number(item.price).toFixed(2)}</Text>
+                    <Text style={tw`text-xs text-green-700`}>
+                      R{Number(item.price).toFixed(2)}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>

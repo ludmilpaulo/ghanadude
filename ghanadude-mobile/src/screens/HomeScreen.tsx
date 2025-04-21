@@ -22,8 +22,11 @@ import * as Animatable from "react-native-animatable";
 import ProductService from "../services/ProductService";
 import ProductCard from "../components/ProductCard";
 import CreateProfileModal from "../components/CreateProfileModal";
-import { fetchUserProfile, ProfileForm, updateUserProfile } from "../services/UserService";
-
+import {
+  fetchUserProfile,
+  ProfileForm,
+  updateUserProfile,
+} from "../services/UserService";
 
 import { Product, Category } from "./types";
 import { selectUser } from "../redux/slices/authSlice";
@@ -42,7 +45,11 @@ export interface ProfileData {
   country: string;
 }
 
-const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
+const HomeScreen = ({
+  navigation,
+}: {
+  navigation: NavigationProp<HomeStackParamList>;
+}) => {
   const user = useSelector(selectUser);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
@@ -70,7 +77,10 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
       const profileData = await fetchUserProfile(user_id);
       console.log("Fetched profile data:", profileData);
 
-      if (!profileData.profile || Object.keys(profileData.profile).length === 0) {
+      if (
+        !profileData.profile ||
+        Object.keys(profileData.profile).length === 0
+      ) {
         console.log("User has no profile. Showing modal.");
         setShowModal(true);
       } else {
@@ -99,9 +109,9 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         postal_code: form.postal_code,
         country: form.country,
       };
-  
+
       console.log("Payload being sent:", payload);
-  
+
       await updateUserProfile(user_id, payload);
       setShowModal(false);
       Alert.alert("Success", "Profile updated.");
@@ -110,7 +120,6 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
       Alert.alert("Error", "Failed to update profile.");
     }
   };
-  
 
   useFocusEffect(
     useCallback(() => {
@@ -128,7 +137,11 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
             setAllProducts(productsRes);
             setCategories([{ id: "all", name: "All" }, ...categoriesRes]);
 
-            const updated = filterProducts(selectedCategory, searchQuery, productsRes);
+            const updated = filterProducts(
+              selectedCategory,
+              searchQuery,
+              productsRes,
+            );
             setFilteredProducts(updated);
             setNotFound(updated.length === 0);
           }
@@ -146,29 +159,28 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         isActive = false;
         clearInterval(interval);
       };
-    }, [selectedCategory, searchQuery])
+    }, [selectedCategory, searchQuery]),
   );
 
   const filterProducts = (
     category = selectedCategory,
     query = searchQuery,
-    products = allProducts
+    products = allProducts,
   ) => {
     let updated = [...products];
-  
+
     if (category !== "all") {
       updated = updated.filter(
-        (product) =>
-          product.category?.toLowerCase() === category.toLowerCase()
+        (product) => product.category?.toLowerCase() === category.toLowerCase(),
       );
     }
-  
+
     if (query) {
       updated = updated.filter((product) =>
-        product.name.toLowerCase().includes(query.toLowerCase())
+        product.name.toLowerCase().includes(query.toLowerCase()),
       );
     }
-  
+
     return updated;
   };
 
@@ -206,12 +218,21 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
             renderItem={({ item }) => (
               <TouchableOpacity
                 key={item.id}
-                onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
+                onPress={() =>
+                  navigation.navigate("ProductDetail", { id: item.id })
+                }
                 style={tw`relative rounded-xl overflow-hidden mx-4 mt-4`}
               >
-                <Image source={{ uri: item.image }} style={tw`w-full h-40 rounded-xl`} />
-                <View style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}>
-                  <Text style={tw`text-white text-lg font-bold`}>{item.name}</Text>
+                <Image
+                  source={{ uri: item.image }}
+                  style={tw`w-full h-40 rounded-xl`}
+                />
+                <View
+                  style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}
+                >
+                  <Text style={tw`text-white text-lg font-bold`}>
+                    {item.name}
+                  </Text>
                   <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
                 </View>
               </TouchableOpacity>
@@ -220,7 +241,9 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         )}
 
         {/* Search Bar */}
-        <View style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 shadow-sm mx-4 mt-6`}>
+        <View
+          style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 shadow-sm mx-4 mt-6`}
+        >
           <FontAwesome5 name="search" size={16} color="#666" style={tw`mr-3`} />
           <TextInput
             placeholder="Search for products..."
@@ -232,65 +255,73 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         </View>
 
         {/* 🧭 Category Chips */}
-        <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>Browse Categories</Text>
+        <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>
+          Browse Categories
+        </Text>
         <View style={tw`mt-4`}>
-  <ScrollView
-    horizontal
-    showsHorizontalScrollIndicator={false}
-    contentContainerStyle={tw`pl-4 pr-2 pb-2`}
-  >
-    {categories.map((cat, index) => {
-      const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
-      return (
-        <Animatable.View
-          key={`${cat.id}-${cat.name}`}
-          animation="fadeInRight"
-          delay={index * 100}
-          useNativeDriver
-          style={tw`mr-3`}
-        >
-          <TouchableOpacity
-            onPress={() => handleCategorySelect(cat.name)}
-            activeOpacity={0.8}
-            style={[
-              tw`px-4 py-2 rounded-full shadow-sm border`,
-              isSelected
-                ? { backgroundColor: "#fcd116", borderColor: "#fcd116" } // Ghana yellow
-                : tw`bg-white border-gray-300`,
-            ]}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={tw`pl-4 pr-2 pb-2`}
           >
-            <Text
-              style={[
-                tw`text-sm font-semibold`,
-                isSelected ? { color: "#000" } : tw`text-gray-800`,
-              ]}
-            >
-              {cat.name}
-            </Text>
-          </TouchableOpacity>
-        </Animatable.View>
-      );
-    })}
-  </ScrollView>
-</View>
-
-
+            {categories.map((cat, index) => {
+              const isSelected =
+                selectedCategory.toLowerCase() === cat.name.toLowerCase();
+              return (
+                <Animatable.View
+                  key={`${cat.id}-${cat.name}`}
+                  animation="fadeInRight"
+                  delay={index * 100}
+                  useNativeDriver
+                  style={tw`mr-3`}
+                >
+                  <TouchableOpacity
+                    onPress={() => handleCategorySelect(cat.name)}
+                    activeOpacity={0.8}
+                    style={[
+                      tw`px-4 py-2 rounded-full shadow-sm border`,
+                      isSelected
+                        ? { backgroundColor: "#fcd116", borderColor: "#fcd116" } // Ghana yellow
+                        : tw`bg-white border-gray-300`,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        tw`text-sm font-semibold`,
+                        isSelected ? { color: "#000" } : tw`text-gray-800`,
+                      ]}
+                    >
+                      {cat.name}
+                    </Text>
+                  </TouchableOpacity>
+                </Animatable.View>
+              );
+            })}
+          </ScrollView>
+        </View>
 
         {/* Product Grid */}
         <View style={tw`px-4`}>
           {notFound && (
             <View style={tw`bg-red-100 p-4 rounded-lg mb-4`}>
-              <Text style={tw`text-red-600 font-semibold text-center`}>⚠️ No products found</Text>
+              <Text style={tw`text-red-600 font-semibold text-center`}>
+                ⚠️ No products found
+              </Text>
             </View>
           )}
 
-          <Text style={tw`text-xl font-bold text-gray-800 mb-4`}>🛍️ New Arrivals</Text>
+          <Text style={tw`text-xl font-bold text-gray-800 mb-4`}>
+            🛍️ New Arrivals
+          </Text>
           {loading ? (
             <ActivityIndicator size="large" color="#000" />
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {filteredProducts.map((product, i) => (
-                <Animated.View key={product.id} entering={FadeInUp.delay(i * 100)}>
+                <Animated.View
+                  key={product.id}
+                  entering={FadeInUp.delay(i * 100)}
+                >
                   <ProductCard product={product} />
                 </Animated.View>
               ))}
@@ -299,10 +330,15 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
 
           {onSaleProducts.length > 0 && (
             <>
-              <Text style={tw`text-xl font-bold text-gray-800 mt-6 mb-4`}>🔥 On Sale</Text>
+              <Text style={tw`text-xl font-bold text-gray-800 mt-6 mb-4`}>
+                🔥 On Sale
+              </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {onSaleProducts.map((product, i) => (
-                  <Animated.View key={product.id} entering={FadeInUp.delay(i * 100)}>
+                  <Animated.View
+                    key={product.id}
+                    entering={FadeInUp.delay(i * 100)}
+                  >
                     <ProductCard product={product} />
                   </Animated.View>
                 ))}

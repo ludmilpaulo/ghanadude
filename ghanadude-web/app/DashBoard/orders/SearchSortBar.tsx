@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 
 interface Props {
   statusFilter: string;
@@ -21,7 +21,11 @@ const SearchSortBar: React.FC<Props> = ({
 }) => {
   return (
     <div className="flex flex-wrap gap-4 mb-4">
-      <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border px-3 py-2 rounded text-sm">
+      <select
+        value={statusFilter}
+        onChange={(e) => setStatusFilter(e.target.value)}
+        className="border px-3 py-2 rounded text-sm"
+      >
         <option value="">All Statuses</option>
         <option value="Pending">Pending</option>
         <option value="Processing">Processing</option>

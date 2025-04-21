@@ -21,13 +21,28 @@ const UserModal: React.FC<Props> = ({ user, onClose }) => {
         </button>
         <h2 className="text-xl font-semibold mb-4">User Details</h2>
         <div className="space-y-2 text-sm">
-          <p><strong>Username:</strong> {user.username}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Name:</strong> {user.first_name} {user.last_name}</p>
-          <p><strong>Phone:</strong> {user.profile?.phone_number}</p>
-          <p><strong>Address:</strong> {user.profile?.address}, {user.profile?.city}</p>
-          <p><strong>Country:</strong> {user.profile?.country}</p>
-          <p><strong>Role:</strong> {user.is_staff ? "Admin" : "User"}</p>
+          <p>
+            <strong>Username:</strong> {user.username}
+          </p>
+          <p>
+            <strong>Email:</strong> {user.email}
+          </p>
+          <p>
+            <strong>Name:</strong> {user.first_name} {user.last_name}
+          </p>
+          <p>
+            <strong>Phone:</strong> {user.profile?.phone_number}
+          </p>
+          <p>
+            <strong>Address:</strong> {user.profile?.address},{" "}
+            {user.profile?.city}
+          </p>
+          <p>
+            <strong>Country:</strong> {user.profile?.country}
+          </p>
+          <p>
+            <strong>Role:</strong> {user.is_staff ? "Admin" : "User"}
+          </p>
         </div>
       </div>
     </div>

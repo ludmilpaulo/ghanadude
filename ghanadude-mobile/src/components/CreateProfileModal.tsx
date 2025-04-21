@@ -16,7 +16,11 @@ type Props = {
   onSave: (data: any) => void;
 };
 
-export default function CreateProfileModal({ visible, onClose, onSave }: Props) {
+export default function CreateProfileModal({
+  visible,
+  onClose,
+  onSave,
+}: Props) {
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -37,7 +41,8 @@ export default function CreateProfileModal({ visible, onClose, onSave }: Props) 
   const validate = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!form.first_name.trim()) newErrors.first_name = "First name is required";
+    if (!form.first_name.trim())
+      newErrors.first_name = "First name is required";
     if (!form.last_name.trim()) newErrors.last_name = "Last name is required";
     if (!form.phone_number.trim()) {
       newErrors.phone_number = "Phone number is required";
@@ -46,7 +51,8 @@ export default function CreateProfileModal({ visible, onClose, onSave }: Props) 
     }
     if (!form.address.trim()) newErrors.address = "Address is required";
     if (!form.city.trim()) newErrors.city = "City is required";
-    if (!form.postal_code.trim()) newErrors.postal_code = "Postal code is required";
+    if (!form.postal_code.trim())
+      newErrors.postal_code = "Postal code is required";
     if (!form.country.trim()) newErrors.country = "Country is required";
 
     setErrors(newErrors);

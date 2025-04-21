@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
   CircleMarker,
   Popup,
   ZoomControl,
-} from 'react-leaflet';
-import { LatLngExpression } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { fetchLocationStatistics } from '@/services/adminService';
-import ReactWorldFlags from 'react-world-flags';
-import countries from 'world-countries';
+} from "react-leaflet";
+import { LatLngExpression } from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { fetchLocationStatistics } from "@/services/adminService";
+import ReactWorldFlags from "react-world-flags";
+import countries from "world-countries";
 
 interface Point {
   name: string;
@@ -30,7 +30,7 @@ interface Threshold {
 const WorldLeafletMap: React.FC = () => {
   const [points, setPoints] = useState<Point[]>([]);
   const [thresholds, setThresholds] = useState<Threshold[]>([]);
-  const [region, setRegion] = useState<'country' | 'city'>('country');
+  const [region, setRegion] = useState<"country" | "city">("country");
 
   useEffect(() => {
     const load = async () => {
@@ -43,12 +43,12 @@ const WorldLeafletMap: React.FC = () => {
 
   const getColor = (value: number): string => {
     const match = thresholds.find((t) => value >= t.min && value < t.max);
-    return match?.color || '#ccc';
+    return match?.color || "#ccc";
   };
 
   const getCountryCode = (countryName: string): string | undefined => {
     const country = countries.find(
-      (c) => c.name.common.toLowerCase() === countryName.toLowerCase()
+      (c) => c.name.common.toLowerCase() === countryName.toLowerCase(),
     );
     return country?.cca2;
   };
@@ -58,11 +58,13 @@ const WorldLeafletMap: React.FC = () => {
   return (
     <div className="relative w-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">🌍 Global Revenue Map</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          🌍 Global Revenue Map
+        </h2>
         <select
           className="border px-3 py-2 rounded-md text-sm"
           value={region}
-          onChange={(e) => setRegion(e.target.value as 'country' | 'city')}
+          onChange={(e) => setRegion(e.target.value as "country" | "city")}
         >
           <option value="country">By Country</option>
           <option value="city">By City</option>
@@ -73,7 +75,7 @@ const WorldLeafletMap: React.FC = () => {
         id="leaflet-map"
         center={mapCenter}
         zoom={2}
-        style={{ height: '500px', borderRadius: '10px' }}
+        style={{ height: "500px", borderRadius: "10px" }}
         zoomControl={false}
       >
         <ZoomControl position="bottomright" />
@@ -99,7 +101,10 @@ const WorldLeafletMap: React.FC = () => {
                 <div className="text-sm">
                   {countryCode ? (
                     <span className="flex items-center">
-                      <ReactWorldFlags code={countryCode} style={{ width: 24, height: 16, marginRight: 8 }} />
+                      <ReactWorldFlags
+                        code={countryCode}
+                        style={{ width: 24, height: 16, marginRight: 8 }}
+                      />
                       <strong>{point.name}</strong>
                     </span>
                   ) : (
@@ -113,8 +118,6 @@ const WorldLeafletMap: React.FC = () => {
           );
         })}
       </MapContainer>
-
-   
     </div>
   );
 };

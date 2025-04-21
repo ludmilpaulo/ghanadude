@@ -34,7 +34,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   const cartItems = useSelector((state: RootState) => state.basket.items);
   const isInCart = cartItems.some(
-    (item) => item.id === product.id && item.selectedSize === selectedSize
+    (item) => item.id === product.id && item.selectedSize === selectedSize,
   );
 
   const discountedPrice =
@@ -76,7 +76,9 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <View style={tw`bg-white rounded-2xl shadow-lg p-4 mb-6 w-64 relative mx-2`}>
+    <View
+      style={tw`bg-white rounded-2xl shadow-lg p-4 mb-6 w-64 relative mx-2`}
+    >
       {/* Product Image */}
       <TouchableOpacity
         onPress={() => navigation.navigate("ProductDetail", { id: product.id })}
@@ -86,42 +88,48 @@ const ProductCard = ({ product }: { product: Product }) => {
           style={tw`h-40 w-full rounded-xl`}
         />
         {product.discount_percentage > 0 && (
-          <View style={tw`absolute top-2 left-2 bg-red-500 px-2 py-1 rounded-full`}>
+          <View
+            style={tw`absolute top-2 left-2 bg-red-500 px-2 py-1 rounded-full`}
+          >
             <Text style={tw`text-white text-xs font-bold`}>
               -{product.discount_percentage}%
             </Text>
           </View>
         )}
         {product.stock === 0 && (
-          <View style={tw`absolute inset-0 bg-black bg-opacity-50 rounded-xl justify-center items-center`}>
+          <View
+            style={tw`absolute inset-0 bg-black bg-opacity-50 rounded-xl justify-center items-center`}
+          >
             <Text style={tw`text-white font-bold text-lg`}>Sold Out</Text>
           </View>
         )}
       </TouchableOpacity>
 
       {/* Product Info */}
-      <Text style={tw`mt-2 font-semibold text-lg text-gray-800`} numberOfLines={1}>
+      <Text
+        style={tw`mt-2 font-semibold text-lg text-gray-800`}
+        numberOfLines={1}
+      >
         {product.name}
       </Text>
 
       {/* Star Rating */}
       {typeof product.average_rating === "number" && (
-  <View style={tw`flex-row items-center mt-1`}>
-    {[...Array(5)].map((_, i) => (
-      <FontAwesome
-        key={i}
-        name={i < Math.round(product.average_rating!) ? "star" : "star-o"}
-        size={14}
-        color="#facc15"
-        style={tw`mr-1`}
-      />
-    ))}
-    <Text style={tw`text-gray-500 text-xs ml-1`}>
-      ({product.average_rating.toFixed(1)})
-    </Text>
-  </View>
-)}
-
+        <View style={tw`flex-row items-center mt-1`}>
+          {[...Array(5)].map((_, i) => (
+            <FontAwesome
+              key={i}
+              name={i < Math.round(product.average_rating!) ? "star" : "star-o"}
+              size={14}
+              color="#facc15"
+              style={tw`mr-1`}
+            />
+          ))}
+          <Text style={tw`text-gray-500 text-xs ml-1`}>
+            ({product.average_rating.toFixed(1)})
+          </Text>
+        </View>
+      )}
 
       {/* Price */}
       <View style={tw`flex-row items-center mt-1`}>
@@ -139,7 +147,9 @@ const ProductCard = ({ product }: { product: Product }) => {
       <View style={tw`mt-3 flex-row justify-between items-center`}>
         <TouchableOpacity
           style={tw`bg-gray-900 px-3 py-2 rounded-lg flex-row items-center w-[48%] justify-center`}
-          onPress={() => navigation.navigate("ProductDetail", { id: product.id })}
+          onPress={() =>
+            navigation.navigate("ProductDetail", { id: product.id })
+          }
         >
           <FontAwesome5 name="eye" size={14} color="white" />
           <Text style={tw`text-white font-semibold ml-2`}>View</Text>
@@ -149,7 +159,9 @@ const ProductCard = ({ product }: { product: Product }) => {
           style={tw`${
             isInCart ? "bg-green-600" : "bg-blue-600"
           } px-3 py-2 rounded-lg flex-row items-center w-[48%] justify-center`}
-          onPress={() => (isInCart ? navigation.navigate("Cart") : setModalVisible(true))}
+          onPress={() =>
+            isInCart ? navigation.navigate("Cart") : setModalVisible(true)
+          }
         >
           <FontAwesome5 name="shopping-cart" size={14} color="white" />
           <Text style={tw`text-white font-semibold ml-2`}>
@@ -160,7 +172,9 @@ const ProductCard = ({ product }: { product: Product }) => {
 
       {/* Size & Quantity Modal */}
       <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View style={tw`flex-1 justify-center items-center bg-black bg-opacity-40`}>
+        <View
+          style={tw`flex-1 justify-center items-center bg-black bg-opacity-40`}
+        >
           <View style={tw`bg-white p-5 rounded-2xl w-80 shadow-lg`}>
             <Text style={tw`text-lg font-bold mb-3 text-center`}>
               Select Size & Quantity
@@ -181,7 +195,9 @@ const ProductCard = ({ product }: { product: Product }) => {
 
             {/* Quantity */}
             <Text style={tw`mb-1 font-semibold`}>Quantity:</Text>
-            <View style={tw`flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-2`}>
+            <View
+              style={tw`flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-2`}
+            >
               <TouchableOpacity
                 onPress={() => setQuantity(Math.max(1, quantity - 1))}
               >

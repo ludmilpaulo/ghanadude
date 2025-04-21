@@ -21,12 +21,18 @@ const UserStats: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">🏅 Top 10 Users by Total Spend</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        🏅 Top 10 Users by Total Spend
+      </h2>
       <ul className="divide-y">
         {users.map((user, i) => (
           <li key={user.id} className="py-2 flex justify-between">
-            <span>{i + 1}. {user.username} ({user.email})</span>
-            <span className="text-green-600 font-semibold">R {user.total_spent.toLocaleString()}</span>
+            <span>
+              {i + 1}. {user.username} ({user.email})
+            </span>
+            <span className="text-green-600 font-semibold">
+              R {user.total_spent.toLocaleString()}
+            </span>
           </li>
         ))}
       </ul>
