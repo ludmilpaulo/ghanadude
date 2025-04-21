@@ -36,6 +36,7 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from "../services/WishlistService";
+import { RootState } from "../redux/store";
 
 type ProductDetailProps = StackScreenProps<HomeStackParamList, "ProductDetail">;
 const { width } = Dimensions.get("window");
@@ -54,7 +55,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
   const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
   const user = useSelector(selectUser);
   const userId = user?.user_id;
-  const cartItems = useSelector((state: any) => state.basket.items);
+  const cartItems = useSelector((state: RootState) => state.basket.items);
   const isInCart =
     product && selectedSize
       ? cartItems.some(
