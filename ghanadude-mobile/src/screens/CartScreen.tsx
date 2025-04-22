@@ -30,6 +30,7 @@ import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation/types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { fetchSiteSettings, SiteSetting } from "../services/SiteSettingService";
+import { selectUser } from "../redux/slices/authSlice";
 
 const { width } = Dimensions.get("window");
 type NavigationProp = StackNavigationProp<RootStackParamList, "CartScreen">;
@@ -50,8 +51,31 @@ const CartScreen = () => {
     useSelector(selectDesign);
   const [siteSettings, setSiteSettings] = useState<SiteSetting | null>(null);
 
+  const user = useSelector(selectUser);
+  
   const safeBrandQty = brandLogoQty ?? 1;
   const safeDesignQty = customDesignQty ?? 1;
+
+  useEffect(() => {
+    if (!user) {
+      Alert.alert(
+        "Login Required",
+        "You need to log in to access your cart and complete your purchase.",
+        [
+          {
+            text: "Login",
+            onPress: () => navigation.navigate("UserLogin"),
+          },
+          {
+            text: "Cancel",
+            style: "cancel",
+            onPress: () => navigation.goBack(),
+          },
+        ]
+      );
+    }
+  }, []);
+
 
   useEffect(() => {
     const loadSettings = async () => {

@@ -82,6 +82,7 @@ const CheckoutScreen: React.FC = () => {
   const ensureAuth = () => {
     if (!user) {
       Alert.alert("Error", "User not found.");
+      navigation.navigate("UserLogin");
       return null;
     }
     return { user };

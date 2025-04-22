@@ -14,7 +14,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "buildNumber": "10",
+      "buildNumber": "11",
       "supportsTablet": true,
       "infoPlist": {
         "CFBundleDisplayName": "Ghanadude Clothing Co",
@@ -31,7 +31,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ludmil.ghanadudemobile",
-      "versionCode": 10,
+      "versionCode": 11,
       "label": "Ghanadude Clothing Co"
     },
     "web": {

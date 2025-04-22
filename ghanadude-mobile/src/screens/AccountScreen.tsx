@@ -64,6 +64,7 @@ const AccountScreen: React.FC = () => {
   const ensureAuth = useCallback(() => {
     if (!user || !token) {
       Alert.alert("Error", "You must be logged in.");
+      navigation.navigate("UserLogin");
       return null;
     }
     return { user, token };

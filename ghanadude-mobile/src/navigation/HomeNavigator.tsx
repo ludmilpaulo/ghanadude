@@ -13,6 +13,9 @@ import OrderHistory from "../screens/OrderHistory";
 import InvoiceHistoryScreen from "../screens/InvoiceHistoryScreen";
 import FullReviewScreen from "../screens/FullReviewScreen";
 import { Order } from "../services/OrderService";
+import ForgotPasswordScreen from "../screens/ForgotPasswordScreen";
+import LoginScreen from "../screens/LoginScreen";
+import SignUpScreen from "../screens/SignUpScreen";
 
 export type HomeStackParamList = {
   HomeScreen: undefined;
@@ -32,6 +35,9 @@ export type HomeStackParamList = {
   OrderHistory: undefined;
   FullReview: { id: number };
   OrderDetail: { order: Order };
+  UserLogin: undefined;
+  SignupScreen: undefined;
+  ForgotPassword: undefined;
 };
 
 const Stack = createStackNavigator<HomeStackParamList>();
@@ -42,6 +48,9 @@ export default function HomeNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="HomeScreen" component={MainTabNavigator} />
         <Stack.Screen name="ProductScreen" component={ProductScreen} />
+        <Stack.Screen name="UserLogin" component={LoginScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+        <Stack.Screen name="SignupScreen" component={SignUpScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="ProductList" component={ProductListScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />

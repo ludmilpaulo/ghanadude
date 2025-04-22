@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
@@ -60,6 +60,13 @@ const WishlistScreen = () => {
   const userId = user?.user_id;
   const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
+
+
+useEffect(() => {
+  if (!user) {
+    navigation.navigate("UserLogin");
+  }
+}, []);
 
   useFocusEffect(
     useCallback(() => {

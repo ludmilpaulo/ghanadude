@@ -28,6 +28,9 @@ import {
   updateUserProfile,
 } from "../services/UserService";
 
+
+import { LinearGradient } from "expo-linear-gradient";
+
 import { Product, Category } from "./types";
 import { selectUser } from "../redux/slices/authSlice";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
@@ -60,21 +63,14 @@ const HomeScreen = ({
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const ensureAuth = () => {
-    if (!user) {
-      Alert.alert("Error", "User not found.");
-      return null;
-    }
-    return { user };
-  };
 
-  const auth = ensureAuth();
-  if (!auth) return null;
-  const user_id = auth.user.user_id;
+  const user_id = user?.user_id ?? null;
+
 
   const getProfile = async () => {
+    if (!user) return;
     try {
-      const profileData = await fetchUserProfile(user_id);
+      const profileData = await fetchUserProfile(user?.user_id ?? null);
       console.log("Fetched profile data:", profileData);
 
       if (
@@ -124,7 +120,7 @@ const HomeScreen = ({
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
-      getProfile();
+     // getProfile();
 
       const fetchData = async () => {
         try {
@@ -254,6 +250,21 @@ const HomeScreen = ({
           />
         </View>
 
+        {/* Guest Notice */}
+        {!user && (
+  <Animatable.View animation="fadeInDown" delay={300}>
+    <LinearGradient
+      colors={["#ce1126", "#fcd116", "#007940"]} // 🇬🇭 red, yellow, green
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={tw`mx-4 mt-4 p-4 rounded-xl shadow-md`}
+    >
+      <Text style={tw`text-white text-center font-semibold text-sm`}>
+        You’re browsing as a guest.{"\n"}Login for personalized offers, faster checkout, and rewards.
+      </Text>
+    </LinearGradient>
+  </Animatable.View>
+)}
         {/* 🧭 Category Chips */}
         <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>
           Browse Categories
