@@ -75,6 +75,7 @@ const AccountScreen: React.FC = () => {
       const timeout = setTimeout(() => {
         dispatch(logoutUser());
       }, 3000);
+      navigation.navigate("UserLogin");
       return () => clearTimeout(timeout);
     }
   }, [showGoodbye]);
@@ -158,8 +159,10 @@ const AccountScreen: React.FC = () => {
         text: "Logout",
         style: "destructive",
         onPress: () => dispatch(logoutUser()),
+        
       },
     ]);
+    navigation.navigate("UserLogin");
   };
 
   return (

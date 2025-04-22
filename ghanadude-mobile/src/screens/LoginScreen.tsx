@@ -60,6 +60,7 @@ export default function LoginScreen() {
       );
 
       Alert.alert("Welcome", "Login successful!");
+      navigation.navigate("HomeScreen")
     } catch (err: unknown) {
       if (typeof err === "object" && err !== null && "error" in err) {
         const errorResponse = err as { error: string; user_id?: number };

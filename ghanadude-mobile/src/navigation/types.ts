@@ -4,4 +4,5 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   CartScreen: undefined;
   CheckoutScreen: undefined;
+  HomeScreen: undefined;
 };

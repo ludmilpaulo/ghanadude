@@ -63,6 +63,7 @@ export default function SignUpScreen() {
           token: response.token,
         }),
       );
+      navigation.navigate("HomeScreen")
 
       Alert.alert("Success", "Your account has been created!");
       setEmail("");
