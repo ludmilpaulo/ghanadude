@@ -52,7 +52,7 @@ const CartScreen = () => {
   const [siteSettings, setSiteSettings] = useState<SiteSetting | null>(null);
 
   const user = useSelector(selectUser);
-  
+
   const safeBrandQty = brandLogoQty ?? 1;
   const safeDesignQty = customDesignQty ?? 1;
 
@@ -71,11 +71,10 @@ const CartScreen = () => {
             style: "cancel",
             onPress: () => navigation.goBack(),
           },
-        ]
+        ],
       );
     }
   }, []);
-
 
   useEffect(() => {
     const loadSettings = async () => {

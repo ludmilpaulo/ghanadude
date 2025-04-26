@@ -28,7 +28,6 @@ import {
   updateUserProfile,
 } from "../services/UserService";
 
-
 import { LinearGradient } from "expo-linear-gradient";
 
 import { Product, Category } from "./types";
@@ -63,9 +62,7 @@ const HomeScreen = ({
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-
   const user_id = user?.user_id ?? null;
-
 
   const getProfile = async () => {
     if (!user) return;
@@ -120,7 +117,7 @@ const HomeScreen = ({
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
-     // getProfile();
+      // getProfile();
 
       const fetchData = async () => {
         try {
@@ -252,19 +249,20 @@ const HomeScreen = ({
 
         {/* Guest Notice */}
         {!user && (
-  <Animatable.View animation="fadeInDown" delay={300}>
-    <LinearGradient
-      colors={["#ce1126", "#fcd116", "#007940"]} // 🇬🇭 red, yellow, green
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      style={tw`mx-4 mt-4 p-4 rounded-xl shadow-md`}
-    >
-      <Text style={tw`text-white text-center font-semibold text-sm`}>
-        You’re browsing as a guest.{"\n"}Login for personalized offers, faster checkout, and rewards.
-      </Text>
-    </LinearGradient>
-  </Animatable.View>
-)}
+          <Animatable.View animation="fadeInDown" delay={300}>
+            <LinearGradient
+              colors={["#ce1126", "#fcd116", "#007940"]} // 🇬🇭 red, yellow, green
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={tw`mx-4 mt-4 p-4 rounded-xl shadow-md`}
+            >
+              <Text style={tw`text-white text-center font-semibold text-sm`}>
+                You’re browsing as a guest.{"\n"}Login for personalized offers,
+                faster checkout, and rewards.
+              </Text>
+            </LinearGradient>
+          </Animatable.View>
+        )}
         {/* 🧭 Category Chips */}
         <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>
           Browse Categories

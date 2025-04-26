@@ -159,7 +159,6 @@ const AccountScreen: React.FC = () => {
         text: "Logout",
         style: "destructive",
         onPress: () => dispatch(logoutUser()),
-        
       },
     ]);
     navigation.navigate("UserLogin");

@@ -69,7 +69,7 @@ export default function AppNavigator() {
 
   return (
     <NavigationContainer linking={linking}>
-  <HomeNavigator />
+      <HomeNavigator />
     </NavigationContainer>
   );
 }

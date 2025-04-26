@@ -61,12 +61,11 @@ const WishlistScreen = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation<StackNavigationProp<HomeStackParamList>>();
 
-
-useEffect(() => {
-  if (!user) {
-    navigation.navigate("UserLogin");
-  }
-}, []);
+  useEffect(() => {
+    if (!user) {
+      navigation.navigate("UserLogin");
+    }
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
