@@ -11,6 +11,7 @@ export interface Product {
   description: string;
   price: string;
   category: string;
+  gender: string;
   brand: number;
   stock: number;
   on_sale: boolean;

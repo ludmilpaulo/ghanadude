@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -26,7 +26,7 @@ import {
   selectDesign,
 } from "../redux/slices/designSlice";
 import { API_BASE_URL } from "../services/AuthService";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation/types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { fetchSiteSettings, SiteSetting } from "../services/SiteSettingService";
@@ -56,25 +56,28 @@ const CartScreen = () => {
   const safeBrandQty = brandLogoQty ?? 1;
   const safeDesignQty = customDesignQty ?? 1;
 
-  useEffect(() => {
-    if (!user) {
-      Alert.alert(
-        "Login Required",
-        "You need to log in to access your cart and complete your purchase.",
-        [
-          {
-            text: "Login",
-            onPress: () => navigation.navigate("UserLogin"),
-          },
-          {
-            text: "Cancel",
-            style: "cancel",
-            onPress: () => navigation.goBack(),
-          },
-        ],
-      );
-    }
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (!user) {
+        Alert.alert(
+          "Login Required",
+          "You need to log in to access your cart and complete your purchase.",
+          [
+            {
+              text: "Login",
+              onPress: () => navigation.navigate("UserLogin"),
+            },
+            {
+              text: "Cancel",
+              style: "cancel",
+              onPress: () => navigation.goBack(),
+            },
+          ],
+        );
+      }
+    }, [user, navigation]),
+  );
+  
 
   useEffect(() => {
     const loadSettings = async () => {

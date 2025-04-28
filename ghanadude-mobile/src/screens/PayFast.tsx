@@ -12,6 +12,7 @@ import { PayFastMerchantDetails, PayFastTransactionDetails } from "./types";
 import { buildQueryString, generateMD5, removeUndefined } from "./Helpers";
 
 type Props = PayFastMerchantDetails & {
+  url: string;
   paymentMethod?:
     | "ef"
     | "cc"
@@ -32,7 +33,7 @@ const PayFast = ({
   paymentMethod = "cc",
   isVisible,
   onClose,
-  sandbox,
+  url,
   transactionDetails,
   notifyUrl,
   signature,
@@ -43,9 +44,8 @@ const PayFast = ({
   const [showWeb, setShowWeb] = useState(false);
   const [postBody, setPostBody] = useState("");
 
-  const uri = sandbox
-    ? "https://sandbox.payfast.co.za/eng/process"
-    : "https://www.payfast.co.za/eng/process";
+  const uri = `${url.replace(/\/$/, "")}/eng/process`;
+
 
   const CUSTOMER_DATA = {
     name_first: transactionDetails.customerFirstName,

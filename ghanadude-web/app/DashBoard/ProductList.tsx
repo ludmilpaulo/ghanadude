@@ -7,6 +7,7 @@ interface Product {
   id: number;
   name: string;
   category: string;
+  gender?: string;
   price: number;
   stock: number;
   on_sale: boolean;
@@ -112,7 +113,10 @@ const ProductList: React.FC = () => {
               <th className="px-4 py-3">Stock</th>
               <th className="px-4 py-3">On Sale</th>
               <th className="px-4 py-3">Bulk Sale</th>
+              <th className="px-4 py-3">Gender</th>
               <th className="px-4 py-3">Actions</th>
+             
+
             </tr>
           </thead>
           <tbody>
@@ -141,6 +145,8 @@ const ProductList: React.FC = () => {
                 <td className="px-4 py-3">
                   <input type="checkbox" checked={product.bulk_sale} readOnly />
                 </td>
+                <td className="px-4 py-3 capitalize">{product.gender || "Unisex"}</td>
+
                 <td className="px-4 py-3 flex gap-2">
                   <button
                     className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded transition"

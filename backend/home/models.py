@@ -78,3 +78,18 @@ class SiteSetting(models.Model):
     class Meta:
         verbose_name = "Site Setting"
         verbose_name_plural = "Site Settings"
+
+
+class PaymentGateway(models.Model):
+    url = models.URLField(blank=True, null=True)
+    return_url = models.URLField(blank=True, null=True)
+    notify_url = models.URLField(blank=True, null=True)
+    cancel_url = models.URLField(blank=True, null=True)
+    name = models.CharField(max_length=100)
+    merchantId = models.CharField(max_length=255)
+    merchantKey = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+

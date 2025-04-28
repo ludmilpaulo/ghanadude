@@ -20,7 +20,7 @@ import {
   ProfileForm,
 } from "../services/UserService";
 import { fetchAndPrefillLocation } from "../services/LocationService";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 import { BlurView } from "expo-blur";
@@ -80,12 +80,15 @@ const AccountScreen: React.FC = () => {
     }
   }, [showGoodbye]);
 
-  useEffect(() => {
-    const auth = ensureAuth();
-    if (auth) {
-      loadRewards();
-    }
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const auth = ensureAuth();
+      if (auth) {
+        loadRewards();
+      }
+    }, [ensureAuth]) // ensure dependencies are correct
+  );
+  
 
   const loadRewards = async () => {
     const auth = ensureAuth();

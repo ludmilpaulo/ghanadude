@@ -16,6 +16,7 @@ interface Size {
 interface Product {
   id?: number;
   name: string;
+  gender?: string;
   category: string;
   description?: string;
   price: number;
@@ -60,6 +61,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [newSize, setNewSize] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const GENDER_CHOICES = [
+    { value: "unisex", label: "Unisex" },
+    { value: "male", label: "Male" },
+    { value: "female", label: "Female" },
+  ];
+  
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -103,6 +111,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
       formData.append("season", data.season || "");
       formData.append("on_sale", data.on_sale ? "true" : "false");
       formData.append("bulk_sale", data.bulk_sale ? "true" : "false");
+      formData.append("gender", data.gender || "unisex");
+
 
       if (data.on_sale) {
         formData.append(
@@ -178,6 +188,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </option>
           ))}
         </select>
+
+        <select {...register("gender")} className="w-full border rounded p-2">
+        <option value="">Select Gender</option>
+        {GENDER_CHOICES.map((gender) => (
+          <option key={gender.value} value={gender.value}>
+            {gender.label}
+          </option>
+        ))}
+      </select>
 
         <textarea
           {...register("description")}

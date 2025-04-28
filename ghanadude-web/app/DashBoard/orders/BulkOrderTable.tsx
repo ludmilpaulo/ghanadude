@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-
 import { BulkOrder } from "./types";
 
 interface Props {
@@ -10,11 +9,7 @@ interface Props {
   onViewOrder: (order: BulkOrder) => void;
 }
 
-const BulkOrderTable: React.FC<Props> = ({
-  orders,
-  onStatusChange,
-  onViewOrder,
-}) => {
+const BulkOrderTable: React.FC<Props> = ({ orders, onStatusChange, onViewOrder }) => {
   return (
     <table className="min-w-full bg-white divide-y divide-gray-200 shadow rounded">
       <thead className="bg-gray-100 text-sm font-semibold text-gray-600">
@@ -37,11 +32,7 @@ const BulkOrderTable: React.FC<Props> = ({
             <td className="px-4 py-2">
               {order.items.map((item, idx) => (
                 <div key={idx} className="mb-1">
-                  {item.product_name ||
-                    (item.custom_design_url || item.brand_logo_url
-                      ? "Design/Logo"
-                      : "N/A")}{" "}
-                  x{item.quantity}
+                  {(item.product_name || "Design/Logo")} × {item.quantity}
                 </div>
               ))}
             </td>
@@ -53,30 +44,26 @@ const BulkOrderTable: React.FC<Props> = ({
                   order.status === "Completed"
                     ? "bg-green-100 text-green-800"
                     : order.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : order.status === "Processing"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-red-100 text-red-800"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : order.status === "Processing"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-red-100 text-red-800"
                 }`}
                 value={order.status}
                 onChange={(e) => onStatusChange(order.id, e.target.value)}
               >
-                {["Pending", "Processing", "Completed", "Cancelled"].map(
-                  (s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ),
-                )}
+                {["Pending", "Processing", "Completed", "Cancelled"].map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
               </select>
             </td>
-            <td className="px-4 py-2">
-              {new Date(order.created_at).toLocaleDateString()}
-            </td>
+            <td className="px-4 py-2">{new Date(order.created_at).toLocaleDateString()}</td>
             <td className="px-4 py-2">
               <button
                 onClick={() => onViewOrder(order)}
-                className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
               >
                 View
               </button>

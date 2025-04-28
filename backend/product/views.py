@@ -108,6 +108,7 @@ def create_product(request):
             price=float(data["price"]),
             stock=int(data["stock"]),
             season=data.get("season", "all_seasons"),
+            gender=data["gender"],
             category=category,
             brand=brand,
             on_sale=on_sale,

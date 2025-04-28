@@ -53,6 +53,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "discount_percentage",
             "season",
             "images",
+            "gender",
             "uploaded_images",
             "sizes",
         ]

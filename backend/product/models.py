@@ -66,6 +66,11 @@ class Product(models.Model):
         ("winter", "Winter"),
         ("all_seasons", "All Seasons"),
     ]
+    GENDER_CHOICES = [
+        ("unisex", "Unisex"),
+        ("male", "Male"),
+        ("female", "Female"),
+    ]
 
     name = models.CharField(max_length=255)
     description = CKEditor5Field("Text", config_name="extends")
@@ -85,6 +90,9 @@ class Product(models.Model):
     discount_percentage = models.PositiveIntegerField(default=0)
     season = models.CharField(
         max_length=20, choices=SEASON_CHOICES, default="all_seasons"
+    )
+    gender = models.CharField(
+        max_length=10, choices=GENDER_CHOICES, default="unisex"
     )
 
     def __str__(self):

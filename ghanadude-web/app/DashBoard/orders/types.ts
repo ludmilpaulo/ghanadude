@@ -38,20 +38,20 @@ export interface Order {
 export type OrderStatus = "Pending" | "Processing" | "Completed" | "Cancelled";
 export type OrderType = "delivery" | "collection";
 
+
 export interface BulkOrderItem {
   id: number;
-  product_name: string | null; // Some items are for designs/logos
+  product_name: string | null; 
   quantity: number;
   price: string;
-  brand_logo_url?: string;
-  custom_design_url?: string;
-  selected_size: string | null;
+  brand_logo?: string;  // ✅ Not brand_logo_url
+  custom_design?: string; 
+  selected_size: string;
 }
 
 export interface BulkOrder {
   id: number;
   user: string;
-  product_name: string; // still the representative product
   designer_name: string;
   quantity: number;
   total_price: string;
@@ -70,5 +70,5 @@ export interface BulkOrder {
   country: string;
   pin_code: string | null;
   is_dispatched: boolean;
-  items: BulkOrderItem[]; // ✅ NEW
+  items: BulkOrderItem[];
 }

@@ -1,5 +1,7 @@
 from django.urls import path
 
+from .payment_views import get_active_payment_gateway
+
 from .app_settings import app_version_list, app_version_update, site_settings_view
 
 from .dispatch_views import dispatch_order
@@ -14,6 +16,7 @@ from .views import SiteSettingView, get_app_version
 
 urlpatterns = [
     path("version/", get_app_version),
+    path("paymentgateway/active/", get_active_payment_gateway),
     path("dispatch-order/", dispatch_order, name="dispatch_order"),
     path("site-settings/", SiteSettingView.as_view(), name="site-settings"),
     path("send-promotional-email/", send_promotional_email),

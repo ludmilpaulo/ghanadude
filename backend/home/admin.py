@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import SiteMeta, AppVersion, DevPayment, SiteSetting
+from .models import PaymentGateway, SiteMeta, AppVersion, DevPayment, SiteSetting
 
 
 @admin.register(SiteMeta)
@@ -72,3 +72,26 @@ class SiteSettingAdmin(admin.ModelAdmin):
             "fields": ("vat_percentage", "address", "country")
         }),
     )
+
+
+@admin.register(PaymentGateway)
+class PaymentGatewayAdmin(admin.ModelAdmin):
+    list_display = ("name", "merchantId", "is_active", "url", "notify_url", "return_url", "cancel_url")
+    list_editable = ("is_active",)
+    list_filter = ("is_active",)
+    search_fields = ("name", "merchantId", "merchantKey")
+    ordering = ("-is_active", "name")
+
+    fieldsets = (
+        ("Gateway Details", {
+            "fields": ("name", "is_active")
+        }),
+        ("Merchant Credentials", {
+            "fields": ("merchantId", "merchantKey")
+        }),
+        ("URLs", {
+            "fields": ("url", "notify_url", "return_url", "cancel_url")
+        }),
+    )
+
+    readonly_fields = []

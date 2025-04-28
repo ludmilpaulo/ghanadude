@@ -1,25 +1,19 @@
-import React, { useEffect } from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import {
-  Feather,
-  AntDesign,
-  MaterialIcons,
-  FontAwesome,
-} from "@expo/vector-icons";
-
-import { View, Text, SafeAreaView } from "react-native";
-import { BottomTabBar } from "@react-navigation/bottom-tabs";
+import React, { useEffect, useRef } from "react";
+import { createBottomTabNavigator, BottomTabBar } from "@react-navigation/bottom-tabs";
+import { Feather, AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { View, Text, SafeAreaView, Animated, Easing } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useDispatch, useSelector } from "react-redux";
+
 import HomeScreen from "../screens/HomeScreen";
 import AccountScreen from "../screens/AccountScreen";
 import DealsScreen from "../screens/DealsScreen";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchWishlistCount } from "../services/WishlistService";
-import { setWishlistCount } from "../redux/slices/wishlistSlice";
-
-import { RootState } from "../redux/store";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
+
+import { fetchWishlistCount } from "../services/WishlistService";
+import { setWishlistCount } from "../redux/slices/wishlistSlice";
+import { RootState } from "../redux/store";
 import { selectUser } from "../redux/slices/authSlice";
 
 const Tab = createBottomTabNavigator();
@@ -27,12 +21,15 @@ const Tab = createBottomTabNavigator();
 const MainTabNavigator = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state: RootState) => state.basket.items);
-  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
-
   const wishlistCount = useSelector((state: RootState) => state.wishlist.count);
-
   const user = useSelector(selectUser);
+
+  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
   const userId = user?.user_id;
+
+  // 🌀 Create animated values for cart and wishlist badges
+  const cartPulseAnim = useRef(new Animated.Value(1)).current;
+  const wishlistPulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (userId) {
@@ -40,7 +37,36 @@ const MainTabNavigator = () => {
         dispatch(setWishlistCount(count)),
       );
     }
-  }, [userId]);
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      startPulseAnimation(cartPulseAnim);
+    }
+  }, [cartCount]);
+
+  useEffect(() => {
+    if (wishlistCount > 0) {
+      startPulseAnimation(wishlistPulseAnim);
+    }
+  }, [wishlistCount]);
+
+  const startPulseAnimation = (animationValue: Animated.Value) => {
+    Animated.sequence([
+      Animated.timing(animationValue, {
+        toValue: 1.3,
+        duration: 300,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(animationValue, {
+        toValue: 1,
+        duration: 300,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -89,54 +115,15 @@ const MainTabNavigator = () => {
           }}
         />
 
-        {cartCount > 0 && (
-          <Tab.Screen
-            name="Cart"
-            component={CartScreen}
-            options={{
-              tabBarIcon: ({ color, size }) => (
-                <View>
-                  <FontAwesome name="shopping-cart" color={color} size={size} />
-                  {cartCount > 0 && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        top: -5,
-                        right: -10,
-                        backgroundColor: "red",
-                        borderRadius: 10,
-                        width: 18,
-                        height: 18,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {cartCount}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              ),
-            }}
-          />
-        )}
-
         <Tab.Screen
-          name="Wishlist"
-          component={WishlistScreen}
+          name="Cart"
+          component={CartScreen}
           options={{
             tabBarIcon: ({ color, size }) => (
               <View>
-                <FontAwesome name="heart" color={color} size={size} />
-                {wishlistCount > 0 && (
-                  <View
+                <FontAwesome name="shopping-cart" color={color} size={size} />
+                {cartCount > 0 && (
+                  <Animated.View
                     style={{
                       position: "absolute",
                       top: -5,
@@ -147,6 +134,45 @@ const MainTabNavigator = () => {
                       height: 18,
                       justifyContent: "center",
                       alignItems: "center",
+                      transform: [{ scale: cartPulseAnim }],
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "white",
+                        fontSize: 12,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {cartCount}
+                    </Text>
+                  </Animated.View>
+                )}
+              </View>
+            ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Wishlist"
+          component={WishlistScreen}
+          options={{
+            tabBarIcon: ({ color, size }) => (
+              <View>
+                <FontAwesome name="heart" color={color} size={size} />
+                {wishlistCount > 0 && (
+                  <Animated.View
+                    style={{
+                      position: "absolute",
+                      top: -5,
+                      right: -10,
+                      backgroundColor: "red",
+                      borderRadius: 10,
+                      width: 18,
+                      height: 18,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      transform: [{ scale: wishlistPulseAnim }],
                     }}
                   >
                     <Text
@@ -158,7 +184,7 @@ const MainTabNavigator = () => {
                     >
                       {wishlistCount}
                     </Text>
-                  </View>
+                  </Animated.View>
                 )}
               </View>
             ),

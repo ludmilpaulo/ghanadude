@@ -15,6 +15,7 @@ import tw from "twrnc";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { fetchPaymentGateway, PaymentGatewayInfo } from "../services/PaymentService";
 import * as Location from "expo-location";
 
 import { checkoutOrder } from "../services/Checkout";
@@ -47,6 +48,8 @@ const CheckoutScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const user = useSelector(selectUser);
   const cartItems = useSelector(selectCartItems);
+  const [paymentGateway, setPaymentGateway] = useState<PaymentGatewayInfo | null>(null);
+  const [loadingGateway, setLoadingGateway] = useState(true);
   const design = useSelector(selectDesign);
 
   const [form, setForm] = useState<FormFields>({
@@ -75,6 +78,7 @@ const CheckoutScreen: React.FC = () => {
   const [calculatedDeliveryFee, setCalculatedDeliveryFee] = useState<number>(0);
   const [deliveryFeeLoading, setDeliveryFeeLoading] = useState<boolean>(false);
 
+  
   const scaleAnim = useRef(new Animated.Value(0)).current;
 
   const [siteSettings, setSiteSettings] = useState<SiteSetting | null>(null);
@@ -102,6 +106,17 @@ const CheckoutScreen: React.FC = () => {
   };
 
   useEffect(() => {
+    const loadGateway = async () => {
+      try {
+        const gateway = await fetchPaymentGateway();
+        setPaymentGateway(gateway);
+      } catch (error) {
+        console.error("Failed to fetch Payment Gateway:", error);
+      } finally {
+        setLoadingGateway(false);
+      }
+    };
+    loadGateway();
     const auth = ensureAuth();
     if (!auth) return;
     const load = async () => {
@@ -506,33 +521,36 @@ const CheckoutScreen: React.FC = () => {
         <InfoTooltip text="Rewards apply to orders of R1000+. Delivery fee is distance-based." />
       </ScrollView>
 
-      {payFastVisible && (orderId || bulkOrderId) && (
-        <PayFast
-          merchantId="10037687"
-          merchantKey="t9k4qun47sejo"
-          sandbox
-          notifyUrl="https://www.ghanadude.co.za/order/notify/"
-          transactionDetails={{
-            customerFirstName: form.first_name,
-            customerLastName: form.last_name,
-            customerEmailAddress: form.email,
-            customerPhoneNumber: form.phone_number,
-            reference: orderId
-              ? `ORDER_${orderId}`
-              : `BULKORDER_${bulkOrderId}`,
-            amount: Number(amount.toFixed(2)),
-            itemName: cartItems
-              .map(
-                (item) =>
-                  `${item.quantity}x ${item.name.replace(/[^a-zA-Z0-9 ]/g, "")}`,
-              )
-              .join(" & ")
-              .slice(0, 100),
-            itemDescription: "Checkout Payment",
-          }}
-          isVisible={payFastVisible}
-          onClose={handlePaymentClose}
-        />
+      {payFastVisible && (orderId || bulkOrderId) && paymentGateway?.url && (
+       <PayFast
+       merchantId={paymentGateway?.merchantId || ""}
+       merchantKey={paymentGateway?.merchantKey || ""}
+       notifyUrl={paymentGateway?.notify_url || ""}
+       url={paymentGateway?.url || ""} // ✅ Fix this
+       transactionDetails={{
+         customerFirstName: form.first_name,
+         customerLastName: form.last_name,
+         customerEmailAddress: form.email,
+         customerPhoneNumber: form.phone_number,
+         reference: orderId
+           ? `ORDER_${orderId}`
+           : `BULKORDER_${bulkOrderId}`,
+         amount: Number(amount.toFixed(2)),
+         itemName: (() => {
+           const names = cartItems
+             .map((item) =>
+               `${item.quantity}x ${item.name.replace(/[^a-zA-Z0-9 ]/g, "")}`,
+             )
+             .join(" & ")
+             .slice(0, 100);
+           return names.length > 0 ? names : "Custom Design";
+         })(),
+         itemDescription: "Checkout Payment",
+       }}
+       isVisible={payFastVisible}
+       onClose={handlePaymentClose}
+     />
+     
       )}
 
       <Modal visible={confirmVisible} animationType="slide" transparent>

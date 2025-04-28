@@ -22,12 +22,7 @@ import * as Animatable from "react-native-animatable";
 import ProductService from "../services/ProductService";
 import ProductCard from "../components/ProductCard";
 import CreateProfileModal from "../components/CreateProfileModal";
-import {
-  fetchUserProfile,
-  ProfileForm,
-  updateUserProfile,
-} from "../services/UserService";
-
+import { fetchUserProfile, ProfileForm, updateUserProfile } from "../services/UserService";
 import { LinearGradient } from "expo-linear-gradient";
 
 import { Product, Category } from "./types";
@@ -47,16 +42,13 @@ export interface ProfileData {
   country: string;
 }
 
-const HomeScreen = ({
-  navigation,
-}: {
-  navigation: NavigationProp<HomeStackParamList>;
-}) => {
+const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
   const user = useSelector(selectUser);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedGender, setSelectedGender] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -68,28 +60,21 @@ const HomeScreen = ({
     if (!user) return;
     try {
       const profileData = await fetchUserProfile(user?.user_id ?? null);
-      console.log("Fetched profile data:", profileData);
-
-      if (
-        !profileData.profile ||
-        Object.keys(profileData.profile).length === 0
-      ) {
-        console.log("User has no profile. Showing modal.");
+      if (!profileData.profile || Object.keys(profileData.profile).length === 0) {
         setShowModal(true);
-      } else {
-        console.log("User profile found:", profileData);
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 500) {
-        console.log("User has no profile. Showing modal.");
         setShowModal(true);
-      } else {
-        console.log("Error fetching profile", error);
       }
     }
   };
 
   const handleSaveProfile = async (form: ProfileData) => {
+    if (!user_id) {
+      Alert.alert("Error", "User ID is missing. Please login again.");
+      return;
+    }
     try {
       const payload: ProfileForm = {
         name: `${form.first_name} ${form.last_name}`.trim(),
@@ -103,13 +88,10 @@ const HomeScreen = ({
         country: form.country,
       };
 
-      console.log("Payload being sent:", payload);
-
       await updateUserProfile(user_id, payload);
       setShowModal(false);
       Alert.alert("Success", "Profile updated.");
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } catch  {
       Alert.alert("Error", "Failed to update profile.");
     }
   };
@@ -117,7 +99,6 @@ const HomeScreen = ({
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
-      // getProfile();
 
       const fetchData = async () => {
         try {
@@ -129,14 +110,12 @@ const HomeScreen = ({
           if (isActive) {
             setAllProducts(productsRes);
             setCategories([{ id: "all", name: "All" }, ...categoriesRes]);
-
-            const updated = filterProducts(
-              selectedCategory,
-              searchQuery,
-              productsRes,
-            );
+            const updated = filterProducts(selectedCategory, searchQuery, productsRes, selectedGender);
             setFilteredProducts(updated);
             setNotFound(updated.length === 0);
+          }
+          if (user) {
+            await getProfile();
           }
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -152,19 +131,26 @@ const HomeScreen = ({
         isActive = false;
         clearInterval(interval);
       };
-    }, [selectedCategory, searchQuery]),
+    }, [selectedCategory, selectedGender, searchQuery]),
   );
 
   const filterProducts = (
     category = selectedCategory,
     query = searchQuery,
     products = allProducts,
+    gender = selectedGender,
   ) => {
     let updated = [...products];
 
     if (category !== "all") {
       updated = updated.filter(
         (product) => product.category?.toLowerCase() === category.toLowerCase(),
+      );
+    }
+
+    if (gender !== "all") {
+      updated = updated.filter(
+        (product) => product.gender?.toLowerCase() === gender.toLowerCase(),
       );
     }
 
@@ -180,8 +166,15 @@ const HomeScreen = ({
   const handleCategorySelect = (category: string) => {
     const normalizedCategory = category.toLowerCase();
     setSelectedCategory(normalizedCategory);
-    setSearchQuery("");
-    const updated = filterProducts(normalizedCategory, "", allProducts);
+    const updated = filterProducts(normalizedCategory, searchQuery, allProducts, selectedGender);
+    setFilteredProducts(updated);
+    setNotFound(updated.length === 0);
+  };
+
+  const handleGenderSelect = (gender: string) => {
+    const normalizedGender = gender.toLowerCase();
+    setSelectedGender(normalizedGender);
+    const updated = filterProducts(selectedCategory, searchQuery, allProducts, normalizedGender);
     setFilteredProducts(updated);
     setNotFound(updated.length === 0);
   };
@@ -211,21 +204,15 @@ const HomeScreen = ({
             renderItem={({ item }) => (
               <TouchableOpacity
                 key={item.id}
-                onPress={() =>
-                  navigation.navigate("ProductDetail", { id: item.id })
-                }
+                onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
                 style={tw`relative rounded-xl overflow-hidden mx-4 mt-4`}
               >
                 <Image
                   source={{ uri: item.image }}
                   style={tw`w-full h-40 rounded-xl`}
                 />
-                <View
-                  style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}
-                >
-                  <Text style={tw`text-white text-lg font-bold`}>
-                    {item.name}
-                  </Text>
+                <View style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}>
+                  <Text style={tw`text-white text-lg font-bold`}>{item.name}</Text>
                   <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
                 </View>
               </TouchableOpacity>
@@ -234,9 +221,7 @@ const HomeScreen = ({
         )}
 
         {/* Search Bar */}
-        <View
-          style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 shadow-sm mx-4 mt-6`}
-        >
+        <View style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 shadow-sm mx-4 mt-6`}>
           <FontAwesome5 name="search" size={16} color="#666" style={tw`mr-3`} />
           <TextInput
             placeholder="Search for products..."
@@ -251,19 +236,19 @@ const HomeScreen = ({
         {!user && (
           <Animatable.View animation="fadeInDown" delay={300}>
             <LinearGradient
-              colors={["#ce1126", "#fcd116", "#007940"]} // 🇬🇭 red, yellow, green
+              colors={["#ce1126", "#fcd116", "#007940"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={tw`mx-4 mt-4 p-4 rounded-xl shadow-md`}
             >
               <Text style={tw`text-white text-center font-semibold text-sm`}>
-                You’re browsing as a guest.{"\n"}Login for personalized offers,
-                faster checkout, and rewards.
+                You’re browsing as a guest.{"\n"}Login for personalized offers, faster checkout, and rewards.
               </Text>
             </LinearGradient>
           </Animatable.View>
         )}
-        {/* 🧭 Category Chips */}
+
+        {/* Categories */}
         <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>
           Browse Categories
         </Text>
@@ -274,8 +259,7 @@ const HomeScreen = ({
             contentContainerStyle={tw`pl-4 pr-2 pb-2`}
           >
             {categories.map((cat, index) => {
-              const isSelected =
-                selectedCategory.toLowerCase() === cat.name.toLowerCase();
+              const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
               return (
                 <Animatable.View
                   key={`${cat.id}-${cat.name}`}
@@ -290,17 +274,58 @@ const HomeScreen = ({
                     style={[
                       tw`px-4 py-2 rounded-full shadow-sm border`,
                       isSelected
-                        ? { backgroundColor: "#fcd116", borderColor: "#fcd116" } // Ghana yellow
+                        ? { backgroundColor: "#fcd116", borderColor: "#fcd116" }
                         : tw`bg-white border-gray-300`,
                     ]}
                   >
-                    <Text
-                      style={[
-                        tw`text-sm font-semibold`,
-                        isSelected ? { color: "#000" } : tw`text-gray-800`,
-                      ]}
-                    >
+                    <Text style={[
+                      tw`text-sm font-semibold`,
+                      isSelected ? { color: "#000" } : tw`text-gray-800`,
+                    ]}>
                       {cat.name}
+                    </Text>
+                  </TouchableOpacity>
+                </Animatable.View>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* Gender Filter */}
+        <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>
+          Shop by Gender
+        </Text>
+        <View style={tw`mt-4`}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={tw`pl-4 pr-2 pb-2`}
+          >
+            {["All", "Male", "Female", "Unisex"].map((gender, index) => {
+              const isSelected = selectedGender.toLowerCase() === gender.toLowerCase();
+              return (
+                <Animatable.View
+                  key={gender}
+                  animation="fadeInRight"
+                  delay={index * 100}
+                  useNativeDriver
+                  style={tw`mr-3`}
+                >
+                  <TouchableOpacity
+                    onPress={() => handleGenderSelect(gender)}
+                    activeOpacity={0.8}
+                    style={[
+                      tw`px-4 py-2 rounded-full shadow-sm border`,
+                      isSelected
+                        ? { backgroundColor: "#007940", borderColor: "#007940" }
+                        : tw`bg-white border-gray-300`,
+                    ]}
+                  >
+                    <Text style={[
+                      tw`text-sm font-semibold`,
+                      isSelected ? { color: "#fff" } : tw`text-gray-800`,
+                    ]}>
+                      {gender}
                     </Text>
                   </TouchableOpacity>
                 </Animatable.View>
@@ -322,15 +347,13 @@ const HomeScreen = ({
           <Text style={tw`text-xl font-bold text-gray-800 mb-4`}>
             🛍️ New Arrivals
           </Text>
+
           {loading ? (
             <ActivityIndicator size="large" color="#000" />
           ) : (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {filteredProducts.map((product, i) => (
-                <Animated.View
-                  key={product.id}
-                  entering={FadeInUp.delay(i * 100)}
-                >
+                <Animated.View key={product.id} entering={FadeInUp.delay(i * 100)}>
                   <ProductCard product={product} />
                 </Animated.View>
               ))}
@@ -344,10 +367,7 @@ const HomeScreen = ({
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {onSaleProducts.map((product, i) => (
-                  <Animated.View
-                    key={product.id}
-                    entering={FadeInUp.delay(i * 100)}
-                  >
+                  <Animated.View key={product.id} entering={FadeInUp.delay(i * 100)}>
                     <ProductCard product={product} />
                   </Animated.View>
                 ))}

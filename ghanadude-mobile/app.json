@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ghanadude Clothing Co",
     "slug": "ghanadude-mobile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "scheme": "ghanadude",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

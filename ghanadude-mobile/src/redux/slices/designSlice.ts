@@ -7,6 +7,8 @@ interface DesignState {
   designerProduct: string | null;
   brandLogoQty: number;
   customDesignQty: number;
+  brandLogoSize: string | null;
+  customDesignSize: string | null;
 }
 
 const initialState: DesignState = {
@@ -15,6 +17,8 @@ const initialState: DesignState = {
   designerProduct: null,
   brandLogoQty: 1,
   customDesignQty: 1,
+  brandLogoSize: null,
+  customDesignSize: null,
 };
 
 const designSlice = createSlice({
@@ -36,12 +40,20 @@ const designSlice = createSlice({
     setCustomDesignQty: (state, action: PayloadAction<number>) => {
       state.customDesignQty = action.payload;
     },
+    setBrandLogoSize: (state, action: PayloadAction<string | null>) => {
+      state.brandLogoSize = action.payload;
+    },
+    setCustomDesignSize: (state, action: PayloadAction<string | null>) => {
+      state.customDesignSize = action.payload;
+    },
     clearDesign: (state) => {
       state.brandLogo = null;
       state.customDesign = null;
       state.designerProduct = null;
       state.brandLogoQty = 1;
       state.customDesignQty = 1;
+      state.brandLogoSize = null;
+      state.customDesignSize = null;
     },
   },
 });
@@ -52,6 +64,8 @@ export const {
   setDesignerProduct,
   setBrandLogoQty,
   setCustomDesignQty,
+  setBrandLogoSize,
+  setCustomDesignSize,
   clearDesign,
 } = designSlice.actions;
 
