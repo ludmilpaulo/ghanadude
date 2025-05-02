@@ -18,38 +18,6 @@ import { SafeAreaView } from "react-native";
 import { useAppVersionCheck } from "./src/hooks/useAppVersionCheck";
 
 export default function App() {
-  const { isCompatible, storeUrl } = useAppVersionCheck();
-
-  if (isCompatible === null) {
-    return (
-      <SafeAreaView style={tw`flex-1 justify-center items-center bg-white`}>
-        <ActivityIndicator size="large" color="#4B5563" />
-        <Text style={tw`mt-4 text-gray-600`}>Checking for updates...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!isCompatible) {
-    return (
-      <SafeAreaView
-        style={tw`flex-1 justify-center items-center bg-white px-8`}
-      >
-        <Text style={tw`text-xl font-bold text-red-600 text-center mb-4`}>
-          ⚠️ Update Required
-        </Text>
-        <Text style={tw`text-center text-gray-700 mb-6`}>
-          A new version of the app is available. Please update to continue using
-          the app.
-        </Text>
-        <TouchableOpacity
-          onPress={() => Linking.openURL(storeUrl)}
-          style={tw`bg-blue-600 px-6 py-3 rounded-full`}
-        >
-          <Text style={tw`text-white text-lg font-bold`}>Update Now</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
