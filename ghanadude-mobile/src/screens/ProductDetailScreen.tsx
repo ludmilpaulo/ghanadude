@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  Image,
   ScrollView,
   ActivityIndicator,
   SafeAreaView,
@@ -12,6 +11,7 @@ import {
   Share,
   Platform,
 } from "react-native";
+import { Image } from "expo-image";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import tw from "twrnc";
@@ -231,7 +231,7 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
       if (Platform.OS === "android") {
         // Android can include image URL in the message
         await Share.share({
-          message: `${shareMessage}\n📸 ${imageUrl}`,
+          message: `${shareMessage}`,
           title: product?.name,
         });
       } else {
@@ -320,11 +320,15 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
               <Image
                 source={{ uri: item.image }}
                 style={tw`w-full h-full rounded-xl`}
-                resizeMode="cover"
+                placeholder={{ uri: "https://via.placeholder.com/400?text=Loading..." }}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={300}
               />
             )}
           />
         </Animated.View>
+
 
         {/* Product Details */}
         <Animated.View entering={FadeInUp.delay(100)} style={tw`p-4`}>
@@ -511,16 +515,17 @@ const ProductDetailScreen: React.FC<ProductDetailProps> = ({ route }) => {
                     style={tw`mr-4 w-40 bg-white rounded-xl shadow p-2`}
                   >
                     <Image
-                      source={{
-                        uri:
-                          item.images && item.images.length > 0
-                            ? item.images[0].image
-                            : "https://via.placeholder.com/150",
-                      }}
-                      style={tw`w-full h-28 rounded-lg`}
-                      resizeMode="cover"
-                    />
-
+                          source={{
+                            uri:
+                              item.images?.[0]?.image ||
+                              "https://via.placeholder.com/150?text=Loading...",
+                          }}
+                          style={tw`w-full h-28 rounded-lg`}
+                          placeholder={{ uri: "https://via.placeholder.com/150?text=Loading..." }}
+                          contentFit="cover"
+                          cachePolicy="memory-disk"
+                          transition={300}
+                        />
                     <Text
                       style={tw`mt-2 text-sm font-semibold text-gray-800`}
                       numberOfLines={1}

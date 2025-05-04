@@ -2,6 +2,7 @@ from django.db import models
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django_ckeditor_5.fields import CKEditor5Field
+from .image_utils import resize_image
 
 from utils.supabase import SUPABASE_PUBLIC_BASE
 
@@ -42,6 +43,11 @@ class Image(models.Model):
     class Meta:
         verbose_name = "Product Image"
         verbose_name_plural = "Products Images"
+        
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image = resize_image(self.image, size=(800, 800))
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.image.name if self.image else "No Image"

@@ -1,15 +1,16 @@
 import React, { useEffect, useRef } from "react";
-import { createBottomTabNavigator, BottomTabBar } from "@react-navigation/bottom-tabs";
-import { Feather, AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import { View, Text, SafeAreaView, Animated, Easing } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { BottomTabBar, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Feather, AntDesign, MaterialIcons, FontAwesome, Ionicons } from "@expo/vector-icons";
+import { View, Text, Animated, Easing, SafeAreaView} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { LinearGradient } from "expo-linear-gradient";
 
 import HomeScreen from "../screens/HomeScreen";
 import AccountScreen from "../screens/AccountScreen";
 import DealsScreen from "../screens/DealsScreen";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
+import CustomizeScreen from "../screens/CustomizeScreen";
 
 import { fetchWishlistCount } from "../services/WishlistService";
 import { setWishlistCount } from "../redux/slices/wishlistSlice";
@@ -67,140 +68,98 @@ const MainTabNavigator = () => {
       }),
     ]).start();
   };
-
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Tab.Navigator
+    <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: "#fff",
-          tabBarInactiveTintColor: "#000",
+          tabBarActiveTintColor: "#000",
+          tabBarInactiveTintColor: "#fff",
           headerShown: false,
           tabBarStyle: {
             backgroundColor: "transparent",
             elevation: 0,
             paddingBottom: 10,
-            height: 75,
+            height: 95,
           },
         }}
         tabBar={(props) => (
           <View>
             <LinearGradient
-              colors={["#e60000", "#ffcc00", "#008000"]}
+              colors={["#000", "#000", "#000"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={{ height: 75 }}
+              style={{ height: 95 }}
             >
               <BottomTabBar {...props} />
             </LinearGradient>
           </View>
         )}
       >
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <AntDesign name="home" color={color} size={size} />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Deals"
-          component={DealsScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <MaterialIcons name="local-offer" color={color} size={size} />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Cart"
-          component={CartScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <View>
-                <FontAwesome name="shopping-cart" color={color} size={size} />
-                {cartCount > 0 && (
-                  <Animated.View
-                    style={{
-                      position: "absolute",
-                      top: -5,
-                      right: -10,
-                      backgroundColor: "red",
-                      borderRadius: 10,
-                      width: 18,
-                      height: 18,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      transform: [{ scale: cartPulseAnim }],
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {cartCount}
-                    </Text>
-                  </Animated.View>
-                )}
-              </View>
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Wishlist"
-          component={WishlistScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <View>
-                <FontAwesome name="heart" color={color} size={size} />
-                {wishlistCount > 0 && (
-                  <Animated.View
-                    style={{
-                      position: "absolute",
-                      top: -5,
-                      right: -10,
-                      backgroundColor: "red",
-                      borderRadius: 10,
-                      width: 18,
-                      height: 18,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      transform: [{ scale: wishlistPulseAnim }],
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {wishlistCount}
-                    </Text>
-                  </Animated.View>
-                )}
-              </View>
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Account"
-          component={AccountScreen}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Feather name="user" color={color} size={size} />
-            ),
-          }}
-        />
-      </Tab.Navigator>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ tabBarIcon: (p) => <AntDesign name="home" {...p} /> }}
+      />
+      <Tab.Screen
+        name="Deals"
+        component={DealsScreen}
+        options={{ tabBarIcon: (p) => <MaterialIcons name="local-offer" {...p} /> }}
+      />
+      <Tab.Screen
+        name="Customize"
+        component={CustomizeScreen}
+        options={{ tabBarIcon: (p) => <Ionicons name="brush" {...p} /> }}
+      />
+      <Tab.Screen
+        name="Cart"
+        component={CartScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <View>
+              <FontAwesome name="shopping-cart" color={color} size={size} />
+              {cartCount > 0 && (
+                <Animated.View style={{
+                  position: "absolute", top: -5, right: -10,
+                  backgroundColor: "red", borderRadius: 10,
+                  width: 18, height: 18,
+                  justifyContent: "center", alignItems: "center",
+                  transform: [{ scale: cartPulseAnim }],
+                }}>
+                  <Text style={{ color: "#fff", fontSize: 12 }}>{cartCount}</Text>
+                </Animated.View>
+              )}
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Wishlist"
+        component={WishlistScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <View>
+              <FontAwesome name="heart" color={color} size={size} />
+              {wishlistCount > 0 && (
+                <Animated.View style={{
+                  position: "absolute", top: -5, right: -10,
+                  backgroundColor: "red", borderRadius: 10,
+                  width: 18, height: 18,
+                  justifyContent: "center", alignItems: "center",
+                  transform: [{ scale: wishlistPulseAnim }],
+                }}>
+                  <Text style={{ color: "#fff", fontSize: 12 }}>{wishlistCount}</Text>
+                </Animated.View>
+              )}
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={AccountScreen}
+        options={{ tabBarIcon: (p) => <Feather name="user" {...p} /> }}
+      />
+    </Tab.Navigator>
     </SafeAreaView>
   );
 };

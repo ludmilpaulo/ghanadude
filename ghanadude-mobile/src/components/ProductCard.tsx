@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   Modal,
   TextInput,
 } from "react-native";
+import { Image } from "expo-image";
+
 import { Picker } from "@react-native-picker/picker";
 import tw from "twrnc";
 import { FontAwesome, FontAwesome5 } from "@expo/vector-icons";
@@ -86,6 +87,10 @@ const ProductCard = ({ product }: { product: Product }) => {
         <Image
           source={{ uri: product.images[0]?.image }}
           style={tw`h-40 w-full rounded-xl`}
+          placeholder={{ uri: "https://via.placeholder.com/150?text=Loading..." }}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={300}
         />
         {product.discount_percentage > 0 && (
           <View

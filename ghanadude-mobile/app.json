@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Ghanadude Clothing Co",
+    "name": "Ghana Dude",
     "slug": "ghanadude-mobile",
     "version": "1.0.1",
     "scheme": "ghanadude",
@@ -14,15 +14,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "buildNumber": "12",
+      "buildNumber": "13",
       "supportsTablet": true,
       "infoPlist": {
-        "CFBundleDisplayName": "Ghanadude Clothing Co",
+        "CFBundleDisplayName": "Ghana Dude",
         "NSLocationWhenInUseUsageDescription": "We use your location to autofill your delivery address.",
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.ludmil.ghanadudemobile",
-      "label": "Ghanadude Clothing Co"
+      "label": "Ghana Dude"
     },
     "android": {
       "permissions": [
@@ -33,8 +33,8 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ludmil.ghanadudemobile",
-      "versionCode": 13,
-      "label": "Ghanadude Clothing Co"
+      "versionCode": 14,
+      "label": "Ghana Dude"
     },
     "web": {
       "favicon": "./assets/favicon.png"

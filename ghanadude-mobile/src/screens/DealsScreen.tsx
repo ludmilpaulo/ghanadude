@@ -123,21 +123,6 @@ const DealsScreen = () => {
     <View style={tw`flex-1 bg-white p-5`}>
       <Text style={tw`text-2xl font-bold mb-4`}>Exclusive Bulk Deals</Text>
 
-      {/* Reusable Upload Buttons */}
-      <ImageUploadButton
-        label="Brand Logo (PNG)"
-        currentUri={brandLogo}
-        onImageSelected={(uri) => dispatch(setBrandLogo(uri))}
-        pngOnly
-        color="blue-500"
-      />
-
-      <ImageUploadButton
-        label="Custom Design"
-        currentUri={customDesign}
-        onImageSelected={(uri) => dispatch(setCustomDesign(uri))}
-        color="purple-500"
-      />
 
       <ScrollView>
         {products.map((product) => (

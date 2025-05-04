@@ -7,10 +7,12 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   Dimensions,
   Alert,
 } from "react-native";
+
+import { Image } from "expo-image";
+
 import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
 import Carousel from "react-native-reanimated-carousel";
@@ -194,30 +196,35 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         {/* Hero Banner Carousel */}
         {promoBanners.length > 0 && (
           <Carousel
-            loop
-            width={width}
-            height={150}
-            autoPlay
-            autoPlayInterval={4000}
-            data={promoBanners}
-            scrollAnimationDuration={1000}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
-                style={tw`relative rounded-xl overflow-hidden mx-4 mt-4`}
-              >
-                <Image
-                  source={{ uri: item.image }}
-                  style={tw`w-full h-40 rounded-xl`}
-                />
-                <View style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}>
-                  <Text style={tw`text-white text-lg font-bold`}>{item.name}</Text>
-                  <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+          loop
+          width={width}
+          height={150}
+          autoPlay
+          autoPlayInterval={4000}
+          data={promoBanners}
+          scrollAnimationDuration={1000}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              key={item.id}
+              onPress={() => navigation.navigate("ProductDetail", { id: item.id })}
+              style={tw`relative rounded-xl overflow-hidden mx-4 mt-4`}
+            >
+              <Image
+                source={{ uri: item.image }}
+                style={tw`w-full h-40 rounded-xl`}
+                contentFit="cover"
+                placeholder={{ uri: "https://via.placeholder.com/400x150?text=Loading..." }}
+                cachePolicy="memory-disk"
+                transition={300}
+              />
+              <View style={tw`absolute inset-0 bg-black bg-opacity-30 justify-center px-4`}>
+                <Text style={tw`text-white text-lg font-bold`}>{item.name}</Text>
+                <Text style={tw`text-white text-sm`}>{item.subtitle}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+        
         )}
 
         {/* Search Bar */}
@@ -236,7 +243,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         {!user && (
           <Animatable.View animation="fadeInDown" delay={300}>
             <LinearGradient
-              colors={["#ce1126", "#fcd116", "#007940"]}
+              colors={["#0c0b0b", "#050505", "#030303"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={tw`mx-4 mt-4 p-4 rounded-xl shadow-md`}
@@ -274,13 +281,13 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
                     style={[
                       tw`px-4 py-2 rounded-full shadow-sm border`,
                       isSelected
-                        ? { backgroundColor: "#fcd116", borderColor: "#fcd116" }
+                        ? { backgroundColor: "#0d0b01", borderColor: "#060606" }
                         : tw`bg-white border-gray-300`,
                     ]}
                   >
                     <Text style={[
                       tw`text-sm font-semibold`,
-                      isSelected ? { color: "#000" } : tw`text-gray-800`,
+                      isSelected ? { color: "#f2eeee" } : tw`text-gray-800`,
                     ]}>
                       {cat.name}
                     </Text>
@@ -317,7 +324,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
                     style={[
                       tw`px-4 py-2 rounded-full shadow-sm border`,
                       isSelected
-                        ? { backgroundColor: "#007940", borderColor: "#007940" }
+                        ? { backgroundColor: "#060606", borderColor: "#070707" }
                         : tw`bg-white border-gray-300`,
                     ]}
                   >

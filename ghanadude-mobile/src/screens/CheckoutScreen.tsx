@@ -550,7 +550,6 @@ const CheckoutScreen: React.FC = () => {
        isVisible={payFastVisible}
        onClose={handlePaymentClose}
      />
-     
       )}
 
       <Modal visible={confirmVisible} animationType="slide" transparent>
