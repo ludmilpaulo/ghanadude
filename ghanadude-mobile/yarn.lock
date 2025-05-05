@@ -4740,7 +4740,7 @@ expo-clipboard@~7.1.4:
   resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-7.1.4.tgz#f2cda0d3cbfd2d307aa85dd7ba6843d6bbaf4227"
   integrity sha512-NHhfKnrzb4o0PacUKD93ByadU0JmPBoFTFYbbFJZ9OAX6SImpSqG5gfrMUR3vVj4Qx9f1LpMcdAv5lBzv868ow==
 
-expo-constants@~17.1.5:
+expo-constants@~17.1.4, expo-constants@~17.1.5:
   version "17.1.5"
   resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-17.1.5.tgz#7c39c0208a8401217cc2bb44c21b9d354dbc6c4f"
   integrity sha512-9kjfQjVG6RgBQjFOo7LewxuZgTnYufXPuqpF00Ju5q2dAFW9Eh1SyJpFxbt7KoN+Wwu0hcIr/nQ0lPQugkg07Q==
@@ -4796,6 +4796,14 @@ expo-linear-gradient@~14.1.4:
   version "14.1.4"
   resolved "https://registry.yarnpkg.com/expo-linear-gradient/-/expo-linear-gradient-14.1.4.tgz#fcb2b586cfd21dd5f3076de467f92b55d9c47cb2"
   integrity sha512-bImj2qqIjnl+VHYGnIwan9LxmGvb8e4hFqHpxsPzUiK7Ady7uERrXPhJcyTKTxRf4RL2sQRDpoOKzBYNdQDmuw==
+
+expo-linking@^7.1.4:
+  version "7.1.4"
+  resolved "https://registry.yarnpkg.com/expo-linking/-/expo-linking-7.1.4.tgz#7d398d99788d8d95b67d1ae463d24686cbeb1c1b"
+  integrity sha512-zLAbUzTB3+KGjqqLeIdhhkXayyN0qulHGjRI24X7W/0Mq/4oPbPZklKtCP0k7XOn/k4553m8OgJ7GPC03PlV9g==
+  dependencies:
+    expo-constants "~17.1.4"
+    invariant "^2.2.4"
 
 expo-location@~18.1.4:
   version "18.1.4"

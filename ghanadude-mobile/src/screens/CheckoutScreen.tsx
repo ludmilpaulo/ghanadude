@@ -297,26 +297,62 @@ const CheckoutScreen: React.FC = () => {
   };
 
   const initiatePayment = async () => {
-    if (!validateForm()) return;
-
-    const delivery = await calculateDeliveryFee(); // 👈 call async fee
-    setCalculatedDeliveryFee(delivery); // 👈 store in state
-
-    setConfirmVisible(true);
+    console.log("🚀 initiatePayment started...");
+  
+    console.log("✅ Validating form...");
+    if (!validateForm()) {
+      console.warn("❌ Form validation failed. Aborting payment initiation.");
+      return;
+    }
+    console.log("✅ Form validation passed.");
+  
+    try {
+      console.log("🧮 Calculating delivery fee...");
+      const delivery = await calculateDeliveryFee();
+      console.log("🚚 Delivery fee calculated:", delivery);
+  
+      setCalculatedDeliveryFee(delivery);
+      console.log("📦 Delivery fee stored in state.");
+  
+      setConfirmVisible(true);
+      console.log("✅ Confirmation modal visible.");
+    } catch (error) {
+      console.error("❌ Failed to calculate delivery fee:", error);
+    }
+  
+    console.log("🔚 initiatePayment finished.");
   };
+  
 
   const confirmPayment = async () => {
+    console.log("⏳ Starting confirmPayment process...");
     const auth = ensureAuth();
-    if (!auth || !siteSettings) return;
+    if (!auth || !siteSettings) {
+      console.warn("❌ Missing auth or site settings");
+      return;
+    }
+  
     setConfirmVisible(false);
     setLoading(true);
+  
     try {
+      console.log("🧮 Calculating subtotal...");
       const subtotal = calculateSubtotal();
+      console.log("Subtotal:", subtotal);
+  
+      console.log("🧾 Calculating VAT...");
       const vat = calculateVAT(subtotal);
+      console.log("VAT:", vat);
+  
+      console.log("🚚 Calculating delivery fee...");
       const delivery = await calculateDeliveryFee();
+      console.log("Delivery fee:", delivery);
+  
       const final = subtotal + vat + delivery - rewardApplied;
-
+      console.log("✅ Final total:", final);
+  
       const formData = new FormData();
+      console.log("📦 Appending basic order data...");
       formData.append("user_id", String(auth.user.user_id));
       formData.append("total_price", String(final));
       formData.append("reward_applied", String(rewardApplied));
@@ -329,19 +365,18 @@ const CheckoutScreen: React.FC = () => {
       formData.append("order_type", orderType);
       formData.append("vat_amount", String(vat));
       formData.append("delivery_fee", String(delivery));
-      formData.append(
-        "items",
-        JSON.stringify(
-          cartItems.map((item) => ({
-            id: item.id,
-            quantity: item.quantity,
-            selectedSize: item.selectedSize,
-            is_bulk: item.isBulk || false,
-          })),
-        ),
-      );
-
+  
+      const itemsPayload = cartItems.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        selectedSize: item.selectedSize,
+        is_bulk: item.isBulk || false,
+      }));
+      console.log("🛒 Cart items:", itemsPayload);
+      formData.append("items", JSON.stringify(itemsPayload));
+  
       if (design.brandLogo) {
+        console.log("🖼 Adding brand logo to form data...");
         const brandLogoFile: RNImageFile = {
           uri: design.brandLogo,
           name: "brand_logo.png",
@@ -350,8 +385,9 @@ const CheckoutScreen: React.FC = () => {
         appendImageToFormData(formData, "brand_logo", brandLogoFile);
         formData.append("brand_logo_qty", String(design.brandLogoQty || 1));
       }
-
+  
       if (design.customDesign) {
+        console.log("🎨 Adding custom design to form data...");
         const customDesignFile: RNImageFile = {
           uri: design.customDesign,
           name: "custom_design.png",
@@ -363,18 +399,24 @@ const CheckoutScreen: React.FC = () => {
           String(design.customDesignQty || 1),
         );
       }
-
+  
+      console.log("📡 Sending checkout order...");
       const res = await checkoutOrder(formData);
+      console.log("✅ Checkout successful:", res);
+  
       setOrderId(res.order_id);
       setBulkOrderId(res.bulk_order_id);
       setPayFastVisible(true);
     } catch (err: unknown) {
+      console.error("❌ Checkout failed:", err);
       const error = err as { response?: { data?: { error?: string } } };
       Alert.alert("Error", error?.response?.data?.error || "Checkout failed");
     } finally {
+      console.log("🔚 Finished confirmPayment process.");
       setLoading(false);
     }
   };
+  
 
   const handlePaymentClose = async (reference?: string) => {
     if (!reference || !user) return;

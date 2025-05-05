@@ -26,6 +26,7 @@ export interface Order {
   reward_granted: boolean;
   created_at: string;
   updated_at: string;
+  invoice_url?: string; // Could be a URL or file path
   invoice?: string; // Could be a URL or file path
   products: number[];
   items: OrderItem[];

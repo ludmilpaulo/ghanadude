@@ -1,10 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpRequest, HttpResponseRedirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+from rest_framework.decorators import permission_classes
+
+from account.models import UserProfile
 
 from .serializers import SiteSettingSerializer
 
@@ -72,3 +76,17 @@ class SiteSettingView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+    
+    
+# views.py
+@api_view(["PATCH"])
+@permission_classes([AllowAny])
+def update_user_app_version(request, user_id):
+    profile = get_object_or_404(UserProfile, user_id=user_id)
+    app_version = request.data.get("app_version")
+
+    if app_version:
+        profile.app_version = app_version
+        profile.save()
+        return Response({"detail": "App version updated"}, status=200)
+    return Response({"error": "Invalid version"}, status=400)

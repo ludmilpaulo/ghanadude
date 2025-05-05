@@ -12,10 +12,11 @@ from .dev_earnings import (
     create_dev_payment,
     get_dev_payments,
 )
-from .views import SiteSettingView, get_app_version
+from .views import SiteSettingView, get_app_version, update_user_app_version
 
 urlpatterns = [
     path("version/", get_app_version),
+    path("users/<int:user_id>/update-version/", update_user_app_version, name="update-user-version"),
     path("paymentgateway/active/", get_active_payment_gateway),
     path("dispatch-order/", dispatch_order, name="dispatch_order"),
     path("site-settings/", SiteSettingView.as_view(), name="site-settings"),

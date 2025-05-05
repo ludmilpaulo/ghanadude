@@ -1,10 +1,4 @@
 import React from "react";
-import {
-  Text,
-  Linking,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 import { TailwindProvider } from "tailwindcss-react-native";

@@ -68,7 +68,7 @@ const OrderModal: React.FC<Props> = ({ order, onClose }) => {
 
                 {order.invoice && (
                   <a
-                    href={order.invoice}
+                    href={order.invoice_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 underline"

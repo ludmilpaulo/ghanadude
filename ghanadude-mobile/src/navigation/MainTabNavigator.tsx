@@ -79,7 +79,7 @@ const MainTabNavigator = () => {
             backgroundColor: "transparent",
             elevation: 0,
             paddingBottom: 10,
-            height: 95,
+            height: 75,
           },
         }}
         tabBar={(props) => (
@@ -88,7 +88,7 @@ const MainTabNavigator = () => {
               colors={["#000", "#000", "#000"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={{ height: 95 }}
+              style={{ height: 75 }}
             >
               <BottomTabBar {...props} />
             </LinearGradient>

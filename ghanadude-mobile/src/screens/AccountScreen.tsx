@@ -28,6 +28,9 @@ import {
   restoreUserAccountById,
   deleteUserAccountById,
 } from "../services/UserAuth";
+import axios from "axios";
+import Constants from "expo-constants";
+import { API_BASE_URL } from "../services/AuthService";
 
 type NavigationProp = StackNavigationProp<HomeStackParamList>;
 
@@ -85,10 +88,13 @@ const AccountScreen: React.FC = () => {
       const auth = ensureAuth();
       if (auth) {
         loadRewards();
+        updateAppVersion(); // 👈 track version on server
       }
-    }, [ensureAuth]) // ensure dependencies are correct
+    }, [ensureAuth])
   );
   
+
+ 
 
   const loadRewards = async () => {
     const auth = ensureAuth();
@@ -101,6 +107,20 @@ const AccountScreen: React.FC = () => {
       Alert.alert("Error", "Failed to load rewards");
     }
   };
+
+  const updateAppVersion = async () => {
+    if (!user?.user_id) return;
+  
+    const version = Constants.expoConfig?.version ?? "1.0.0";
+    try {
+      await axios.patch(`${API_BASE_URL}/api/users/${user.user_id}/update-version/`, {
+        app_version: version,
+      });
+    } catch (err) {
+      console.warn("Failed to update app version:", err);
+    }
+  };
+  
 
   const loadProfileData = async () => {
     const auth = ensureAuth();
