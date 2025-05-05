@@ -9,7 +9,6 @@ import tw from "twrnc";
 import Toast from "react-native-toast-message";
 import ErrorBoundary from "./src/components/ErrorBoundary";
 import { SafeAreaView } from "react-native";
-import { useAppVersionCheck } from "./src/hooks/useAppVersionCheck";
 
 export default function App() {
 

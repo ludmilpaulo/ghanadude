@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ghana Dude",
     "slug": "ghanadude-mobile",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "scheme": "ghanadude",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
