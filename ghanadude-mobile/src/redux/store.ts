@@ -1,6 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import authReducer from "./slices/authSlice";
+import productReducer from "./slices/productSlice";
 import basketReducer from "./slices/basketSlice";
 import designReducer from "./slices/designSlice";
 import wishlistReducer from "./slices/wishlistSlice"; // ✅ Import wishlist slice
@@ -16,6 +17,7 @@ const rootPersistConfig = {
 const rootReducer = combineReducers({
   basket: basketReducer,
   auth: authReducer,
+  products: productReducer,
   design: designReducer,
   wishlist: wishlistReducer, // ✅ Add wishlist to persisted reducer
 });
