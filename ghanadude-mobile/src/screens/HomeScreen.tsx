@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,28 +7,28 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   Dimensions,
+  Alert,
 } from "react-native";
 import { Image } from "expo-image";
-import axios from "axios";
 import tw from "twrnc";
 import { FontAwesome5 } from "@expo/vector-icons";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, { FadeInUp } from "react-native-reanimated";
-import * as Animatable from "react-native-animatable";
-import { useSelector, useDispatch } from "react-redux";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect, NavigationProp } from "@react-navigation/native";
-import { LinearGradient } from "expo-linear-gradient";
-
-import ProductCard from "../components/ProductCard";
-import CreateProfileModal from "../components/CreateProfileModal";
-import { fetchUserProfile, ProfileForm, updateUserProfile} from "../services/UserService";
+import * as Animatable from "react-native-animatable";
 import { selectUser } from "../redux/slices/authSlice";
 import { fetchProducts, fetchCategories } from "../redux/slices/productSlice";
 import { RootState, AppDispatch } from "../redux/store";
 
+import ProductCard from "../components/ProductCard";
+import CreateProfileModal from "../components/CreateProfileModal";
+import { fetchUserProfile, ProfileForm, updateUserProfile } from "../services/UserService";
+import { LinearGradient } from "expo-linear-gradient";
 
+import { Product } from "./types";
 import { HomeStackParamList } from "../navigation/HomeNavigator";
 
 const { width } = Dimensions.get("window");
@@ -47,16 +47,17 @@ export interface ProfileData {
 const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamList> }) => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector(selectUser);
-  const { products, categories, loading } = useSelector((state: RootState) => state.products);
+  const { products: allProducts, categories, loading } = useSelector((state: RootState) => state.products);
 
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedGender, setSelectedGender] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [notFound, setNotFound] = useState(false);
   const [showModal, setShowModal] = useState(false);
+
   const user_id = user?.user_id ?? null;
 
- 
   const getProfile = async () => {
     if (!user) return;
     try {
@@ -92,24 +93,62 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
       await updateUserProfile(user_id, payload);
       setShowModal(false);
       Alert.alert("Success", "Profile updated.");
-    } catch  {
+    } catch {
       Alert.alert("Error", "Failed to update profile.");
     }
   };
 
-  const filteredProducts = products.filter((product) => {
-    const categoryMatch =
-      selectedCategory === "all" ||
-      product.category?.toLowerCase() === selectedCategory.toLowerCase();
-    const genderMatch =
-      selectedGender === "all" ||
-      product.gender?.toLowerCase() === selectedGender.toLowerCase();
-    const queryMatch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchProducts());
+      dispatch(fetchCategories());
+      if (user) getProfile();
+    }, [dispatch, user])
+  );
 
-    return categoryMatch && genderMatch && queryMatch;
-  });
+  useEffect(() => {
+    const updated = filterProducts(selectedCategory, searchQuery, allProducts, selectedGender);
+    setFilteredProducts(updated);
+    setNotFound(updated.length === 0);
+  }, [allProducts, selectedCategory, selectedGender, searchQuery]);
 
-  const onSaleProducts = products.filter((p) => p.on_sale);
+  const filterProducts = (
+    category = selectedCategory,
+    query = searchQuery,
+    products = allProducts,
+    gender = selectedGender,
+  ) => {
+    let updated = [...products];
+    if (category !== "all") {
+      updated = updated.filter(
+        (product) => product.category?.toLowerCase() === category.toLowerCase(),
+      );
+    }
+
+    if (gender !== "all") {
+      updated = updated.filter(
+        (product) => product.gender?.toLowerCase() === gender.toLowerCase(),
+      );
+    }
+
+    if (query) {
+      updated = updated.filter((product) =>
+        product.name.toLowerCase().includes(query.toLowerCase()),
+      );
+    }
+
+    return updated;
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category.toLowerCase());
+  };
+
+  const handleGenderSelect = (gender: string) => {
+    setSelectedGender(gender.toLowerCase());
+  };
+
+  const onSaleProducts = allProducts.filter((product) => product.on_sale);
   const promoBanners = onSaleProducts.slice(0, 5).map((product) => ({
     id: product.id,
     name: product.name,
@@ -117,27 +156,9 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
     image: product.images?.[0]?.image || "https://via.placeholder.com/400x150",
   }));
 
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(fetchProducts());
-      dispatch(fetchCategories());
-
-      if (user) getProfile();
-
-     
-    }, [dispatch, user])
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      setNotFound(filteredProducts.length === 0);
-    }, [filteredProducts])
-  );
-
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Promo Carousel */}
         {promoBanners.length > 0 && (
           <Carousel
             loop
@@ -168,13 +189,14 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         )}
 
         {/* Search Bar */}
-        <View style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 mx-4 mt-6`}>
+        <View style={tw`flex-row items-center bg-gray-100 rounded-full px-4 py-3 shadow-sm mx-4 mt-6`}>
           <FontAwesome5 name="search" size={16} color="#666" style={tw`mr-3`} />
           <TextInput
             placeholder="Search for products..."
+            placeholderTextColor="#888"
             style={tw`flex-1 text-base text-black`}
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={(text) => setSearchQuery(text)}
           />
         </View>
 
@@ -182,9 +204,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           <Animatable.View animation="fadeInDown" delay={300}>
             <LinearGradient
               colors={["#0c0b0b", "#050505", "#030303"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={tw`mx-4 mt-4 p-4 rounded-xl`}
+              style={tw`mx-4 mt-4 p-4 rounded-xl shadow-md`}
             >
               <Text style={tw`text-white text-center font-semibold text-sm`}>
                 You’re browsing as a guest.{"\n"}Login for personalized offers, faster checkout, and rewards.
@@ -193,23 +213,21 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           </Animatable.View>
         )}
 
-        {/* Category Filter */}
+        {/* Categories */}
         <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>Browse Categories</Text>
-        <ScrollView horizontal contentContainerStyle={tw`pl-4 pr-2 pb-2`} showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={tw`pl-4 pr-2 pb-2`}>
           {categories.map((cat, index) => {
             const isSelected = selectedCategory.toLowerCase() === cat.name.toLowerCase();
             return (
-              <Animatable.View key={cat.id} animation="fadeInRight" delay={index * 100}>
+              <Animatable.View key={cat.id} animation="fadeInRight" delay={index * 100} style={tw`mr-3`}>
                 <TouchableOpacity
-                  onPress={() => setSelectedCategory(cat.name)}
+                  onPress={() => handleCategorySelect(cat.name)}
                   style={[
-                    tw`px-4 py-2 rounded-full mr-3 border`,
-                    isSelected
-                      ? { backgroundColor: "#0d0b01", borderColor: "#060606" }
-                      : tw`bg-white border-gray-300`,
+                    tw`px-4 py-2 rounded-full border`,
+                    isSelected ? tw`bg-black border-black` : tw`bg-white border-gray-300`,
                   ]}
                 >
-                  <Text style={tw`text-sm font-semibold ${isSelected ? "text-white" : "text-gray-800"}`}>
+                  <Text style={tw`${isSelected ? "text-white" : "text-gray-800"} text-sm font-semibold`}>
                     {cat.name}
                   </Text>
                 </TouchableOpacity>
@@ -220,21 +238,19 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
 
         {/* Gender Filter */}
         <Text style={tw`text-xl font-bold text-gray-800 mt-6 mx-4`}>Shop by Gender</Text>
-        <ScrollView horizontal contentContainerStyle={tw`pl-4 pr-2 pb-2`} showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={tw`pl-4 pr-2 pb-2`}>
           {["All", "Male", "Female", "Unisex"].map((gender, index) => {
             const isSelected = selectedGender.toLowerCase() === gender.toLowerCase();
             return (
-              <Animatable.View key={gender} animation="fadeInRight" delay={index * 100}>
+              <Animatable.View key={gender} animation="fadeInRight" delay={index * 100} style={tw`mr-3`}>
                 <TouchableOpacity
-                  onPress={() => setSelectedGender(gender)}
+                  onPress={() => handleGenderSelect(gender)}
                   style={[
-                    tw`px-4 py-2 rounded-full mr-3 border`,
-                    isSelected
-                      ? { backgroundColor: "#060606", borderColor: "#070707" }
-                      : tw`bg-white border-gray-300`,
+                    tw`px-4 py-2 rounded-full border`,
+                    isSelected ? tw`bg-black border-black` : tw`bg-white border-gray-300`,
                   ]}
                 >
-                  <Text style={tw`text-sm font-semibold ${isSelected ? "text-white" : "text-gray-800"}`}>
+                  <Text style={tw`${isSelected ? "text-white" : "text-gray-800"} text-sm font-semibold`}>
                     {gender}
                   </Text>
                 </TouchableOpacity>
@@ -243,15 +259,18 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
           })}
         </ScrollView>
 
-        {/* Product Section */}
+        {/* Product Grid */}
         <View style={tw`px-4`}>
           {notFound && (
             <View style={tw`bg-red-100 p-4 rounded-lg mb-4`}>
-              <Text style={tw`text-red-600 font-semibold text-center`}>⚠️ No products found</Text>
+              <Text style={tw`text-red-600 font-semibold text-center`}>
+                ⚠️ No products found
+              </Text>
             </View>
           )}
 
           <Text style={tw`text-xl font-bold text-gray-800 mb-4`}>🛍️ New Arrivals</Text>
+
           {loading ? (
             <ActivityIndicator size="large" color="#000" />
           ) : (
@@ -266,7 +285,9 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
 
           {onSaleProducts.length > 0 && (
             <>
-              <Text style={tw`text-xl font-bold text-gray-800 mt-6 mb-4`}>🔥 On Sale</Text>
+              <Text style={tw`text-xl font-bold text-gray-800 mt-6 mb-4`}>
+                🔥 On Sale
+              </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {onSaleProducts.map((product, i) => (
                   <Animated.View key={product.id} entering={FadeInUp.delay(i * 100)}>
@@ -279,7 +300,11 @@ const HomeScreen = ({ navigation }: { navigation: NavigationProp<HomeStackParamL
         </View>
       </ScrollView>
 
-      <CreateProfileModal visible={showModal} onClose={() => setShowModal(false)} onSave={handleSaveProfile} />
+      <CreateProfileModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        onSave={handleSaveProfile}
+      />
     </SafeAreaView>
   );
 };
