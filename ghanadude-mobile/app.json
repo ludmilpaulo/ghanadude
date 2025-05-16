@@ -14,7 +14,7 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "buildNumber": "16",
+      "buildNumber": "19",
       "supportsTablet": true,
       "infoPlist": {
         "CFBundleDisplayName": "Ghana Dude",
@@ -33,7 +33,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.ludmil.ghanadudemobile",
-      "versionCode": 17,
+      "versionCode": 19,
       "label": "Ghana Dude"
     },
     "web": {
