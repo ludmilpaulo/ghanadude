@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     description: 'Shop GhanaDude: premium apparel, custom designs & branding.',
     type: 'website'
   },
-  icons: [{ rel: 'icon', url: '/logo.svg' }]
+  icons: [{ rel: 'icon', url: '/logo.png' }]
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
