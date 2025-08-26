@@ -1,26 +1,21 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import type { Product, Category, Paginated } from '@/lib/types'
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL as string
-if (!baseUrl) {
-  // eslint-disable-next-line no-console
-  console.warn('NEXT_PUBLIC_API_BASE_URL is not set')
-}
+const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL as string) || 'https://www.ghanadude.co.za'
 
 type ProductsQueryArgs = {
-  page?: number;
-  page_size?: number;
-  category?: string; // category slug
-  search?: string;
-  ordering?: string; // e.g., '-created'
-};
+  page?: number
+  page_size?: number
+  search?: string
+  ordering?: string
+  category?: string
+}
 
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({
     baseUrl,
     prepareHeaders: (headers) => {
-      // Attach language preference if your backend uses it
       if (typeof navigator !== 'undefined') {
         headers.set('Accept-Language', navigator.language || 'en')
       }
@@ -30,7 +25,7 @@ export const api = createApi({
   tagTypes: ['Products', 'Product', 'Categories'],
   endpoints: (builder) => ({
     getCategories: builder.query<Category[], void>({
-      query: () => ({ url: '/api/categories/' }),
+      query: () => ({ url: '/product/categories/' }),
       providesTags: (result) =>
         result
           ? [
@@ -40,23 +35,25 @@ export const api = createApi({
           : [{ type: 'Categories', id: 'LIST' }],
     }),
 
-    getProducts: builder.query<Paginated<Product>, ProductsQueryArgs | void>({
+    getProducts: builder.query<Paginated<Product> | Product[], ProductsQueryArgs | void>({
       query: (args) => ({
-        url: '/api/products/',
+        url: '/product/products/',
         params: args ?? {},
       }),
-      providesTags: (result) =>
-        result
+      providesTags: (result) => {
+        const items = Array.isArray(result) ? result : (result?.results ?? [])
+        return items.length
           ? [
-              ...result.results.map((p) => ({ type: 'Product' as const, id: p.id })),
-              { type: 'Products', id: 'LIST' },
+              ...items.map((p) => ({ type: 'Product' as const, id: p.id })),
+              { type: 'Products', id: 'LIST' as const },
             ]
-          : [{ type: 'Products', id: 'LIST' }],
+          : [{ type: 'Products' as const, id: 'LIST' as const }]
+      },
     }),
 
-    getProductBySlug: builder.query<Product, string>({
-      query: (slug) => ({ url: `/api/products/${slug}/` }),
-      providesTags: (_res, _err, slug) => [{ type: 'Product', id: slug }],
+    getProductById: builder.query<Product, string | number>({
+      query: (id) => ({ url: `/product/products/${id}/` }),
+      providesTags: (_res, _err, id) => [{ type: 'Product', id }],
     }),
   }),
 })
@@ -64,5 +61,5 @@ export const api = createApi({
 export const {
   useGetCategoriesQuery,
   useGetProductsQuery,
-  useGetProductBySlugQuery,
+  useGetProductByIdQuery,
 } = api

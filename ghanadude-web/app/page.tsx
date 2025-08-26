@@ -1,36 +1,33 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Transition } from "@headlessui/react";
+'use client'
 
-const Page = () => {
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+import Hero from '@/components/Hero'
+import ProductGrid from '@/components/ProductGrid'
+import CategoryPills from '@/components/CategoryPills'
+import { useGetCategoriesQuery, useGetProductsQuery } from '@/redux/svc/api'
+import type { Product, Paginated } from '@/lib/types'
 
-  useEffect(() => {
-    setLoading(true);
-    router.push("/DashBoard"); // Adjust the path to the HeroSection page
-    setLoading(false);
-  }, [router]);
+export default function HomePage() {
+  const { data: cats } = useGetCategoriesQuery()
+  const { data: products, isLoading } = useGetProductsQuery(
+    { page_size: 12, ordering: '-created' },
+    { pollingInterval: 120000 }
+  )
+
+  const list: Product[] = Array.isArray(products)
+    ? products
+    : ((products as Paginated<Product> | undefined)?.results ?? [])
 
   return (
     <div>
-      {" "}
-      <Transition
-        show={loading}
-        enter="transition-opacity duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="transition-opacity duration-300"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <div className="fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-black bg-opacity-50">
-          <div className="w-16 h-16 border-t-4 border-b-4 border-white rounded-full animate-spin"></div>
+      <Hero />
+      <section className="container mt-10">
+        {cats && <CategoryPills categories={cats} />}
+        <h2 className="mt-6 text-xl font-semibold">New arrivals</h2>
+        {isLoading && <div className="py-10 text-center text-gray-500">Loading products...</div>}
+        <div className="mt-4">
+          <ProductGrid products={list} />
         </div>
-      </Transition>
+      </section>
     </div>
-  );
-};
-
-export default Page;
+  )
+}

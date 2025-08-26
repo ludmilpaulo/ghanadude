@@ -1,32 +1,19 @@
-import { persistReducer, PersistConfig } from "redux-persist";
-import storage from "redux-persist/lib/storage";
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { configureStore } from '@reduxjs/toolkit'
+import { api } from './svc/api'
+import cartReducer from './slices/cartSlice'
 import authReducer from "./slices/authSlice";
 
-const rootReducer = combineReducers({
-  auth: authReducer,
-});
-
-type RootReducerType = ReturnType<typeof rootReducer>;
-
-const persistConfig: PersistConfig<RootReducerType> = {
-  key: "root",
-  storage,
-  whitelist: ["auth"],
-};
-
-const persistedReducer = persistReducer<RootReducerType>(
-  persistConfig,
-  rootReducer,
-);
-
 export const store = configureStore({
-  reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }),
-});
+  reducer: {
+    [api.reducerPath]: api.reducer,
+    cart: cartReducer,
+    auth: authReducer,
+  },
+  middleware: (getDefault) => getDefault()
+  
+  .concat(api.middleware),
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+})
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
