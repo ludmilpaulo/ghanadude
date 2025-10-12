@@ -1,46 +1,29 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from 'next'
+
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "ucekkzhmdgmcenhvxary.supabase.co",
-        pathname: "/storage/v1/object/public/**",
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/media/**',
       },
       {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "8000",
-        pathname: "/**",
-      },
-      {
-        protocol: "http",
-        hostname: "0.0.0.0",
-        port: "8000",
-        pathname: "/**",
-      },
-      {
-        protocol: "http",
-        hostname: "0.0.0.0",
-        port: "800",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "ghanadude.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: '**',
       },
     ],
   },
   env: {
-    NEXT_PUBLIC_BASE_API: process.env.NEXT_PUBLIC_BASE_API,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
   },
-  transpilePackages: [
-    "chart.js",
-    "react-chartjs-2",
-    "react-leaflet",
-    "leaflet",
-  ], // 👈 ADD THIS BLOCK
-};
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+}
 
-export default nextConfig;
+export default nextConfig

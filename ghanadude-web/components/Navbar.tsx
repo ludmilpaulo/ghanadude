@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ShoppingCart, Menu, X, Search, ChevronDown } from 'lucide-react'
+import { ShoppingCart, Menu, X, Search, ChevronDown, Heart, User } from 'lucide-react'
 import { useAppSelector } from '@/redux/hooks'
 import { useGetCategoriesQuery } from '@/redux/svc/api'
 import type { Category } from '@/lib/types'
@@ -18,6 +18,9 @@ export default function Navbar() {
 
   const items = useAppSelector((s) => s.cart.items)
   const cartCount = items.reduce((sum, i) => sum + i.quantity, 0)
+  const user = useAppSelector((s) => s.auth.user)
+  const wishlistItems = useAppSelector((s) => s.wishlist.items)
+  const wishlistCount = wishlistItems.length
 
   const { data: categories } = useGetCategoriesQuery()
   const topCats: Category[] = useMemo(() => (categories ?? []).slice(0, 8), [categories])
@@ -153,6 +156,30 @@ export default function Navbar() {
             <Search className="w-5 h-5" />
           </Link>
 
+          {user ? (
+            <>
+              <Link href="/wishlist" className="relative inline-flex p-2 rounded-lg border hover:bg-gray-50">
+                <Heart className="w-5 h-5" />
+                {wishlistCount > 0 && (
+                  <span
+                    className="absolute -right-1.5 -top-1.5 min-w-5 h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold grid place-items-center"
+                    aria-label={`${wishlistCount} items in wishlist`}
+                  >
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+
+              <Link href="/account" className="inline-flex p-2 rounded-lg border hover:bg-gray-50">
+                <User className="w-5 h-5" />
+              </Link>
+            </>
+          ) : (
+            <Link href="/Login" className="inline-flex px-4 py-2 rounded-lg border hover:bg-gray-50 text-sm font-medium">
+              Login
+            </Link>
+          )}
+
           <Link href="/cart" className="relative inline-flex p-2 rounded-lg border hover:bg-gray-50">
             <ShoppingCart className="w-5 h-5" />
             {cartCount > 0 && (
@@ -232,6 +259,34 @@ export default function Navbar() {
                 <MobileLink href="/contact" onClick={() => setOpenMobile(false)}>
                   Contact
                 </MobileLink>
+                <MobileLink href="/deals" onClick={() => setOpenMobile(false)}>
+                  Deals
+                </MobileLink>
+                <MobileLink href="/customize" onClick={() => setOpenMobile(false)}>
+                  Customize
+                </MobileLink>
+                
+                {user ? (
+                  <>
+                    <MobileLink href="/wishlist" onClick={() => setOpenMobile(false)}>
+                      Wishlist ({wishlistCount})
+                    </MobileLink>
+                    <MobileLink href="/account" onClick={() => setOpenMobile(false)}>
+                      Account
+                    </MobileLink>
+                    <MobileLink href="/orders" onClick={() => setOpenMobile(false)}>
+                      Orders
+                    </MobileLink>
+                    <MobileLink href="/rewards" onClick={() => setOpenMobile(false)}>
+                      Rewards
+                    </MobileLink>
+                  </>
+                ) : (
+                  <MobileLink href="/Login" onClick={() => setOpenMobile(false)}>
+                    Login
+                  </MobileLink>
+                )}
+                
                 <MobileLink href="/cart" onClick={() => setOpenMobile(false)}>
                   Cart ({cartCount})
                 </MobileLink>
